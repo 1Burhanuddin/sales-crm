@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { humanize, singularize } from "inflection";
 import type { UseDeleteOptions, RedirectionSideEffect } from "ra-core";
 import {
+  useCanAccess,
   useDeleteWithUndoController,
   useGetRecordRepresentation,
   useResourceTranslation,
@@ -60,6 +61,7 @@ export const DeleteButton = (props: DeleteButtonProps) => {
   } = props;
   const record = useRecordContext(props);
   const resource = useResourceContext(props);
+  const { canAccess } = useCanAccess({ resource, action: "delete", record });
 
   const { isPending, handleDelete } = useDeleteWithUndoController({
     record,
@@ -95,6 +97,8 @@ export const DeleteButton = (props: DeleteButtonProps) => {
     },
     userText: labelProp,
   });
+
+  if (canAccess === false) return null;
 
   return (
     <Button

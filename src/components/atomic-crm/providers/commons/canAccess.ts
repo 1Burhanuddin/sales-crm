@@ -17,6 +17,11 @@ export const canAccess = <
     return true;
   }
 
+  // Only admins can delete records
+  if (params.action === "delete" || params.action === "delete_many") {
+    return false;
+  }
+
   // Non admins can't access the sales resource
   if (params.resource === "sales") {
     return false;

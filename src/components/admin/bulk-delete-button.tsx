@@ -4,6 +4,7 @@ import { Trash } from "lucide-react";
 import type { RaRecord, UseBulkDeleteControllerParams } from "ra-core";
 import {
   useBulkDeleteController,
+  useCanAccess,
   useGetResourceLabel,
   useResourceContext,
   useResourceTranslation,
@@ -48,6 +49,7 @@ export const BulkDeleteButton = <
 }: BulkDeleteButtonProps<RecordType, MutationOptionsError>) => {
   const { handleDelete, isPending } = useBulkDeleteController(props);
   const resource = useResourceContext(props);
+  const { canAccess } = useCanAccess({ resource, action: "delete" });
   const getResourceLabel = useGetResourceLabel();
   const label = useResourceTranslation({
     resourceI18nKey: resource
@@ -59,6 +61,8 @@ export const BulkDeleteButton = <
     },
     userText: labelProp,
   });
+
+  if (canAccess === false) return null;
 
   return (
     <Button
