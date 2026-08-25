@@ -22,6 +22,14 @@ export const canAccess = <
     return false;
   }
 
+  // Only admins can create new companies or contacts
+  if (
+    params.action === "create" &&
+    (params.resource === "companies" || params.resource === "contacts")
+  ) {
+    return false;
+  }
+
   // Non admins can't access the sales resource
   if (params.resource === "sales") {
     return false;

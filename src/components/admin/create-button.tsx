@@ -2,6 +2,7 @@ import React from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import {
+  useCanAccess,
   useCreatePath,
   useGetResourceLabel,
   useResourceContext,
@@ -38,6 +39,7 @@ export type CreateButtonProps = {
 export const CreateButton = (props: CreateButtonProps) => {
   const { label: labelProp } = props;
   const resource = useResourceContext(props);
+  const { canAccess } = useCanAccess({ resource, action: "create" });
   const createPath = useCreatePath();
   const getResourceLabel = useGetResourceLabel();
   const link = createPath({
@@ -54,6 +56,9 @@ export const CreateButton = (props: CreateButtonProps) => {
     },
     userText: labelProp,
   });
+
+  if (canAccess === false) return null;
+
   return (
     <Link
       className={buttonVariants({ variant: "outline" })}

@@ -17,13 +17,13 @@ alter table public.favicons_excluded_domains enable row level security;
 
 -- Companies (visible/editable by their owning sales rep, or any admin)
 create policy "Select own or admin" on public.companies for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
-create policy "Enable insert for authenticated users only" on public.companies for insert to authenticated with check (true);
+create policy "Admin create only" on public.companies for insert to authenticated with check (public.is_admin());
 create policy "Update own or admin" on public.companies for update to authenticated using (public.is_admin() or sales_id = public.current_sales_id()) with check (public.is_admin() or sales_id = public.current_sales_id());
 create policy "Admin delete only" on public.companies for delete to authenticated using (public.is_admin());
 
 -- Contacts (visible/editable by their owning sales rep, or any admin)
 create policy "Select own or admin" on public.contacts for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
-create policy "Enable insert for authenticated users only" on public.contacts for insert to authenticated with check (true);
+create policy "Admin create only" on public.contacts for insert to authenticated with check (public.is_admin());
 create policy "Update own or admin" on public.contacts for update to authenticated using (public.is_admin() or sales_id = public.current_sales_id()) with check (public.is_admin() or sales_id = public.current_sales_id());
 create policy "Admin delete only" on public.contacts for delete to authenticated using (public.is_admin());
 
