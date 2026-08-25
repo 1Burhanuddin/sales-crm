@@ -15,35 +15,35 @@ alter table public.tasks enable row level security;
 alter table public.configuration enable row level security;
 alter table public.favicons_excluded_domains enable row level security;
 
--- Companies
-create policy "Enable read access for authenticated users" on public.companies for select to authenticated using (true);
+-- Companies (visible/editable by their owning sales rep, or any admin)
+create policy "Select own or admin" on public.companies for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
 create policy "Enable insert for authenticated users only" on public.companies for insert to authenticated with check (true);
-create policy "Enable update for authenticated users only" on public.companies for update to authenticated using (true) with check (true);
-create policy "Company Delete Policy" on public.companies for delete to authenticated using (true);
+create policy "Update own or admin" on public.companies for update to authenticated using (public.is_admin() or sales_id = public.current_sales_id()) with check (public.is_admin() or sales_id = public.current_sales_id());
+create policy "Delete own or admin" on public.companies for delete to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
 
--- Contacts
-create policy "Enable read access for authenticated users" on public.contacts for select to authenticated using (true);
+-- Contacts (visible/editable by their owning sales rep, or any admin)
+create policy "Select own or admin" on public.contacts for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
 create policy "Enable insert for authenticated users only" on public.contacts for insert to authenticated with check (true);
-create policy "Enable update for authenticated users only" on public.contacts for update to authenticated using (true) with check (true);
-create policy "Contact Delete Policy" on public.contacts for delete to authenticated using (true);
+create policy "Update own or admin" on public.contacts for update to authenticated using (public.is_admin() or sales_id = public.current_sales_id()) with check (public.is_admin() or sales_id = public.current_sales_id());
+create policy "Delete own or admin" on public.contacts for delete to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
 
--- Contact Notes
-create policy "Enable read access for authenticated users" on public.contact_notes for select to authenticated using (true);
+-- Contact Notes (follow the parent contact's visibility)
+create policy "Select own or admin" on public.contact_notes for select to authenticated using (public.is_admin() or exists (select 1 from public.contacts c where c.id = contact_notes.contact_id and c.sales_id = public.current_sales_id()));
 create policy "Enable insert for authenticated users only" on public.contact_notes for insert to authenticated with check (true);
-create policy "Contact Notes Update policy" on public.contact_notes for update to authenticated using (true);
-create policy "Contact Notes Delete Policy" on public.contact_notes for delete to authenticated using (true);
+create policy "Update own or admin" on public.contact_notes for update to authenticated using (public.is_admin() or exists (select 1 from public.contacts c where c.id = contact_notes.contact_id and c.sales_id = public.current_sales_id()));
+create policy "Delete own or admin" on public.contact_notes for delete to authenticated using (public.is_admin() or exists (select 1 from public.contacts c where c.id = contact_notes.contact_id and c.sales_id = public.current_sales_id()));
 
--- Deals
-create policy "Enable read access for authenticated users" on public.deals for select to authenticated using (true);
+-- Deals (visible/editable by their owning sales rep, or any admin)
+create policy "Select own or admin" on public.deals for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
 create policy "Enable insert for authenticated users only" on public.deals for insert to authenticated with check (true);
-create policy "Enable update for authenticated users only" on public.deals for update to authenticated using (true) with check (true);
-create policy "Deals Delete Policy" on public.deals for delete to authenticated using (true);
+create policy "Update own or admin" on public.deals for update to authenticated using (public.is_admin() or sales_id = public.current_sales_id()) with check (public.is_admin() or sales_id = public.current_sales_id());
+create policy "Delete own or admin" on public.deals for delete to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
 
--- Deal Notes
-create policy "Enable read access for authenticated users" on public.deal_notes for select to authenticated using (true);
+-- Deal Notes (follow the parent deal's visibility)
+create policy "Select own or admin" on public.deal_notes for select to authenticated using (public.is_admin() or exists (select 1 from public.deals d where d.id = deal_notes.deal_id and d.sales_id = public.current_sales_id()));
 create policy "Enable insert for authenticated users only" on public.deal_notes for insert to authenticated with check (true);
-create policy "Deal Notes Update Policy" on public.deal_notes for update to authenticated using (true);
-create policy "Deal Notes Delete Policy" on public.deal_notes for delete to authenticated using (true);
+create policy "Update own or admin" on public.deal_notes for update to authenticated using (public.is_admin() or exists (select 1 from public.deals d where d.id = deal_notes.deal_id and d.sales_id = public.current_sales_id()));
+create policy "Delete own or admin" on public.deal_notes for delete to authenticated using (public.is_admin() or exists (select 1 from public.deals d where d.id = deal_notes.deal_id and d.sales_id = public.current_sales_id()));
 
 -- Sales
 create policy "Enable read access for authenticated users" on public.sales for select to authenticated using (true);
@@ -54,11 +54,11 @@ create policy "Enable insert for authenticated users only" on public.tags for in
 create policy "Enable update for authenticated users only" on public.tags for update to authenticated using (true);
 create policy "Enable delete for authenticated users only" on public.tags for delete to authenticated using (true);
 
--- Tasks
-create policy "Enable read access for authenticated users" on public.tasks for select to authenticated using (true);
+-- Tasks (follow the parent contact's visibility)
+create policy "Select own or admin" on public.tasks for select to authenticated using (public.is_admin() or exists (select 1 from public.contacts c where c.id = tasks.contact_id and c.sales_id = public.current_sales_id()));
 create policy "Enable insert for authenticated users only" on public.tasks for insert to authenticated with check (true);
-create policy "Task Update Policy" on public.tasks for update to authenticated using (true);
-create policy "Task Delete Policy" on public.tasks for delete to authenticated using (true);
+create policy "Update own or admin" on public.tasks for update to authenticated using (public.is_admin() or exists (select 1 from public.contacts c where c.id = tasks.contact_id and c.sales_id = public.current_sales_id()));
+create policy "Delete own or admin" on public.tasks for delete to authenticated using (public.is_admin() or exists (select 1 from public.contacts c where c.id = tasks.contact_id and c.sales_id = public.current_sales_id()));
 
 -- Configuration (admin-only for writes)
 create policy "Enable read for authenticated" on public.configuration for select to authenticated using (true);
