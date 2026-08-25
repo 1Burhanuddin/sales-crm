@@ -1,5 +1,3 @@
-import type { ReactNode } from "react";
-import type { InputProps } from "ra-core";
 import { useGetIdentity, useListContext, useTranslate } from "ra-core";
 import { matchPath, useLocation } from "react-router";
 import { Kanban, Table as TableIcon } from "lucide-react";
@@ -10,13 +8,11 @@ import { List } from "@/components/admin/list";
 import { ReferenceInput } from "@/components/admin/reference-input";
 import { FilterButton } from "@/components/admin/filter-form";
 import { SearchInput } from "@/components/admin/search-input";
-import { SelectInput } from "@/components/admin/select-input";
 import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@/components/ui/toggle-group";
 
-import { useConfigurationContext } from "../root/ConfigurationContext";
 import { TopToolbar } from "../layout/TopToolbar";
 import { useViewMode } from "../misc/useViewMode";
 import { DealArchivedList } from "./DealArchivedList";
@@ -30,7 +26,6 @@ import { OnlyMineInput } from "./OnlyMineInput";
 
 const DealList = () => {
   const { identity } = useGetIdentity();
-  const { dealCategories } = useConfigurationContext();
   const translate = useTranslate();
   const [viewMode, setViewMode] = useViewMode<"kanban" | "table">(
     "deals-view-mode",
@@ -47,16 +42,6 @@ const DealList = () => {
         placeholder={translate("resources.deals.fields.company_id")}
       />
     </ReferenceInput>,
-    <WrapperField source="category" label="resources.deals.fields.category">
-      <SelectInput
-        source="category"
-        label={false}
-        emptyText="resources.deals.fields.category"
-        choices={dealCategories}
-        optionText="label"
-        optionValue="value"
-      />
-    </WrapperField>,
     <OnlyMineInput source="sales_id" alwaysOn />,
   ];
 
@@ -133,13 +118,5 @@ const DealActions = ({
     <CreateButton label="resources.deals.action.new" />
   </TopToolbar>
 );
-
-/**
- *
- * Used so that label of filters can be inferred for the select display,
- * but not be displayed when showing the input.
- */
-const WrapperField = ({ children }: InputProps & { children: ReactNode }) =>
-  children;
 
 export default DealList;

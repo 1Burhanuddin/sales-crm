@@ -46,7 +46,7 @@ const CompanyListLayout = ({ viewMode }: { viewMode: "grid" | "table" }) => {
   return (
     <div className="w-full flex flex-row gap-8">
       <CompanyListFilter />
-      <div className="flex flex-col flex-1 gap-4">
+      <div className="flex flex-col flex-1 min-w-0 gap-4">
         {viewMode === "table" ? <CompanyTable /> : <ImageList />}
       </div>
     </div>

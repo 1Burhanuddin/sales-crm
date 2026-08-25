@@ -63,7 +63,7 @@ const ContactListLayoutDesktop = () => {
   return (
     <div className="flex flex-row gap-8">
       <ContactListFilter />
-      <div className="w-full flex flex-col gap-4">
+      <div className="w-full min-w-0 flex flex-col gap-4">
         <Card className="py-0">
           <ContactListContent />
         </Card>
