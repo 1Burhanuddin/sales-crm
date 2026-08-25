@@ -14,8 +14,11 @@ export const CompanyTable = () => {
         source="phone_number"
         label="resources.companies.fields.phone_number"
       />
-      <DataTable.Col label="resources.companies.fields.website">
-        <UrlField source="website" />
+      <DataTable.Col
+        label="resources.companies.fields.website"
+        cellClassName="max-w-[220px]"
+      >
+        <UrlField source="website" className="block truncate max-w-[220px]" />
       </DataTable.Col>
       <DataTable.Col label="Sales Person">
         <ReferenceField source="sales_id" reference="sales" link={false} />
