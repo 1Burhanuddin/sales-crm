@@ -12,6 +12,8 @@ export interface ConfigurationContextValue {
   dealCategories: LabeledValue[];
   dealPipelineStatuses: string[];
   dealStages: DealStage[];
+  issueStatuses: LabeledValue[];
+  issuePriorities: LabeledValue[];
   noteStatuses: NoteStatus[];
   taskTypes: LabeledValue[];
   title: string;

@@ -10,6 +10,7 @@ import type {
   ContactNote,
   Deal,
   DealNote,
+  IssueNote,
   RAFile,
   Sale,
   SalesFormData,
@@ -56,6 +57,9 @@ const getDataProviderWithCustomMethods = () => {
       if (resource === "contacts") {
         return baseDataProvider.getList("contacts_summary", params);
       }
+      if (resource === "projects") {
+        return baseDataProvider.getList("projects_summary", params);
+      }
       if (resource === "activity_log") {
         const { data, total } = await baseDataProvider.getList(
           "activity_log",
@@ -82,6 +86,9 @@ const getDataProviderWithCustomMethods = () => {
       }
       if (resource === "contacts") {
         return baseDataProvider.getOne("contacts_summary", params);
+      }
+      if (resource === "projects") {
+        return baseDataProvider.getOne("projects_summary", params);
       }
 
       return baseDataProvider.getOne(resource, params);
@@ -300,6 +307,17 @@ const lifeCycleCallbacks: ResourceCallbacks[] = [
     },
   },
   {
+    resource: "issue_notes",
+    beforeSave: async (data: IssueNote, _, __) => {
+      if (data.attachments) {
+        data.attachments = await Promise.all(
+          data.attachments.map((fi) => uploadToBucket(fi)),
+        );
+      }
+      return data;
+    },
+  },
+  {
     resource: "sales",
     beforeSave: async (data: Sale, _, __) => {
       if (data.avatar) {
@@ -359,6 +377,18 @@ const lifeCycleCallbacks: ResourceCallbacks[] = [
     resource: "deals",
     beforeGetList: async (params) => {
       return applyFullTextSearch(["name", "category", "description"])(params);
+    },
+  },
+  {
+    resource: "issues",
+    beforeGetList: async (params) => {
+      return applyFullTextSearch(["title", "description"])(params);
+    },
+  },
+  {
+    resource: "projects",
+    beforeGetList: async (params) => {
+      return applyFullTextSearch(["name", "description"])(params);
     },
   },
 ];

@@ -20,6 +20,8 @@ import contacts from "../contacts";
 import { Dashboard } from "../dashboard/Dashboard";
 import { MobileDashboard } from "../dashboard/MobileDashboard";
 import deals from "../deals";
+import projects from "../projects";
+import { ProjectShow } from "../projects/ProjectShow.tsx";
 import { Layout } from "../layout/Layout";
 import { MobileLayout } from "../layout/MobileLayout";
 import { SignupPage } from "../login/SignupPage";
@@ -46,6 +48,8 @@ import {
   defaultDealCategories,
   defaultDealPipelineStatuses,
   defaultDealStages,
+  defaultIssuePriorities,
+  defaultIssueStatuses,
   defaultLightModeLogo,
   defaultNoteStatuses,
   defaultTaskTypes,
@@ -120,6 +124,8 @@ export const CRM = ({
   dealCategories = defaultDealCategories,
   dealPipelineStatuses = defaultDealPipelineStatuses,
   dealStages = defaultDealStages,
+  issueStatuses = defaultIssueStatuses,
+  issuePriorities = defaultIssuePriorities,
   darkModeLogo = defaultDarkModeLogo,
   lightModeLogo = defaultLightModeLogo,
   noteStatuses = defaultNoteStatuses,
@@ -156,6 +162,8 @@ export const CRM = ({
         dealCategories,
         dealPipelineStatuses,
         dealStages,
+        issueStatuses,
+        issuePriorities,
         noteStatuses,
         taskTypes,
         title,
@@ -265,6 +273,13 @@ const DesktopAdmin = (
       <Resource name="deals" {...deals} />
       <Resource name="contacts" {...contacts} />
       <Resource name="companies" {...companies} />
+      <Resource name="projects" {...projects}>
+        <Route path=":id/issues/create" element={<ProjectShow />} />
+        <Route path=":id/issues/:issueId" element={<ProjectShow />} />
+        <Route path=":id/issues/:issueId/show" element={<ProjectShow />} />
+      </Resource>
+      <Resource name="issues" />
+      <Resource name="issue_notes" />
       <Resource name="contact_notes" />
       <Resource name="deal_notes" />
       <Resource name="tasks" />

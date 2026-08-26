@@ -52,6 +52,20 @@ export const defaultNoteStatuses = [
   { value: "in-contract", label: "In Contract", color: "#a4e87d" },
 ];
 
+export const defaultIssueStatuses = [
+  { value: "todo", label: "To Do" },
+  { value: "in-progress", label: "In Progress" },
+  { value: "in-review", label: "In Review" },
+  { value: "done", label: "Done" },
+];
+
+export const defaultIssuePriorities = [
+  { value: "low", label: "Low" },
+  { value: "medium", label: "Medium" },
+  { value: "high", label: "High" },
+  { value: "urgent", label: "Urgent" },
+];
+
 export const defaultTaskTypes = [
   { value: "none", label: "None" },
   { value: "email", label: "Email" },
@@ -70,6 +84,8 @@ export const defaultConfiguration: ConfigurationContextValue = {
   dealCategories: defaultDealCategories,
   dealPipelineStatuses: defaultDealPipelineStatuses,
   dealStages: defaultDealStages,
+  issueStatuses: defaultIssueStatuses,
+  issuePriorities: defaultIssuePriorities,
   noteStatuses: defaultNoteStatuses,
   taskTypes: defaultTaskTypes,
   title: defaultTitle,
