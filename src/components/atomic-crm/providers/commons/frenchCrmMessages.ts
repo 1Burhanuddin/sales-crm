@@ -296,6 +296,7 @@ export const frenchCrmMessages = {
         email: "E-mail",
         administrator: "Admin",
         disabled: "Désactivé",
+        is_developer: "Développeur",
       },
       create: {
         error:

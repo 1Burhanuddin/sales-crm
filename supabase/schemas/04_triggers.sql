@@ -28,6 +28,18 @@ create or replace trigger set_task_sales_id_trigger
     before insert on public.tasks
     for each row execute function public.set_sales_id_default();
 
+create or replace trigger set_project_sales_id_trigger
+    before insert on public.projects
+    for each row execute function public.set_sales_id_default();
+
+create or replace trigger set_issue_sales_id_trigger
+    before insert on public.issues
+    for each row execute function public.set_sales_id_default();
+
+create or replace trigger set_issue_notes_sales_id_trigger
+    before insert on public.issue_notes
+    for each row execute function public.set_sales_id_default();
+
 -- Auto-fetch company logo from website favicon on save
 create or replace trigger company_saved
     before insert or update on public.companies
@@ -68,6 +80,17 @@ create or replace trigger on_deal_notes_attachments_updated_delete_note_attachme
 
 create or replace trigger on_deal_notes_deleted_delete_note_attachments
     after delete on public.deal_notes
+    for each row execute function public.cleanup_note_attachments();
+
+-- Cleanup storage attachments when issue notes are updated or deleted
+create or replace trigger on_issue_notes_attachments_updated_delete_note_attachments
+    after update on public.issue_notes
+    for each row
+    when (old.attachments is distinct from new.attachments)
+    execute function public.cleanup_note_attachments();
+
+create or replace trigger on_issue_notes_deleted_delete_note_attachments
+    after delete on public.issue_notes
     for each row execute function public.cleanup_note_attachments();
 
 -- Auth triggers: sync auth.users to public.sales

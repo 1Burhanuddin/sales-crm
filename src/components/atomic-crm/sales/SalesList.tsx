@@ -39,6 +39,14 @@ const OptionsField = (_props: { label?: string | boolean }) => {
           {translate("resources.sales.fields.disabled")}
         </Badge>
       )}
+      {record.is_developer && (
+        <Badge
+          variant="outline"
+          className="border-purple-300 dark:border-purple-700"
+        >
+          {translate("resources.sales.fields.is_developer")}
+        </Badge>
+      )}
     </div>
   );
 };

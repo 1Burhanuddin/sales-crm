@@ -14,6 +14,9 @@ alter table public.tags enable row level security;
 alter table public.tasks enable row level security;
 alter table public.configuration enable row level security;
 alter table public.favicons_excluded_domains enable row level security;
+alter table public.projects enable row level security;
+alter table public.issues enable row level security;
+alter table public.issue_notes enable row level security;
 
 -- Companies (visible/editable by their owning sales rep, or any admin)
 create policy "Select own or admin" on public.companies for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
@@ -29,19 +32,19 @@ create policy "Admin delete only" on public.contacts for delete to authenticated
 
 -- Contact Notes (follow the parent contact's visibility)
 create policy "Select own or admin" on public.contact_notes for select to authenticated using (public.is_admin() or exists (select 1 from public.contacts c where c.id = contact_notes.contact_id and c.sales_id = public.current_sales_id()));
-create policy "Enable insert for authenticated users only" on public.contact_notes for insert to authenticated with check (true);
+create policy "Block developer create" on public.contact_notes for insert to authenticated with check (public.is_admin() or not public.is_developer());
 create policy "Update own or admin" on public.contact_notes for update to authenticated using (public.is_admin() or exists (select 1 from public.contacts c where c.id = contact_notes.contact_id and c.sales_id = public.current_sales_id()));
 create policy "Admin delete only" on public.contact_notes for delete to authenticated using (public.is_admin());
 
 -- Deals (visible/editable by their owning sales rep, or any admin)
 create policy "Select own or admin" on public.deals for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
-create policy "Enable insert for authenticated users only" on public.deals for insert to authenticated with check (true);
+create policy "Block developer create" on public.deals for insert to authenticated with check (public.is_admin() or not public.is_developer());
 create policy "Update own or admin" on public.deals for update to authenticated using (public.is_admin() or sales_id = public.current_sales_id()) with check (public.is_admin() or sales_id = public.current_sales_id());
 create policy "Admin delete only" on public.deals for delete to authenticated using (public.is_admin());
 
 -- Deal Notes (follow the parent deal's visibility)
 create policy "Select own or admin" on public.deal_notes for select to authenticated using (public.is_admin() or exists (select 1 from public.deals d where d.id = deal_notes.deal_id and d.sales_id = public.current_sales_id()));
-create policy "Enable insert for authenticated users only" on public.deal_notes for insert to authenticated with check (true);
+create policy "Block developer create" on public.deal_notes for insert to authenticated with check (public.is_admin() or not public.is_developer());
 create policy "Update own or admin" on public.deal_notes for update to authenticated using (public.is_admin() or exists (select 1 from public.deals d where d.id = deal_notes.deal_id and d.sales_id = public.current_sales_id()));
 create policy "Admin delete only" on public.deal_notes for delete to authenticated using (public.is_admin());
 
@@ -56,7 +59,7 @@ create policy "Admin delete only" on public.tags for delete to authenticated usi
 
 -- Tasks (follow the parent contact's visibility)
 create policy "Select own or admin" on public.tasks for select to authenticated using (public.is_admin() or exists (select 1 from public.contacts c where c.id = tasks.contact_id and c.sales_id = public.current_sales_id()));
-create policy "Enable insert for authenticated users only" on public.tasks for insert to authenticated with check (true);
+create policy "Block developer create" on public.tasks for insert to authenticated with check (public.is_admin() or not public.is_developer());
 create policy "Update own or admin" on public.tasks for update to authenticated using (public.is_admin() or exists (select 1 from public.contacts c where c.id = tasks.contact_id and c.sales_id = public.current_sales_id()));
 create policy "Admin delete only" on public.tasks for delete to authenticated using (public.is_admin());
 
@@ -67,3 +70,21 @@ create policy "Enable update for admins" on public.configuration for update to a
 
 -- Favicons excluded domains
 create policy "Enable access for authenticated users only" on public.favicons_excluded_domains to authenticated using (true) with check (true);
+
+-- Projects (visible/editable by anyone with PM access: admin or developer)
+create policy "PM access select" on public.projects for select to authenticated using (public.has_pm_access());
+create policy "PM access insert" on public.projects for insert to authenticated with check (public.has_pm_access());
+create policy "PM access update" on public.projects for update to authenticated using (public.has_pm_access()) with check (public.has_pm_access());
+create policy "Admin delete only" on public.projects for delete to authenticated using (public.is_admin());
+
+-- Issues (visible/editable by anyone with PM access: admin or developer)
+create policy "PM access select" on public.issues for select to authenticated using (public.has_pm_access());
+create policy "PM access insert" on public.issues for insert to authenticated with check (public.has_pm_access());
+create policy "PM access update" on public.issues for update to authenticated using (public.has_pm_access()) with check (public.has_pm_access());
+create policy "Admin delete only" on public.issues for delete to authenticated using (public.is_admin());
+
+-- Issue Notes (visible/editable by anyone with PM access: admin or developer)
+create policy "PM access select" on public.issue_notes for select to authenticated using (public.has_pm_access());
+create policy "PM access insert" on public.issue_notes for insert to authenticated with check (public.has_pm_access());
+create policy "PM access update" on public.issue_notes for update to authenticated using (public.has_pm_access()) with check (public.has_pm_access());
+create policy "Admin delete only" on public.issue_notes for delete to authenticated using (public.is_admin());

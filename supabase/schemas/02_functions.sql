@@ -280,6 +280,30 @@ CREATE OR REPLACE FUNCTION "public"."current_sales_id"() RETURNS bigint
   select id from public.sales where user_id = auth.uid();
 $$;
 
+CREATE OR REPLACE FUNCTION "public"."is_developer"() RETURNS boolean
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+begin
+  return exists (
+    select 1 from public.sales where user_id = auth.uid() and is_developer = true
+  );
+end;
+$$;
+
+CREATE OR REPLACE FUNCTION "public"."has_pm_access"() RETURNS boolean
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+begin
+  return exists (
+    select 1 from public.sales
+    where user_id = auth.uid()
+      and (administrator = true or is_developer = true)
+  );
+end;
+$$;
+
 CREATE OR REPLACE FUNCTION "public"."merge_contacts"("loser_id" bigint, "winner_id" bigint) RETURNS bigint
     LANGUAGE "plpgsql"
     SET "search_path" TO 'public'

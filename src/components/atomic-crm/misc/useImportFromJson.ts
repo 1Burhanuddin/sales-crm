@@ -162,6 +162,7 @@ export const useImportFromJson = (): [
           last_name: dataToImport.last_name.trim(),
           administrator: false,
           disabled: false,
+          is_developer: false,
         });
 
         idsMaps.sales[dataToImport.id] = data.id;
