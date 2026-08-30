@@ -234,6 +234,69 @@ export const englishCrmMessages = {
       },
       invalid_date: "Invalid date",
     },
+    projects: {
+      name: "Project |||| Projects",
+      fields: {
+        name: "Name",
+        description: "Description",
+        sales_id: "Owner",
+        nb_issues: "Number of issues",
+        created_at: "Created at",
+      },
+      action: {
+        create: "Create project",
+        edit: "Edit project",
+        new: "New Project",
+        show: "Show project",
+      },
+      empty: {
+        title: "No projects found",
+        description: "It seems your project list is empty.",
+      },
+    },
+    issues: {
+      name: "Issue |||| Issues",
+      fields: {
+        title: "Title",
+        description: "Description",
+        status: "Status",
+        priority: "Priority",
+        assignee_id: "Assignee",
+        due_date: "Due date",
+        project_id: "Project",
+      },
+      action: {
+        back_to_issue: "Back to issue",
+        create: "Create issue",
+        new: "New Issue",
+      },
+      updated: "Issue updated",
+      empty: {
+        title: "No issues found",
+        description: "It seems this project has no issues yet.",
+      },
+    },
+    issue_notes: {
+      fields: {
+        text: "Comment",
+        date: "Date",
+        attachments: "Attachments",
+      },
+      action: {
+        add_this: "Add this comment",
+      },
+      added: "Comment added",
+      deleted: "Comment deleted",
+      empty: "No comments yet",
+      you_added: "You added a comment",
+      author_added: "%{name} added a comment",
+      inputs: {
+        add_note: "Add a comment",
+      },
+      validation: {
+        note_or_attachment_required: "A comment or an attachment is required",
+      },
+    },
     notes: {
       name: "Note |||| Notes",
       forcedCaseName: "Note",
@@ -494,6 +557,10 @@ export const englishCrmMessages = {
       notes: {
         statuses: "Statuses",
       },
+      projects: {
+        statuses: "Issue Statuses",
+        priorities: "Issue Priorities",
+      },
       reset_defaults: "Reset to Defaults",
       save_error: "Failed to save configuration",
       saved: "Configuration saved successfully",
@@ -509,12 +576,13 @@ export const englishCrmMessages = {
       },
       validation: {
         duplicate: "Duplicate %{display_name}: %{items}",
-        in_use:
-          "Cannot remove %{display_name} that are still used by deals: %{items}",
+        in_use: "Cannot remove %{display_name} that are still in use: %{items}",
         validating: "Validating\u2026",
         entities: {
           categories: "categories",
           stages: "stages",
+          statuses: "statuses",
+          priorities: "priorities",
         },
       },
     },

@@ -23,6 +23,8 @@ const Header = () => {
     currentPath = "/companies";
   } else if (matchPath("/deals/*", location.pathname)) {
     currentPath = "/deals";
+  } else if (matchPath("/projects/*", location.pathname)) {
+    currentPath = "/projects";
   } else {
     currentPath = false;
   }
@@ -56,27 +58,42 @@ const Header = () => {
                     to="/"
                     isActive={currentPath === "/"}
                   />
-                  <NavigationTab
-                    label={translate("resources.contacts.name", {
-                      smart_count: 2,
-                    })}
-                    to="/contacts"
-                    isActive={currentPath === "/contacts"}
-                  />
-                  <NavigationTab
-                    label={translate("resources.companies.name", {
-                      smart_count: 2,
-                    })}
-                    to="/companies"
-                    isActive={currentPath === "/companies"}
-                  />
-                  <NavigationTab
-                    label={translate("resources.deals.name", {
-                      smart_count: 2,
-                    })}
-                    to="/deals"
-                    isActive={currentPath === "/deals"}
-                  />
+                  <CanAccess resource="contacts" action="list">
+                    <NavigationTab
+                      label={translate("resources.contacts.name", {
+                        smart_count: 2,
+                      })}
+                      to="/contacts"
+                      isActive={currentPath === "/contacts"}
+                    />
+                  </CanAccess>
+                  <CanAccess resource="companies" action="list">
+                    <NavigationTab
+                      label={translate("resources.companies.name", {
+                        smart_count: 2,
+                      })}
+                      to="/companies"
+                      isActive={currentPath === "/companies"}
+                    />
+                  </CanAccess>
+                  <CanAccess resource="deals" action="list">
+                    <NavigationTab
+                      label={translate("resources.deals.name", {
+                        smart_count: 2,
+                      })}
+                      to="/deals"
+                      isActive={currentPath === "/deals"}
+                    />
+                  </CanAccess>
+                  <CanAccess resource="projects" action="list">
+                    <NavigationTab
+                      label={translate("resources.projects.name", {
+                        smart_count: 2,
+                      })}
+                      to="/projects"
+                      isActive={currentPath === "/projects"}
+                    />
+                  </CanAccess>
                 </nav>
               </div>
               <div className="flex items-center">

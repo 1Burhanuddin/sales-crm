@@ -239,6 +239,70 @@ export const frenchCrmMessages = {
       },
       invalid_date: "Date invalide",
     },
+    projects: {
+      name: "Projet |||| Projets",
+      fields: {
+        name: "Nom",
+        description: "Description",
+        sales_id: "Propriétaire",
+        nb_issues: "Nombre de tickets",
+        created_at: "Créé le",
+      },
+      action: {
+        create: "Créer un projet",
+        edit: "Modifier le projet",
+        new: "Nouveau projet",
+        show: "Voir le projet",
+      },
+      empty: {
+        title: "Aucun projet trouvé",
+        description: "Votre liste de projets semble vide.",
+      },
+    },
+    issues: {
+      name: "Ticket |||| Tickets",
+      fields: {
+        title: "Titre",
+        description: "Description",
+        status: "Statut",
+        priority: "Priorité",
+        assignee_id: "Assigné à",
+        due_date: "Échéance",
+        project_id: "Projet",
+      },
+      action: {
+        back_to_issue: "Retour au ticket",
+        create: "Créer un ticket",
+        new: "Nouveau ticket",
+      },
+      updated: "Ticket mis à jour",
+      empty: {
+        title: "Aucun ticket trouvé",
+        description: "Ce projet n'a pas encore de tickets.",
+      },
+    },
+    issue_notes: {
+      fields: {
+        text: "Commentaire",
+        date: "Date",
+        attachments: "Pièces jointes",
+      },
+      action: {
+        add_this: "Ajouter ce commentaire",
+      },
+      added: "Commentaire ajouté",
+      deleted: "Commentaire supprimé",
+      empty: "Aucun commentaire",
+      you_added: "Vous avez ajouté un commentaire",
+      author_added: "%{name} a ajouté un commentaire",
+      inputs: {
+        add_note: "Ajouter un commentaire",
+      },
+      validation: {
+        note_or_attachment_required:
+          "Un commentaire ou une pièce jointe est requis",
+      },
+    },
     notes: {
       name: "Note |||| Notes",
       forcedCaseName: "Note",
@@ -501,6 +565,10 @@ export const frenchCrmMessages = {
       notes: {
         statuses: "Statuts",
       },
+      projects: {
+        statuses: "Statuts des tickets",
+        priorities: "Priorités des tickets",
+      },
       reset_defaults: "Réinitialiser aux valeurs par défaut",
       save_error: "Échec de l'enregistrement de la configuration",
       saved: "Configuration enregistrée avec succès",
@@ -517,11 +585,13 @@ export const frenchCrmMessages = {
       validation: {
         duplicate: "%{display_name} en double : %{items}",
         in_use:
-          "Impossible de supprimer %{display_name} encore utilisés par des affaires : %{items}",
+          "Impossible de supprimer %{display_name} encore utilisés : %{items}",
         validating: "Validation\u2026",
         entities: {
           categories: "catégories",
           stages: "étapes",
+          statuses: "statuts",
+          priorities: "priorités",
         },
       },
     },

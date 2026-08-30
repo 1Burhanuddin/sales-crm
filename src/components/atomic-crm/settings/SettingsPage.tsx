@@ -40,6 +40,7 @@ const SECTIONS = [
     fallback: "Companies",
   },
   { id: "deals", label: "resources.deals.name", fallback: "Deals" },
+  { id: "projects", label: "resources.projects.name", fallback: "Projects" },
   { id: "notes", label: "resources.notes.name", fallback: "Notes" },
   { id: "tasks", label: "resources.tasks.name", fallback: "Tasks" },
 ];
@@ -127,6 +128,8 @@ const transformFormValues = (data: Record<string, any>) => ({
     taskTypes: ensureValues(data.taskTypes),
     dealStages: ensureValues(data.dealStages),
     dealPipelineStatuses: data.dealPipelineStatuses,
+    issueStatuses: ensureValues(data.issueStatuses),
+    issuePriorities: ensureValues(data.issuePriorities),
     noteStatuses: ensureValues(data.noteStatuses),
   } as ConfigurationContextValue,
 });
@@ -175,6 +178,8 @@ const SettingsForm = () => {
       taskTypes: config.taskTypes,
       dealStages: config.dealStages,
       dealPipelineStatuses: config.dealPipelineStatuses,
+      issueStatuses: config.issueStatuses,
+      issuePriorities: config.issuePriorities,
       noteStatuses: config.noteStatuses,
     }),
     [config],
@@ -207,6 +212,15 @@ const SettingsFormFields = () => {
   const { data: deals } = useGetList("deals", {
     pagination: { page: 1, perPage: 1000 },
   });
+  const { data: issues } = useGetList("issues", {
+    pagination: { page: 1, perPage: 1000 },
+  });
+  const issueStatusDisplayName = translate(
+    "crm.settings.validation.entities.statuses",
+  );
+  const issuePriorityDisplayName = translate(
+    "crm.settings.validation.entities.priorities",
+  );
 
   const validateDealStages = useCallback(
     (stages: { value: string; label: string }[] | undefined) =>
@@ -242,6 +256,48 @@ const SettingsFormFields = () => {
         validating: translate("crm.settings.validation.validating"),
       }),
     [categoryDisplayName, deals, translate],
+  );
+
+  const validateIssueStatuses = useCallback(
+    (statuses: { value: string; label: string }[] | undefined) =>
+      validateItemsInUse(statuses, issues, "status", issueStatusDisplayName, {
+        duplicate: (displayName, duplicates) =>
+          translate("crm.settings.validation.duplicate", {
+            display_name: displayName,
+            items: duplicates.join(", "),
+          }),
+        inUse: (displayName, inUse) =>
+          translate("crm.settings.validation.in_use", {
+            display_name: displayName,
+            items: inUse.join(", "),
+          }),
+        validating: translate("crm.settings.validation.validating"),
+      }),
+    [issueStatusDisplayName, issues, translate],
+  );
+
+  const validateIssuePriorities = useCallback(
+    (priorities: { value: string; label: string }[] | undefined) =>
+      validateItemsInUse(
+        priorities,
+        issues,
+        "priority",
+        issuePriorityDisplayName,
+        {
+          duplicate: (displayName, duplicates) =>
+            translate("crm.settings.validation.duplicate", {
+              display_name: displayName,
+              items: duplicates.join(", "),
+            }),
+          inUse: (displayName, inUse) =>
+            translate("crm.settings.validation.in_use", {
+              display_name: displayName,
+              items: inUse.join(", "),
+            }),
+          validating: translate("crm.settings.validation.validating"),
+        },
+      ),
+    [issuePriorityDisplayName, issues, translate],
   );
 
   return (
@@ -416,6 +472,46 @@ const SettingsFormFields = () => {
               label={false}
               helperText={false}
               validate={validateDealCategories}
+            >
+              <SimpleFormIterator disableReordering disableClear>
+                <TextInput source="label" label={false} />
+              </SimpleFormIterator>
+            </ArrayInput>
+          </CardContent>
+        </Card>
+
+        {/* Projects */}
+        <Card id="projects">
+          <CardContent className="space-y-4">
+            <h2 className="text-xl font-semibold text-muted-foreground">
+              {translate("resources.projects.name", {
+                smart_count: 2,
+              })}
+            </h2>
+            <h3 className="text-lg font-medium text-muted-foreground">
+              {translate("crm.settings.projects.statuses")}
+            </h3>
+            <ArrayInput
+              source="issueStatuses"
+              label={false}
+              helperText={false}
+              validate={validateIssueStatuses}
+            >
+              <SimpleFormIterator disableClear>
+                <TextInput source="label" label={false} />
+              </SimpleFormIterator>
+            </ArrayInput>
+
+            <Separator />
+
+            <h3 className="text-lg font-medium text-muted-foreground">
+              {translate("crm.settings.projects.priorities")}
+            </h3>
+            <ArrayInput
+              source="issuePriorities"
+              label={false}
+              helperText={false}
+              validate={validateIssuePriorities}
             >
               <SimpleFormIterator disableReordering disableClear>
                 <TextInput source="label" label={false} />
