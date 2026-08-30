@@ -132,3 +132,16 @@ select count(sub.id) as is_initialized
 from (
     select sales.id from public.sales limit 1
 ) sub;
+
+create or replace view public.projects_summary with (security_invoker = on) as
+select
+    p.id,
+    p.name,
+    p.description,
+    p.sales_id,
+    p.created_at,
+    p.updated_at,
+    count(distinct i.id) as nb_issues
+from public.projects p
+    left join public.issues i on p.id = i.project_id
+group by p.id;

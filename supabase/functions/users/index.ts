@@ -29,6 +29,20 @@ async function updateSaleAdministrator(
   return sales.at(0);
 }
 
+async function updateSaleDeveloper(user_id: string, is_developer: boolean) {
+  const { data: sales, error: salesError } = await supabaseAdmin
+    .from("sales")
+    .update({ is_developer: is_developer ?? false })
+    .eq("user_id", user_id)
+    .select("*");
+
+  if (!sales?.length || salesError) {
+    console.error("Error updating user:", salesError);
+    throw salesError ?? new Error("Failed to update sale");
+  }
+  return sales.at(0);
+}
+
 async function createSale(
   user_id: string,
   data: {
@@ -38,6 +52,7 @@ async function createSale(
     last_name: string;
     disabled: boolean;
     administrator: boolean;
+    is_developer?: boolean;
   },
 ) {
   const { data: sales, error: salesError } = await supabaseAdmin
@@ -67,8 +82,15 @@ async function updateSaleAvatar(user_id: string, avatar: string) {
 }
 
 async function inviteUser(req: Request, currentUserSale: any) {
-  const { email, password, first_name, last_name, disabled, administrator } =
-    await req.json();
+  const {
+    email,
+    password,
+    first_name,
+    last_name,
+    disabled,
+    administrator,
+    is_developer,
+  } = await req.json();
 
   if (!currentUserSale.administrator) {
     return createErrorResponse(401, "Not Authorized");
@@ -121,6 +143,7 @@ async function inviteUser(req: Request, currentUserSale: any) {
         last_name,
         disabled,
         administrator,
+        is_developer,
       });
 
       return new Response(
@@ -162,7 +185,8 @@ async function inviteUser(req: Request, currentUserSale: any) {
 
   try {
     await updateSaleDisabled(user.id, disabled);
-    const sale = await updateSaleAdministrator(user.id, administrator);
+    await updateSaleAdministrator(user.id, administrator);
+    const sale = await updateSaleDeveloper(user.id, is_developer);
 
     return new Response(
       JSON.stringify({
@@ -187,6 +211,7 @@ async function patchUser(req: Request, currentUserSale: any) {
     avatar,
     administrator,
     disabled,
+    is_developer,
   } = await req.json();
   const { data: sale } = await supabaseAdmin
     .from("sales")
@@ -241,7 +266,8 @@ async function patchUser(req: Request, currentUserSale: any) {
 
   try {
     await updateSaleDisabled(data.user.id, disabled);
-    const sale = await updateSaleAdministrator(data.user.id, administrator);
+    await updateSaleAdministrator(data.user.id, administrator);
+    const sale = await updateSaleDeveloper(data.user.id, is_developer);
     return new Response(
       JSON.stringify({
         data: sale,

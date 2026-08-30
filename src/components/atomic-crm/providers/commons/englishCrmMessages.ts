@@ -291,6 +291,7 @@ export const englishCrmMessages = {
         email: "Email",
         administrator: "Admin",
         disabled: "Disabled",
+        is_developer: "Developer",
       },
       create: {
         error: "An error occurred while creating the user.",

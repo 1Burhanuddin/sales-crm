@@ -7,6 +7,8 @@ type CanAccessParams<
   record?: RecordType;
 };
 
+const PM_RESOURCES = ["projects", "issues", "issue_notes"];
+
 export const canAccess = <
   RecordType extends Record<string, any> = Record<string, any>,
 >(
@@ -15,6 +17,12 @@ export const canAccess = <
 ) => {
   if (role === "admin") {
     return true;
+  }
+
+  if (role === "developer") {
+    // Developers only get access to the Projects/Issues module. Zero
+    // access to companies/contacts/deals/tasks/sales/configuration.
+    return PM_RESOURCES.includes(params.resource);
   }
 
   // Only admins can delete records
@@ -37,6 +45,11 @@ export const canAccess = <
 
   // Non admins can't access the configuration resource
   if (params.resource === "configuration") {
+    return false;
+  }
+
+  // Plain sales users don't get access to the Projects/Issues module either
+  if (PM_RESOURCES.includes(params.resource)) {
     return false;
   }
 

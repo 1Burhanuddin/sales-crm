@@ -139,8 +139,15 @@ const getDataProviderWithCustomMethods = () => {
       id: Identifier,
       data: Partial<Omit<SalesFormData, "password">>,
     ) {
-      const { email, first_name, last_name, administrator, avatar, disabled } =
-        data;
+      const {
+        email,
+        first_name,
+        last_name,
+        administrator,
+        avatar,
+        disabled,
+        is_developer,
+      } = data;
 
       const { data: updatedData, error } =
         await getSupabaseClient().functions.invoke<{
@@ -154,6 +161,7 @@ const getDataProviderWithCustomMethods = () => {
             last_name,
             administrator,
             disabled,
+            is_developer,
             avatar,
           },
         });

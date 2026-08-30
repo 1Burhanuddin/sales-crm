@@ -24,6 +24,7 @@ export type SalesFormData = {
   last_name: string;
   administrator: boolean;
   disabled: boolean;
+  is_developer: boolean;
 };
 
 export type Sale = {
@@ -32,6 +33,7 @@ export type Sale = {
   administrator: boolean;
   avatar?: RAFile;
   disabled?: boolean;
+  is_developer?: boolean;
   user_id: string;
 
   /**
@@ -136,6 +138,37 @@ export type DealNote = {
 
   // This is defined for compatibility with `ContactNote`
   status?: undefined;
+} & Pick<RaRecord, "id">;
+
+export type Project = {
+  name: string;
+  description?: string;
+  sales_id?: Identifier;
+  created_at: string;
+  updated_at: string;
+  nb_issues?: number;
+} & Pick<RaRecord, "id">;
+
+export type Issue = {
+  project_id: Identifier;
+  title: string;
+  description?: string;
+  status: string;
+  priority?: string;
+  assignee_id?: Identifier;
+  due_date?: string;
+  sales_id?: Identifier;
+  created_at: string;
+  updated_at: string;
+  index: number;
+} & Pick<RaRecord, "id">;
+
+export type IssueNote = {
+  issue_id: Identifier;
+  text: string;
+  date: string;
+  sales_id: Identifier;
+  attachments?: AttachmentNote[];
 } & Pick<RaRecord, "id">;
 
 export type Tag = {
