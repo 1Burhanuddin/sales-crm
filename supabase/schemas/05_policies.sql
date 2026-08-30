@@ -17,6 +17,7 @@ alter table public.favicons_excluded_domains enable row level security;
 alter table public.projects enable row level security;
 alter table public.issues enable row level security;
 alter table public.issue_notes enable row level security;
+alter table public.employees enable row level security;
 
 -- Companies (visible/editable by their owning sales rep, or any admin)
 create policy "Select own or admin" on public.companies for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
@@ -88,3 +89,9 @@ create policy "PM access select" on public.issue_notes for select to authenticat
 create policy "PM access insert" on public.issue_notes for insert to authenticated with check (public.has_pm_access());
 create policy "PM access update" on public.issue_notes for update to authenticated using (public.has_pm_access()) with check (public.has_pm_access());
 create policy "Admin delete only" on public.issue_notes for delete to authenticated using (public.is_admin());
+
+-- Employees (visible/editable by the linked sales user, or any admin; only admins create/delete)
+create policy "Select own or admin" on public.employees for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
+create policy "Admin create only" on public.employees for insert to authenticated with check (public.is_admin());
+create policy "Update own or admin" on public.employees for update to authenticated using (public.is_admin() or sales_id = public.current_sales_id()) with check (public.is_admin() or sales_id = public.current_sales_id());
+create policy "Admin delete only" on public.employees for delete to authenticated using (public.is_admin());

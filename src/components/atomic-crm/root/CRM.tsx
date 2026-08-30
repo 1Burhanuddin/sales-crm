@@ -48,6 +48,10 @@ import {
   defaultDealCategories,
   defaultDealPipelineStatuses,
   defaultDealStages,
+  defaultDepartments,
+  defaultDesignations,
+  defaultEmployeeStatuses,
+  defaultEmploymentTypes,
   defaultIssuePriorities,
   defaultIssueStatuses,
   defaultLightModeLogo,
@@ -130,6 +134,10 @@ export const CRM = ({
   lightModeLogo = defaultLightModeLogo,
   noteStatuses = defaultNoteStatuses,
   taskTypes = defaultTaskTypes,
+  departments = defaultDepartments,
+  designations = defaultDesignations,
+  employmentTypes = defaultEmploymentTypes,
+  employeeStatuses = defaultEmployeeStatuses,
   title = defaultTitle,
   dataProvider = defaultDataProviderBuilder(),
   authProvider = defaultAuthProviderBuilder(),
@@ -166,6 +174,10 @@ export const CRM = ({
         issuePriorities,
         noteStatuses,
         taskTypes,
+        departments,
+        designations,
+        employmentTypes,
+        employeeStatuses,
         title,
         darkModeLogo,
         lightModeLogo,
@@ -280,6 +292,7 @@ const DesktopAdmin = (
       </Resource>
       <Resource name="issues" />
       <Resource name="issue_notes" />
+      <Resource name="employees" />
       <Resource name="contact_notes" />
       <Resource name="deal_notes" />
       <Resource name="tasks" />

@@ -78,6 +78,33 @@ export const defaultTaskTypes = [
   { value: "call", label: "Call" },
 ];
 
+export const defaultDepartments = [
+  { value: "engineering", label: "Engineering" },
+  { value: "sales", label: "Sales" },
+  { value: "operations", label: "Operations" },
+  { value: "hr", label: "HR" },
+];
+
+export const defaultDesignations = [
+  { value: "software-engineer", label: "Software Engineer" },
+  { value: "sales-executive", label: "Sales Executive" },
+  { value: "manager", label: "Manager" },
+  { value: "intern", label: "Intern" },
+];
+
+export const defaultEmploymentTypes = [
+  { value: "full-time", label: "Full-time" },
+  { value: "part-time", label: "Part-time" },
+  { value: "contract", label: "Contract" },
+  { value: "intern", label: "Intern" },
+];
+
+export const defaultEmployeeStatuses = [
+  { value: "active", label: "Active" },
+  { value: "on-leave", label: "On Leave" },
+  { value: "terminated", label: "Terminated" },
+];
+
 export const defaultConfiguration: ConfigurationContextValue = {
   companySectors: defaultCompanySectors,
   currency: defaultCurrency,
@@ -88,6 +115,10 @@ export const defaultConfiguration: ConfigurationContextValue = {
   issuePriorities: defaultIssuePriorities,
   noteStatuses: defaultNoteStatuses,
   taskTypes: defaultTaskTypes,
+  departments: defaultDepartments,
+  designations: defaultDesignations,
+  employmentTypes: defaultEmploymentTypes,
+  employeeStatuses: defaultEmployeeStatuses,
   title: defaultTitle,
   darkModeLogo: defaultDarkModeLogo,
   lightModeLogo: defaultLightModeLogo,

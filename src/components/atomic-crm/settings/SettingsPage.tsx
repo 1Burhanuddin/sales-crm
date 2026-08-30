@@ -43,6 +43,7 @@ const SECTIONS = [
   { id: "projects", label: "resources.projects.name", fallback: "Projects" },
   { id: "notes", label: "resources.notes.name", fallback: "Notes" },
   { id: "tasks", label: "resources.tasks.name", fallback: "Tasks" },
+  { id: "hr", label: "crm.settings.sections.hr", fallback: "HR" },
 ];
 
 /** Ensure every item in a { value, label } array has a value (slug from label). */
@@ -131,6 +132,10 @@ const transformFormValues = (data: Record<string, any>) => ({
     issueStatuses: ensureValues(data.issueStatuses),
     issuePriorities: ensureValues(data.issuePriorities),
     noteStatuses: ensureValues(data.noteStatuses),
+    departments: ensureValues(data.departments),
+    designations: ensureValues(data.designations),
+    employmentTypes: ensureValues(data.employmentTypes),
+    employeeStatuses: ensureValues(data.employeeStatuses),
   } as ConfigurationContextValue,
 });
 
@@ -181,6 +186,10 @@ const SettingsForm = () => {
       issueStatuses: config.issueStatuses,
       issuePriorities: config.issuePriorities,
       noteStatuses: config.noteStatuses,
+      departments: config.departments,
+      designations: config.designations,
+      employmentTypes: config.employmentTypes,
+      employeeStatuses: config.employeeStatuses,
     }),
     [config],
   );
@@ -220,6 +229,87 @@ const SettingsFormFields = () => {
   );
   const issuePriorityDisplayName = translate(
     "crm.settings.validation.entities.priorities",
+  );
+
+  const { data: employees } = useGetList("employees", {
+    pagination: { page: 1, perPage: 1000 },
+  });
+  const departmentDisplayName = translate(
+    "crm.settings.validation.entities.departments",
+  );
+  const designationDisplayName = translate(
+    "crm.settings.validation.entities.designations",
+  );
+  const employmentTypeDisplayName = translate(
+    "crm.settings.validation.entities.employment_types",
+  );
+  const employeeStatusDisplayName = translate(
+    "crm.settings.validation.entities.employee_statuses",
+  );
+
+  const validationMessages = useMemo(
+    () => ({
+      duplicate: (displayName: string, duplicates: string[]) =>
+        translate("crm.settings.validation.duplicate", {
+          display_name: displayName,
+          items: duplicates.join(", "),
+        }),
+      inUse: (displayName: string, inUse: string[]) =>
+        translate("crm.settings.validation.in_use", {
+          display_name: displayName,
+          items: inUse.join(", "),
+        }),
+      validating: translate("crm.settings.validation.validating"),
+    }),
+    [translate],
+  );
+
+  const validateDepartments = useCallback(
+    (items: { value: string; label: string }[] | undefined) =>
+      validateItemsInUse(
+        items,
+        employees,
+        "department",
+        departmentDisplayName,
+        validationMessages,
+      ),
+    [departmentDisplayName, employees, validationMessages],
+  );
+
+  const validateDesignations = useCallback(
+    (items: { value: string; label: string }[] | undefined) =>
+      validateItemsInUse(
+        items,
+        employees,
+        "designation",
+        designationDisplayName,
+        validationMessages,
+      ),
+    [designationDisplayName, employees, validationMessages],
+  );
+
+  const validateEmploymentTypes = useCallback(
+    (items: { value: string; label: string }[] | undefined) =>
+      validateItemsInUse(
+        items,
+        employees,
+        "employment_type",
+        employmentTypeDisplayName,
+        validationMessages,
+      ),
+    [employmentTypeDisplayName, employees, validationMessages],
+  );
+
+  const validateEmployeeStatuses = useCallback(
+    (items: { value: string; label: string }[] | undefined) =>
+      validateItemsInUse(
+        items,
+        employees,
+        "status",
+        employeeStatusDisplayName,
+        validationMessages,
+      ),
+    [employeeStatusDisplayName, employees, validationMessages],
   );
 
   const validateDealStages = useCallback(
@@ -552,6 +642,75 @@ const SettingsFormFields = () => {
               {translate("crm.settings.tasks.types")}
             </h3>
             <ArrayInput source="taskTypes" label={false} helperText={false}>
+              <SimpleFormIterator disableReordering disableClear>
+                <TextInput source="label" label={false} />
+              </SimpleFormIterator>
+            </ArrayInput>
+          </CardContent>
+        </Card>
+        {/* HR */}
+        <Card id="hr">
+          <CardContent className="space-y-4">
+            <h2 className="text-xl font-semibold text-muted-foreground">
+              {translate("crm.settings.sections.hr")}
+            </h2>
+            <h3 className="text-lg font-medium text-muted-foreground">
+              {translate("crm.settings.hr.departments")}
+            </h3>
+            <ArrayInput
+              source="departments"
+              label={false}
+              helperText={false}
+              validate={validateDepartments}
+            >
+              <SimpleFormIterator disableReordering disableClear>
+                <TextInput source="label" label={false} />
+              </SimpleFormIterator>
+            </ArrayInput>
+
+            <Separator />
+
+            <h3 className="text-lg font-medium text-muted-foreground">
+              {translate("crm.settings.hr.designations")}
+            </h3>
+            <ArrayInput
+              source="designations"
+              label={false}
+              helperText={false}
+              validate={validateDesignations}
+            >
+              <SimpleFormIterator disableReordering disableClear>
+                <TextInput source="label" label={false} />
+              </SimpleFormIterator>
+            </ArrayInput>
+
+            <Separator />
+
+            <h3 className="text-lg font-medium text-muted-foreground">
+              {translate("crm.settings.hr.employment_types")}
+            </h3>
+            <ArrayInput
+              source="employmentTypes"
+              label={false}
+              helperText={false}
+              validate={validateEmploymentTypes}
+            >
+              <SimpleFormIterator disableReordering disableClear>
+                <TextInput source="label" label={false} />
+              </SimpleFormIterator>
+            </ArrayInput>
+
+            <Separator />
+
+            <h3 className="text-lg font-medium text-muted-foreground">
+              {translate("crm.settings.hr.employee_statuses")}
+            </h3>
+            <ArrayInput
+              source="employeeStatuses"
+              label={false}
+              helperText={false}
+              validate={validateEmployeeStatuses}
+            >
               <SimpleFormIterator disableReordering disableClear>
                 <TextInput source="label" label={false} />
               </SimpleFormIterator>

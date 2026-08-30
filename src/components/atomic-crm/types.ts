@@ -163,6 +163,24 @@ export type Issue = {
   index: number;
 } & Pick<RaRecord, "id">;
 
+export type Employee = {
+  sales_id?: Identifier | null;
+  first_name: string;
+  last_name: string;
+  email?: string;
+  phone?: string;
+  employee_code?: string;
+  department?: string;
+  designation?: string;
+  employment_type?: string;
+  status: string;
+  date_of_joining: string;
+  date_of_leaving?: string;
+  avatar?: RAFile;
+  created_at: string;
+  updated_at: string;
+} & Pick<RaRecord, "id">;
+
 export type IssueNote = {
   issue_id: Identifier;
   text: string;

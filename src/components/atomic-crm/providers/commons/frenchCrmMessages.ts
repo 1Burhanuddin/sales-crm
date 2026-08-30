@@ -303,6 +303,33 @@ export const frenchCrmMessages = {
           "Un commentaire ou une pièce jointe est requis",
       },
     },
+    employees: {
+      name: "Employé |||| Employés",
+      fields: {
+        first_name: "Prénom",
+        last_name: "Nom",
+        email: "Email",
+        phone: "Téléphone",
+        employee_code: "Code employé",
+        department: "Département",
+        designation: "Poste",
+        employment_type: "Type d'emploi",
+        status: "Statut",
+        date_of_joining: "Date d'embauche",
+        date_of_leaving: "Date de départ",
+        sales_id: "Compte CRM",
+      },
+      action: {
+        create: "Créer un employé",
+        edit: "Modifier l'employé",
+        new: "Nouvel employé",
+        show: "Afficher l'employé",
+      },
+      empty: {
+        title: "Aucun employé trouvé",
+        description: "Il semble que votre liste d'employés soit vide.",
+      },
+    },
     notes: {
       name: "Note |||| Notes",
       forcedCaseName: "Note",
@@ -562,6 +589,12 @@ export const frenchCrmMessages = {
         stages: "Étapes",
       },
       light_mode_logo: "Logo du mode clair",
+      hr: {
+        departments: "Départements",
+        designations: "Postes",
+        employment_types: "Types d'emploi",
+        employee_statuses: "Statuts des employés",
+      },
       notes: {
         statuses: "Statuts",
       },
@@ -581,6 +614,7 @@ export const frenchCrmMessages = {
       app_title: "Titre de l'application",
       sections: {
         branding: "Image de marque",
+        hr: "RH",
       },
       validation: {
         duplicate: "%{display_name} en double : %{items}",
@@ -592,6 +626,10 @@ export const frenchCrmMessages = {
           stages: "étapes",
           statuses: "statuts",
           priorities: "priorités",
+          departments: "départements",
+          designations: "postes",
+          employment_types: "types d'emploi",
+          employee_statuses: "statuts des employés",
         },
       },
     },
