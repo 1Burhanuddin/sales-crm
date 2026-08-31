@@ -715,6 +715,26 @@ export const frenchCrmMessages = {
     },
     accounts: {
       nav_label: "Comptes",
+      dashboard: {
+        nav_label: "Aperçu",
+        title: "Aperçu des comptes",
+        total_income: "Revenu total",
+        total_expense: "Dépense totale",
+        net_savings: "Épargne nette",
+        uncategorized: "Non catégorisé",
+        uncategorized_hint:
+          "%{count} transaction |||| %{count} transactions",
+        monthly_trend: "Revenus vs dépenses mensuels",
+        top_categories: "Principales catégories de dépenses",
+        income_sources: "Sources de revenus",
+        balance_trend: "Solde du compte dans le temps",
+        recent_transactions: "Transactions récentes",
+        transaction_count: "Transactions",
+        avg_transaction: "Transaction moyenne",
+        no_data: "Importez un relevé pour voir vos finances ici.",
+        view_transactions: "Voir toutes les transactions",
+        other_category: "Autre",
+      },
     },
     image_editor: {
       change: "Changer",

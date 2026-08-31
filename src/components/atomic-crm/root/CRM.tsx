@@ -4,7 +4,7 @@ import type {
   DashboardComponent,
   LayoutComponent,
 } from "ra-core";
-import { CustomRoutes, localStorageStore, Resource } from "ra-core";
+import { CanAccess, CustomRoutes, localStorageStore, Resource } from "ra-core";
 import { useEffect, useMemo } from "react";
 import { Route } from "react-router";
 import { QueryClient } from "@tanstack/react-query";
@@ -16,6 +16,7 @@ import { SetPasswordPage } from "@/components/supabase/set-password-page";
 import { OAuthConsentPage } from "@/components/supabase/oauth-consent-page";
 
 import transactions from "../accounts";
+import { AccountsDashboard } from "../accounts/AccountsDashboard";
 import companies from "../companies";
 import contacts from "../contacts";
 import { Dashboard } from "../dashboard/Dashboard";
@@ -301,6 +302,14 @@ const DesktopAdmin = (
         <Route path={ImportPage.path} element={<ImportPage />} />
         <Route path={ChangelogPage.path} element={<ChangelogPage />} />
         <Route path={MyHrDashboard.path} element={<MyHrDashboard />} />
+        <Route
+          path={AccountsDashboard.path}
+          element={
+            <CanAccess resource="transactions" action="list">
+              <AccountsDashboard />
+            </CanAccess>
+          }
+        />
       </CustomRoutes>
       <Resource name="deals" {...deals} />
       <Resource name="contacts" {...contacts} />
