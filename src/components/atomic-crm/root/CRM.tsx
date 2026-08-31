@@ -23,6 +23,8 @@ import deals from "../deals";
 import attendanceRecords from "../hr/attendance";
 import employees from "../hr/employees";
 import leaveRequests from "../hr/leave";
+import { MyHrDashboard } from "../hr/MyHrDashboard";
+import payslips from "../hr/payroll";
 import projects from "../projects";
 import { ProjectShow } from "../projects/ProjectShow.tsx";
 import { Layout } from "../layout/Layout";
@@ -290,6 +292,7 @@ const DesktopAdmin = (
         <Route path={SettingsPage.path} element={<SettingsPage />} />
         <Route path={ImportPage.path} element={<ImportPage />} />
         <Route path={ChangelogPage.path} element={<ChangelogPage />} />
+        <Route path={MyHrDashboard.path} element={<MyHrDashboard />} />
       </CustomRoutes>
       <Resource name="deals" {...deals} />
       <Resource name="contacts" {...contacts} />
@@ -304,6 +307,8 @@ const DesktopAdmin = (
       <Resource name="employees" {...employees} />
       <Resource name="leave_requests" {...leaveRequests} />
       <Resource name="attendance_records" {...attendanceRecords} />
+      <Resource name="salary_structures" />
+      <Resource name="payslips" {...payslips} />
       <Resource name="contact_notes" />
       <Resource name="deal_notes" />
       <Resource name="tasks" />

@@ -20,6 +20,8 @@ alter table public.issue_notes enable row level security;
 alter table public.employees enable row level security;
 alter table public.leave_requests enable row level security;
 alter table public.attendance_records enable row level security;
+alter table public.salary_structures enable row level security;
+alter table public.payslips enable row level security;
 
 -- Companies (visible/editable by their owning sales rep, or any admin)
 create policy "Select own or admin" on public.companies for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
@@ -134,3 +136,19 @@ create policy "Update own or admin" on public.attendance_records for update to a
     select 1 from public.employees e where e.id = attendance_records.employee_id and e.sales_id = public.current_sales_id()
 ));
 create policy "Admin delete only" on public.attendance_records for delete to authenticated using (public.is_admin());
+
+-- Payroll (join-through to employees.sales_id): fully admin-managed writes,
+-- employees get read-only access to their own rows.
+create policy "Select own or admin" on public.salary_structures for select to authenticated using (public.is_admin() or exists (
+    select 1 from public.employees e where e.id = salary_structures.employee_id and e.sales_id = public.current_sales_id()
+));
+create policy "Admin write only" on public.salary_structures for insert to authenticated with check (public.is_admin());
+create policy "Admin update only" on public.salary_structures for update to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "Admin delete only" on public.salary_structures for delete to authenticated using (public.is_admin());
+
+create policy "Select own or admin" on public.payslips for select to authenticated using (public.is_admin() or exists (
+    select 1 from public.employees e where e.id = payslips.employee_id and e.sales_id = public.current_sales_id()
+));
+create policy "Admin write only" on public.payslips for insert to authenticated with check (public.is_admin());
+create policy "Admin update only" on public.payslips for update to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "Admin delete only" on public.payslips for delete to authenticated using (public.is_admin());

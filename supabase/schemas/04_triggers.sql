@@ -93,6 +93,11 @@ create or replace trigger on_issue_notes_deleted_delete_note_attachments
     after delete on public.issue_notes
     for each row execute function public.cleanup_note_attachments();
 
+-- HRMS: compute payslip gross/net pay before every insert/update
+create or replace trigger calculate_payslip_totals_trigger
+    before insert or update on public.payslips
+    for each row execute function public.calculate_payslip_totals();
+
 -- Auth triggers: sync auth.users to public.sales
 create or replace trigger on_auth_user_created
     after insert on auth.users

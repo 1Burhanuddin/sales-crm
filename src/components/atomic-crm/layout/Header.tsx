@@ -31,6 +31,10 @@ const Header = () => {
     currentPath = "/leave_requests";
   } else if (matchPath("/attendance_records/*", location.pathname)) {
     currentPath = "/attendance_records";
+  } else if (matchPath("/payslips/*", location.pathname)) {
+    currentPath = "/payslips";
+  } else if (matchPath("/my-hr", location.pathname)) {
+    currentPath = "/my-hr";
   } else {
     currentPath = false;
   }
@@ -127,6 +131,20 @@ const Header = () => {
                       isActive={currentPath === "/attendance_records"}
                     />
                   </CanAccess>
+                  <CanAccess resource="payslips" action="list">
+                    <NavigationTab
+                      label={translate("resources.payslips.name", {
+                        smart_count: 2,
+                      })}
+                      to="/payslips"
+                      isActive={currentPath === "/payslips"}
+                    />
+                  </CanAccess>
+                  <NavigationTab
+                    label={translate("crm.hr.my_hr", { _: "My HR" })}
+                    to="/my-hr"
+                    isActive={currentPath === "/my-hr"}
+                  />
                 </nav>
               </div>
               <div className="flex items-center">
