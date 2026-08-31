@@ -609,11 +609,12 @@ export const englishCrmMessages = {
         disabled: "Disabled",
         is_developer: "Developer",
         notes_only: "Notes Only",
+        password_helper:
+          "Share this with them directly — invite emails are unreliable on this project.",
       },
       create: {
         error: "An error occurred while creating the user.",
-        success:
-          "User created. They will soon receive an email to set their password.",
+        success: "User created. Share their password with them directly.",
         title: "Create a new user",
       },
       edit: {

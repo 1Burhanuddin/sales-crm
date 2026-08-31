@@ -615,12 +615,13 @@ export const frenchCrmMessages = {
         disabled: "Désactivé",
         is_developer: "Développeur",
         notes_only: "Notes uniquement",
+        password_helper:
+          "Partagez-le directement avec eux — les e-mails d'invitation ne sont pas fiables sur ce projet.",
       },
       create: {
         error:
           "Une erreur s'est produite lors de la création de l'utilisateur.",
-        success:
-          "Utilisateur créé. Ils recevront prochainement un email pour définir leur mot de passe.",
+        success: "Utilisateur créé. Partagez son mot de passe directement.",
         title: "Créer un nouvel utilisateur",
       },
       edit: {
