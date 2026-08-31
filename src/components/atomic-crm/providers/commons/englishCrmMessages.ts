@@ -803,6 +803,14 @@ export const englishCrmMessages = {
     language: "Language",
     navigation: {
       label: "CRM navigation",
+      groups: {
+        overview: "Overview",
+        crm: "CRM",
+        projects: "Projects",
+        hr: "HR",
+        accounts: "Accounts",
+        workspace: "Workspace",
+      },
     },
     profile: {
       inbound: {

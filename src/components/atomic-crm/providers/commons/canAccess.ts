@@ -54,6 +54,19 @@ const restrictHrAdminActions = (params: CanAccessParams<any>) => {
   return !ADMIN_ONLY_ACTIONS.includes(params.action);
 };
 
+// Shared by the authProvider (async canAccess check) and any UI that needs
+// to filter itself synchronously off the current identity (e.g. the
+// sidebar hiding empty nav groups) — one place computing "admin" /
+// "developer" / "user" so the two can't drift apart.
+export const getRole = (
+  sale: { administrator?: boolean; is_developer?: boolean } | null | undefined,
+): string => {
+  if (!sale) return "user";
+  if (sale.administrator) return "admin";
+  if (sale.is_developer) return "developer";
+  return "user";
+};
+
 export const canAccess = <
   RecordType extends Record<string, any> = Record<string, any>,
 >(
