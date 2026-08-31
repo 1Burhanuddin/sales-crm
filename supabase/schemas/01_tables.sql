@@ -98,7 +98,8 @@ create table public.sales (
     user_id uuid not null,
     avatar jsonb,
     disabled boolean not null default false,
-    is_developer boolean not null default false
+    is_developer boolean not null default false,
+    notes_only boolean not null default false
 );
 
 create unique index uq__sales__user_id on public.sales using btree (user_id);

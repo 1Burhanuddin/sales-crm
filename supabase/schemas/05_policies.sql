@@ -43,19 +43,19 @@ create policy "Admin delete only" on public.contacts for delete to authenticated
 
 -- Contact Notes (follow the parent contact's visibility)
 create policy "Select own or admin" on public.contact_notes for select to authenticated using (public.is_admin() or exists (select 1 from public.contacts c where c.id = contact_notes.contact_id and c.sales_id = public.current_sales_id()));
-create policy "Block developer create" on public.contact_notes for insert to authenticated with check (public.is_admin() or not public.is_developer());
+create policy "Block developer or notes-only create" on public.contact_notes for insert to authenticated with check (public.is_admin() or (not public.is_developer() and not public.is_notes_only()));
 create policy "Update own or admin" on public.contact_notes for update to authenticated using (public.is_admin() or exists (select 1 from public.contacts c where c.id = contact_notes.contact_id and c.sales_id = public.current_sales_id()));
 create policy "Admin delete only" on public.contact_notes for delete to authenticated using (public.is_admin());
 
 -- Deals (visible/editable by their owning sales rep, or any admin)
 create policy "Select own or admin" on public.deals for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
-create policy "Block developer create" on public.deals for insert to authenticated with check (public.is_admin() or not public.is_developer());
+create policy "Block developer or notes-only create" on public.deals for insert to authenticated with check (public.is_admin() or (not public.is_developer() and not public.is_notes_only()));
 create policy "Update own or admin" on public.deals for update to authenticated using (public.is_admin() or sales_id = public.current_sales_id()) with check (public.is_admin() or sales_id = public.current_sales_id());
 create policy "Admin delete only" on public.deals for delete to authenticated using (public.is_admin());
 
 -- Deal Notes (follow the parent deal's visibility)
 create policy "Select own or admin" on public.deal_notes for select to authenticated using (public.is_admin() or exists (select 1 from public.deals d where d.id = deal_notes.deal_id and d.sales_id = public.current_sales_id()));
-create policy "Block developer create" on public.deal_notes for insert to authenticated with check (public.is_admin() or not public.is_developer());
+create policy "Block developer or notes-only create" on public.deal_notes for insert to authenticated with check (public.is_admin() or (not public.is_developer() and not public.is_notes_only()));
 create policy "Update own or admin" on public.deal_notes for update to authenticated using (public.is_admin() or exists (select 1 from public.deals d where d.id = deal_notes.deal_id and d.sales_id = public.current_sales_id()));
 create policy "Admin delete only" on public.deal_notes for delete to authenticated using (public.is_admin());
 
@@ -70,7 +70,7 @@ create policy "Admin delete only" on public.tags for delete to authenticated usi
 
 -- Tasks (follow the parent contact's visibility)
 create policy "Select own or admin" on public.tasks for select to authenticated using (public.is_admin() or exists (select 1 from public.contacts c where c.id = tasks.contact_id and c.sales_id = public.current_sales_id()));
-create policy "Block developer create" on public.tasks for insert to authenticated with check (public.is_admin() or not public.is_developer());
+create policy "Block developer or notes-only create" on public.tasks for insert to authenticated with check (public.is_admin() or (not public.is_developer() and not public.is_notes_only()));
 create policy "Update own or admin" on public.tasks for update to authenticated using (public.is_admin() or exists (select 1 from public.contacts c where c.id = tasks.contact_id and c.sales_id = public.current_sales_id()));
 create policy "Admin delete only" on public.tasks for delete to authenticated using (public.is_admin());
 
@@ -209,8 +209,8 @@ create policy "Owner or admin removes shares" on public.personal_note_shares for
 create policy "Select own, assignee, or admin" on public.leads for select to authenticated using (
     public.is_admin() or sales_id = public.current_sales_id() or assignee_id = public.current_sales_id()
 );
-create policy "Insert own or admin" on public.leads for insert to authenticated with check (
-    public.is_admin() or sales_id = public.current_sales_id()
+create policy "Insert own or admin, not notes-only" on public.leads for insert to authenticated with check (
+    (public.is_admin() or sales_id = public.current_sales_id()) and not public.is_notes_only()
 );
 create policy "Update own, assignee, or admin" on public.leads for update to authenticated using (
     public.is_admin() or sales_id = public.current_sales_id() or assignee_id = public.current_sales_id()

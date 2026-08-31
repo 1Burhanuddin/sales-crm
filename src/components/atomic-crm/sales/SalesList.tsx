@@ -47,6 +47,14 @@ const OptionsField = (_props: { label?: string | boolean }) => {
           {translate("resources.sales.fields.is_developer")}
         </Badge>
       )}
+      {record.notes_only && (
+        <Badge
+          variant="outline"
+          className="border-sky-300 dark:border-sky-700"
+        >
+          {translate("resources.sales.fields.notes_only")}
+        </Badge>
+      )}
     </div>
   );
 };

@@ -155,6 +155,7 @@ const getDataProviderWithCustomMethods = () => {
         avatar,
         disabled,
         is_developer,
+        notes_only,
       } = data;
 
       const { data: updatedData, error } =
@@ -170,6 +171,7 @@ const getDataProviderWithCustomMethods = () => {
             administrator,
             disabled,
             is_developer,
+            notes_only,
             avatar,
           },
         });

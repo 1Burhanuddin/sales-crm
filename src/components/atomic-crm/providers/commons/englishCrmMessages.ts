@@ -608,6 +608,7 @@ export const englishCrmMessages = {
         administrator: "Admin",
         disabled: "Disabled",
         is_developer: "Developer",
+        notes_only: "Notes Only",
       },
       create: {
         error: "An error occurred while creating the user.",
