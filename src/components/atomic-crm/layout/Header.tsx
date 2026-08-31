@@ -1,5 +1,5 @@
 import { Import, Settings, User, Users } from "lucide-react";
-import { CanAccess, useUserMenu } from "ra-core";
+import { CanAccess, useTranslate, useUserMenu } from "ra-core";
 import { Link } from "react-router";
 import { RefreshButton } from "@/components/admin/refresh-button";
 import { ThemeModeToggle } from "@/components/admin/theme-mode-toggle";

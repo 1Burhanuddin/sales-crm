@@ -53,7 +53,13 @@ export const AppSidebar = () => {
   const { identity } = useGetIdentity();
   const location = useLocation();
   const translate = useTranslate();
-  const role = getRole(identity);
+  // UserIdentity is declared with only id/fullName/avatar (plus a `[key:
+  // string]: any` index signature) — administrator/is_developer are our
+  // own authProvider's extra fields, so TS's weak-type check needs a hint
+  // here even though they're safely present at runtime.
+  const role = getRole(
+    identity as { administrator?: boolean; is_developer?: boolean } | undefined,
+  );
 
   const groups: NavGroup[] = [
     {
