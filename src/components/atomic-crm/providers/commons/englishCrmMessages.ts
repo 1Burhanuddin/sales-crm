@@ -799,6 +799,12 @@ export const englishCrmMessages = {
         view_projects: "View all projects",
         no_data: "Create a project to see an overview here.",
       },
+      calendar: {
+        nav_label: "Calendar",
+        title: "Due Date Calendar",
+        today: "Today",
+        more: "more",
+      },
     },
     accounts: {
       nav_label: "Accounts",

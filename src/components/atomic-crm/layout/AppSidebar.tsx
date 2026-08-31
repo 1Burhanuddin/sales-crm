@@ -1,6 +1,7 @@
 import {
   BarChart3,
   Building2,
+  CalendarDays,
   CalendarOff,
   ClipboardCheck,
   Filter,
@@ -50,8 +51,14 @@ type NavGroup = {
   items: NavItem[];
 };
 
+// "/pm" needs an exact match, not the generic prefix rule below -- it has
+// no sub-routes of its own, but "/pm/calendar" (a sibling nav item) sits
+// right under it, and a naive "/pm/*" match would highlight both the
+// Overview and Calendar items at once while viewing the calendar.
 const isItemActive = (pathname: string, to: string) =>
-  to === "/" ? !!matchPath("/", pathname) : !!matchPath(`${to}/*`, pathname);
+  to === "/" || to === "/pm"
+    ? !!matchPath(to, pathname)
+    : !!matchPath(`${to}/*`, pathname);
 
 export const AppSidebar = () => {
   const { darkModeLogo, lightModeLogo, title } = useConfigurationContext();
@@ -122,6 +129,12 @@ export const AppSidebar = () => {
           to: "/projects",
           label: translate("resources.projects.name", { smart_count: 2 }),
           icon: FolderKanban,
+          resource: "projects",
+        },
+        {
+          to: "/pm/calendar",
+          label: translate("crm.pm.calendar.nav_label", { _: "Calendar" }),
+          icon: CalendarDays,
           resource: "projects",
         },
       ],
