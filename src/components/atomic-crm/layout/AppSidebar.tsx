@@ -36,9 +36,12 @@ type NavItem = {
   to: string;
   label: string;
   icon: LucideIcon;
-  /** Gates visibility via canAccess(role, {resource, action: "list"}).
+  /** Gates visibility via canAccess(role, {resource, action}).
    * Omit for items every role can always see (Dashboard, My HR). */
   resource?: string;
+  /** Defaults to "list". Override e.g. to "create" to reuse an
+   * admin-only-create resource as an admin-only gate (HR Overview). */
+  action?: string;
 };
 
 type NavGroup = {
@@ -101,6 +104,12 @@ export const AppSidebar = () => {
       label: translate("crm.navigation.groups.projects", { _: "Projects" }),
       items: [
         {
+          to: "/pm",
+          label: translate("crm.pm.dashboard.nav_label", { _: "Overview" }),
+          icon: BarChart3,
+          resource: "projects",
+        },
+        {
           to: "/projects",
           label: translate("resources.projects.name", { smart_count: 2 }),
           icon: FolderKanban,
@@ -111,6 +120,13 @@ export const AppSidebar = () => {
     {
       label: translate("crm.navigation.groups.hr", { _: "HR" }),
       items: [
+        {
+          to: "/hr",
+          label: translate("crm.hr.dashboard.nav_label", { _: "Overview" }),
+          icon: BarChart3,
+          resource: "employees",
+          action: "create",
+        },
         {
           to: "/employees",
           label: translate("resources.employees.name", { smart_count: 2 }),
@@ -213,7 +229,10 @@ export const AppSidebar = () => {
           const visibleItems = group.items.filter(
             (item) =>
               !item.resource ||
-              canAccess(role, { resource: item.resource, action: "list" }),
+              canAccess(role, {
+                resource: item.resource,
+                action: item.action ?? "list",
+              }),
           );
           if (visibleItems.length === 0) return null;
 

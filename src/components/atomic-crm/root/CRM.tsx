@@ -24,11 +24,13 @@ import { MobileDashboard } from "../dashboard/MobileDashboard";
 import deals from "../deals";
 import attendanceRecords from "../hr/attendance";
 import employees from "../hr/employees";
+import { HrDashboard } from "../hr/HrDashboard";
 import leaveRequests from "../hr/leave";
 import { MyHrDashboard } from "../hr/MyHrDashboard";
 import payslips from "../hr/payroll";
 import personalNotes from "../personal-notes";
 import projects from "../projects";
+import { PmDashboard } from "../projects/PmDashboard";
 import { ProjectShow } from "../projects/ProjectShow.tsx";
 import { Layout } from "../layout/Layout";
 import { MobileLayout } from "../layout/MobileLayout";
@@ -307,6 +309,22 @@ const DesktopAdmin = (
           element={
             <CanAccess resource="transactions" action="list">
               <AccountsDashboard />
+            </CanAccess>
+          }
+        />
+        <Route
+          path={PmDashboard.path}
+          element={
+            <CanAccess resource="projects" action="list">
+              <PmDashboard />
+            </CanAccess>
+          }
+        />
+        <Route
+          path={HrDashboard.path}
+          element={
+            <CanAccess resource="employees" action="create">
+              <HrDashboard />
             </CanAccess>
           }
         />
