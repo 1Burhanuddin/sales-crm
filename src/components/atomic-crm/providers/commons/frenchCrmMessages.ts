@@ -2,6 +2,43 @@ import type { CrmMessages } from "./englishCrmMessages";
 
 export const frenchCrmMessages = {
   resources: {
+    leads: {
+      name: "Prospect |||| Prospects",
+      fields: {
+        first_name: "Prénom",
+        last_name: "Nom",
+        company_name: "Entreprise",
+        email: "E-mail",
+        phone: "Téléphone",
+        title: "Titre",
+        source: "Source",
+        source_helper: "D'où vient ce prospect (import, site web, recommandation...)",
+        notes: "Notes",
+        status: "Statut",
+        assignee_id: "Assigné à",
+        disqualify_reason: "Raison",
+      },
+      status: {
+        new: "Nouveau",
+        contacted: "Contacté",
+        qualified: "Qualifié",
+        disqualified: "Disqualifié",
+      },
+      action: {
+        create: "Ajouter un prospect",
+        mark_contacted: "Marquer comme contacté",
+        qualify: "Qualifier",
+        disqualify: "Disqualifier",
+        move_to_leads: "Déplacer vers les prospects",
+      },
+      converted_to: "Converti en :",
+      qualified: "Prospect qualifié et converti.",
+      moved_to_leads: "Déplacé vers les prospects.",
+      empty: {
+        title: "Aucun prospect trouvé",
+        description: "Les données brutes/non qualifiées atterrissent ici avant d'être converties en vrai contact.",
+      },
+    },
     companies: {
       name: "Entreprise |||| Entreprises",
       forcedCaseName: "Entreprise",

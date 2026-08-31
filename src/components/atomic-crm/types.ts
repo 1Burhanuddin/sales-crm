@@ -296,6 +296,26 @@ export type PersonalNoteShare = {
   created_at: string;
 } & Pick<RaRecord, "id">;
 
+export type Lead = {
+  first_name?: string;
+  last_name?: string;
+  company_name?: string;
+  email?: string;
+  phone?: string;
+  title?: string;
+  source?: string;
+  notes?: string;
+  status: "new" | "contacted" | "qualified" | "disqualified";
+  disqualify_reason?: string;
+  assignee_id?: Identifier | null;
+  converted_contact_id?: Identifier | null;
+  converted_company_id?: Identifier | null;
+  converted_deal_id?: Identifier | null;
+  sales_id?: Identifier;
+  created_at: string;
+  updated_at: string;
+} & Pick<RaRecord, "id">;
+
 export type IssueNote = {
   issue_id: Identifier;
   text: string;
