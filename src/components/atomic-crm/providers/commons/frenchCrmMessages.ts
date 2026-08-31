@@ -429,6 +429,7 @@ export const frenchCrmMessages = {
         unarchive: "Désarchiver",
         trash: "Mettre à la corbeille",
         restore: "Restaurer",
+        history: "Historique des versions",
       },
       tabs: {
         notes: "Notes",
@@ -437,6 +438,8 @@ export const frenchCrmMessages = {
       },
       pinned: "Épinglées",
       others: "Autres",
+      no_versions: "Aucune version antérieure pour le moment.",
+      version_restored: "Version restaurée",
       empty: {
         title: "Aucune note trouvée",
         description: "Il semble que votre liste de notes soit vide.",

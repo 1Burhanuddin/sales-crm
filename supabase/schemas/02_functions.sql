@@ -505,3 +505,24 @@ begin
   return new;
 end;
 $$;
+
+-- Personal notes: snapshot the OLD row into personal_note_versions whenever
+-- a meaningful field changes (not on every pin/archive toggle).
+create or replace function public.snapshot_personal_note_version()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if (old.title is distinct from new.title)
+     or (old.content is distinct from new.content)
+     or (old.type is distinct from new.type)
+     or (old.checklist_items is distinct from new.checklist_items)
+     or (old.tags is distinct from new.tags)
+     or (old.color is distinct from new.color) then
+    insert into public.personal_note_versions (note_id, title, content, type, checklist_items, tags, color)
+    values (old.id, old.title, old.content, old.type, old.checklist_items, old.tags, old.color);
+  end if;
+  return new;
+end;
+$$;

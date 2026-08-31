@@ -256,6 +256,17 @@ export type PersonalNote = {
   updated_at: string;
 } & Pick<RaRecord, "id">;
 
+export type PersonalNoteVersion = {
+  note_id: Identifier;
+  title?: string;
+  content?: string;
+  type: "note" | "checklist";
+  checklist_items: ChecklistItem[];
+  tags?: number[];
+  color?: string | null;
+  created_at: string;
+} & Pick<RaRecord, "id">;
+
 export type IssueNote = {
   issue_id: Identifier;
   text: string;

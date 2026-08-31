@@ -102,6 +102,10 @@ create or replace trigger set_personal_note_sales_id_trigger
     before insert on public.personal_notes
     for each row execute function public.set_sales_id_default();
 
+create or replace trigger snapshot_personal_note_version_trigger
+    before update on public.personal_notes
+    for each row execute function public.snapshot_personal_note_version();
+
 -- Auth triggers: sync auth.users to public.sales
 create or replace trigger on_auth_user_created
     after insert on auth.users

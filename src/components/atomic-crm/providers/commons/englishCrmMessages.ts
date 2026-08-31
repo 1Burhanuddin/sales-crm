@@ -423,6 +423,7 @@ export const englishCrmMessages = {
         unarchive: "Unarchive",
         trash: "Move to trash",
         restore: "Restore",
+        history: "Version history",
       },
       tabs: {
         notes: "Notes",
@@ -431,6 +432,8 @@ export const englishCrmMessages = {
       },
       pinned: "Pinned",
       others: "Others",
+      no_versions: "No earlier versions yet.",
+      version_restored: "Version restored",
       empty: {
         title: "No notes found",
         description: "It seems your note list is empty.",

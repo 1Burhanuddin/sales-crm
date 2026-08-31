@@ -18,6 +18,7 @@ import { FormToolbar } from "../layout/FormToolbar";
 import type { PersonalNote } from "../types";
 import { PersonalNoteInputs } from "./PersonalNoteInputs";
 import { PersonalNoteTagsEdit } from "./PersonalNoteTagsEdit";
+import { PersonalNoteVersionHistory } from "./PersonalNoteVersionHistory";
 
 export const PersonalNoteEdit = ({
   open,
@@ -90,6 +91,7 @@ const EditHeader = () => {
         <div className="flex gap-1">
           {!record.deleted_at ? (
             <>
+              <PersonalNoteVersionHistory />
               <Button
                 type="button"
                 variant="ghost"

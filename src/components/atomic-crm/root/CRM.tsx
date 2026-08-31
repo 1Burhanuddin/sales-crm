@@ -311,6 +311,7 @@ const DesktopAdmin = (
       <Resource name="salary_structures" />
       <Resource name="payslips" {...payslips} />
       <Resource name="personal_notes" {...personalNotes} />
+      <Resource name="personal_note_versions" />
       <Resource name="contact_notes" />
       <Resource name="deal_notes" />
       <Resource name="tasks" />
