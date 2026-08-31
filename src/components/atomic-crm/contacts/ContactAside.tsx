@@ -60,7 +60,7 @@ export const ContactAside = ({ link = "edit" }: { link?: "edit" | "show" }) => {
           target="contact_id"
           reference="tasks"
           sort={{ field: "due_date", order: "ASC" }}
-          perPage={1000}
+          perPage={50}
         >
           <TasksIterator />
         </ReferenceManyField>
