@@ -43,6 +43,25 @@ export const PersonalNoteCard = () => {
       .catch(() => notify("ra.notification.http_error", { type: "error" }));
   };
 
+  // The pastel swatches in noteColors.ts are always light, so a card with
+  // a custom color needs dark text regardless of the app's light/dark
+  // theme -- the default Card component's text/muted/border colors are
+  // theme-driven CSS variables (see index.css's --card-foreground etc.),
+  // which in dark mode resolve to a near-white color meant for a dark
+  // card background. Overriding those variables locally, rather than
+  // hardcoding a color on each element, makes every themed descendant
+  // (title, checklist text, "+N more", badges, blockquotes) read
+  // correctly without hunting down each one individually.
+  const hasCustomColor = Boolean(record.color);
+  const colorOverrideVars = hasCustomColor
+    ? ({
+        "--card-foreground": "#2b2b2b",
+        "--muted-foreground": "#5a5a5a",
+        "--muted": "rgba(0,0,0,0.06)",
+        "--border": "rgba(0,0,0,0.12)",
+      } as React.CSSProperties)
+    : undefined;
+
   const checklistPreview =
     record.type === "checklist"
       ? record.checklist_items.slice(0, 6)
@@ -69,7 +88,7 @@ export const PersonalNoteCard = () => {
         "break-inside-avoid mb-3 flex flex-col justify-between p-4 gap-2 cursor-pointer",
         "border-black/5 shadow-sm hover:shadow-md transition-shadow",
       )}
-      style={{ backgroundColor: record.color || undefined }}
+      style={{ backgroundColor: record.color || undefined, ...colorOverrideVars }}
       onClick={() => redirect(`/personal_notes/${record.id}`)}
     >
       <div className="flex justify-between items-start gap-2">
@@ -140,7 +159,10 @@ export const PersonalNoteCard = () => {
             <Badge
               key={tag.id}
               variant="secondary"
-              className="text-[10px] font-normal text-black/70 bg-black/5"
+              className={cn(
+                "text-[10px] font-normal",
+                hasCustomColor && "text-black/70 bg-black/5",
+              )}
             >
               #{tag.name}
             </Badge>

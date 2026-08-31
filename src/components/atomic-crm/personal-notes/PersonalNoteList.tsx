@@ -46,7 +46,8 @@ export const PersonalNoteList = () => {
           key="q"
           source="q"
           alwaysOn
-          className="h-11 rounded-full bg-muted border-none max-w-xl w-full"
+          className="max-w-xl w-full"
+          inputClassName="h-11 rounded-full bg-muted border-none shadow-none dark:bg-muted pr-16"
           placeholder="Search notes…"
         />,
       ]}
