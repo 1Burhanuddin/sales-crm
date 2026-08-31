@@ -221,7 +221,7 @@ export const AccountsDashboard = () => {
 
   if (isPending) {
     return (
-      <div className="mt-2 max-w-5xl mx-auto flex flex-col gap-4 pb-8">
+      <div className="mt-2 flex flex-col gap-4 pb-8">
         <Skeleton className="h-24 w-full" />
         <Skeleton className="h-80 w-full" />
       </div>
@@ -239,7 +239,7 @@ export const AccountsDashboard = () => {
   }
 
   return (
-    <div className="mt-2 max-w-5xl mx-auto flex flex-col gap-4 pb-8">
+    <div className="mt-2 flex flex-col gap-4 pb-8">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">
           {translate("crm.accounts.dashboard.title", {
