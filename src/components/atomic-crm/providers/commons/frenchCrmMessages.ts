@@ -830,6 +830,14 @@ export const frenchCrmMessages = {
     language: "Langue",
     navigation: {
       label: "Navigation CRM",
+      groups: {
+        overview: "Aperçu",
+        crm: "CRM",
+        projects: "Projets",
+        hr: "RH",
+        accounts: "Comptes",
+        workspace: "Espace de travail",
+      },
     },
     profile: {
       inbound: {

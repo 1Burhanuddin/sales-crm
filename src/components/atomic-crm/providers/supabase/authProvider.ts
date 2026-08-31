@@ -1,7 +1,7 @@
 import type { AuthProvider } from "ra-core";
 import { supabaseAuthProvider } from "ra-supabase-core";
 
-import { canAccess } from "../commons/canAccess";
+import { canAccess, getRole } from "../commons/canAccess";
 import { getSupabaseClient } from "./supabase";
 
 const getBaseAuthProvider = () =>
@@ -18,6 +18,10 @@ const getBaseAuthProvider = () =>
         fullName: `${sale.first_name} ${sale.last_name}`,
         avatar: sale.avatar?.src,
         administrator: sale.administrator,
+        // Exposed so UI (e.g. the sidebar) can filter itself synchronously
+        // off the same role logic canAccess() uses, without an extra
+        // round-trip through the async authProvider.canAccess check.
+        is_developer: sale.is_developer,
       };
     },
   });
@@ -153,11 +157,7 @@ export const getAuthProvider = (): AuthProvider => {
       if (sale == null) return false;
 
       // Compute access rights from the sale role
-      const role = sale.administrator
-        ? "admin"
-        : sale.is_developer
-          ? "developer"
-          : "user";
+      const role = getRole(sale);
       return canAccess(role, params);
     },
     getAuthorizationDetails(authorizationId: string) {

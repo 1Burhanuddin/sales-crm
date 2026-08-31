@@ -1,217 +1,34 @@
 import { Import, Settings, User, Users } from "lucide-react";
 import { CanAccess, useTranslate, useUserMenu } from "ra-core";
-import { Link, matchPath, useLocation } from "react-router";
+import { Link } from "react-router";
 import { RefreshButton } from "@/components/admin/refresh-button";
 import { ThemeModeToggle } from "@/components/admin/theme-mode-toggle";
 import { UserMenu } from "@/components/admin/user-menu";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
-import { useConfigurationContext } from "../root/ConfigurationContext";
 import { ImportPage } from "../misc/ImportPage";
 
+// The nav itself lives in AppSidebar now — this is just the top bar's
+// right-hand cluster (theme/refresh/user menu), rendered inside Layout.tsx
+// next to the SidebarTrigger.
 const Header = () => {
-  const { darkModeLogo, lightModeLogo, title } = useConfigurationContext();
-  const location = useLocation();
-  const translate = useTranslate();
-
-  let currentPath: string | boolean = "/";
-  if (matchPath("/", location.pathname)) {
-    currentPath = "/";
-  } else if (matchPath("/contacts/*", location.pathname)) {
-    currentPath = "/contacts";
-  } else if (matchPath("/companies/*", location.pathname)) {
-    currentPath = "/companies";
-  } else if (matchPath("/deals/*", location.pathname)) {
-    currentPath = "/deals";
-  } else if (matchPath("/projects/*", location.pathname)) {
-    currentPath = "/projects";
-  } else if (matchPath("/employees/*", location.pathname)) {
-    currentPath = "/employees";
-  } else if (matchPath("/leave_requests/*", location.pathname)) {
-    currentPath = "/leave_requests";
-  } else if (matchPath("/attendance_records/*", location.pathname)) {
-    currentPath = "/attendance_records";
-  } else if (matchPath("/payslips/*", location.pathname)) {
-    currentPath = "/payslips";
-  } else if (matchPath("/my-hr", location.pathname)) {
-    currentPath = "/my-hr";
-  } else if (matchPath("/transactions/*", location.pathname)) {
-    currentPath = "/transactions";
-  } else if (matchPath("/personal_notes/*", location.pathname)) {
-    currentPath = "/personal_notes";
-  } else {
-    currentPath = false;
-  }
-
   return (
-    <>
-      <nav className="grow">
-        <header className="bg-secondary">
-          <div className="px-4">
-            <div className="flex justify-between items-center flex-1">
-              <Link
-                to="/"
-                className="flex items-center gap-2 text-secondary-foreground no-underline"
-              >
-                <img
-                  className="[.light_&]:hidden h-6"
-                  src={darkModeLogo}
-                  alt={title}
-                />
-                <img
-                  className="[.dark_&]:hidden h-6"
-                  src={lightModeLogo}
-                  alt={title}
-                />
-                <h1 className="text-xl font-semibold">{title}</h1>
-              </Link>
-              <div>
-                <nav className="flex">
-                  <NavigationTab
-                    label={translate("ra.page.dashboard")}
-                    to="/"
-                    isActive={currentPath === "/"}
-                  />
-                  <CanAccess resource="contacts" action="list">
-                    <NavigationTab
-                      label={translate("resources.contacts.name", {
-                        smart_count: 2,
-                      })}
-                      to="/contacts"
-                      isActive={currentPath === "/contacts"}
-                    />
-                  </CanAccess>
-                  <CanAccess resource="companies" action="list">
-                    <NavigationTab
-                      label={translate("resources.companies.name", {
-                        smart_count: 2,
-                      })}
-                      to="/companies"
-                      isActive={currentPath === "/companies"}
-                    />
-                  </CanAccess>
-                  <CanAccess resource="deals" action="list">
-                    <NavigationTab
-                      label={translate("resources.deals.name", {
-                        smart_count: 2,
-                      })}
-                      to="/deals"
-                      isActive={currentPath === "/deals"}
-                    />
-                  </CanAccess>
-                  <CanAccess resource="projects" action="list">
-                    <NavigationTab
-                      label={translate("resources.projects.name", {
-                        smart_count: 2,
-                      })}
-                      to="/projects"
-                      isActive={currentPath === "/projects"}
-                    />
-                  </CanAccess>
-                  <CanAccess resource="employees" action="list">
-                    <NavigationTab
-                      label={translate("resources.employees.name", {
-                        smart_count: 2,
-                      })}
-                      to="/employees"
-                      isActive={currentPath === "/employees"}
-                    />
-                  </CanAccess>
-                  <CanAccess resource="leave_requests" action="list">
-                    <NavigationTab
-                      label={translate("resources.leave_requests.name", {
-                        smart_count: 2,
-                      })}
-                      to="/leave_requests"
-                      isActive={currentPath === "/leave_requests"}
-                    />
-                  </CanAccess>
-                  <CanAccess resource="attendance_records" action="list">
-                    <NavigationTab
-                      label={translate("resources.attendance_records.name", {
-                        smart_count: 2,
-                      })}
-                      to="/attendance_records"
-                      isActive={currentPath === "/attendance_records"}
-                    />
-                  </CanAccess>
-                  <CanAccess resource="payslips" action="list">
-                    <NavigationTab
-                      label={translate("resources.payslips.name", {
-                        smart_count: 2,
-                      })}
-                      to="/payslips"
-                      isActive={currentPath === "/payslips"}
-                    />
-                  </CanAccess>
-                  <NavigationTab
-                    label={translate("crm.hr.my_hr", { _: "My HR" })}
-                    to="/my-hr"
-                    isActive={currentPath === "/my-hr"}
-                  />
-                  <CanAccess resource="transactions" action="list">
-                    <NavigationTab
-                      label={translate("crm.accounts.nav_label", {
-                        _: "Accounts",
-                      })}
-                      to="/transactions"
-                      isActive={currentPath === "/transactions"}
-                    />
-                  </CanAccess>
-                  <CanAccess resource="personal_notes" action="list">
-                    <NavigationTab
-                      label={translate("resources.personal_notes.name", {
-                        smart_count: 2,
-                        _: "Notes",
-                      })}
-                      to="/personal_notes"
-                      isActive={currentPath === "/personal_notes"}
-                    />
-                  </CanAccess>
-                </nav>
-              </div>
-              <div className="flex items-center">
-                <ThemeModeToggle />
-                <RefreshButton />
-                <UserMenu>
-                  <ProfileMenu />
-                  <CanAccess resource="sales" action="list">
-                    <UsersMenu />
-                  </CanAccess>
-                  <CanAccess resource="configuration" action="edit">
-                    <SettingsMenu />
-                  </CanAccess>
-                  <ImportFromJsonMenuItem />
-                </UserMenu>
-              </div>
-            </div>
-          </div>
-        </header>
-      </nav>
-    </>
+    <div className="flex items-center">
+      <ThemeModeToggle />
+      <RefreshButton />
+      <UserMenu>
+        <ProfileMenu />
+        <CanAccess resource="sales" action="list">
+          <UsersMenu />
+        </CanAccess>
+        <CanAccess resource="configuration" action="edit">
+          <SettingsMenu />
+        </CanAccess>
+        <ImportFromJsonMenuItem />
+      </UserMenu>
+    </div>
   );
 };
-
-const NavigationTab = ({
-  label,
-  to,
-  isActive,
-}: {
-  label: string;
-  to: string;
-  isActive: boolean;
-}) => (
-  <Link
-    to={to}
-    className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 ${
-      isActive
-        ? "text-secondary-foreground border-secondary-foreground"
-        : "text-secondary-foreground/70 border-transparent hover:text-secondary-foreground/80"
-    }`}
-  >
-    {label}
-  </Link>
-);
 
 const UsersMenu = () => {
   const translate = useTranslate();
