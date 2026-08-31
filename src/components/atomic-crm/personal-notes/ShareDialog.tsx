@@ -113,7 +113,7 @@ export const ShareDialog = () => {
                     variant="ghost"
                     size="icon"
                     className="h-6 w-6"
-                    onClick={() => removeShare(share.id)}
+                    onClick={() => removeShare(Number(share.id))}
                   >
                     <X className="w-3.5 h-3.5" />
                   </Button>
@@ -134,7 +134,10 @@ export const ShareDialog = () => {
           <DropdownMenuContent className="w-64">
             {available?.length ? (
               available.map((sale) => (
-                <DropdownMenuItem key={sale.id} onClick={() => addShare(sale.id)}>
+                <DropdownMenuItem
+                  key={sale.id}
+                  onClick={() => addShare(Number(sale.id))}
+                >
                   {sale.first_name} {sale.last_name}
                 </DropdownMenuItem>
               ))
