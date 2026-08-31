@@ -303,6 +303,7 @@ export const englishCrmMessages = {
         due_date: "Due date",
         project_id: "Project",
         sprint_id: "Sprint",
+        milestone_id: "Milestone",
       },
       timeline: {
         empty:
@@ -331,6 +332,17 @@ export const englishCrmMessages = {
       },
       action: {
         new: "New Sprint",
+      },
+    },
+    milestones: {
+      name: "Milestone |||| Milestones",
+      empty: "No milestones yet for this project.",
+      show_all: "Show all issues",
+      progress: "%{done}/%{total} done",
+      due: "Due",
+      overdue: "Overdue",
+      action: {
+        new: "New Milestone",
       },
     },
     issue_notes: {

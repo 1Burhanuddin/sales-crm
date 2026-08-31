@@ -308,6 +308,7 @@ export const frenchCrmMessages = {
         due_date: "Échéance",
         project_id: "Projet",
         sprint_id: "Sprint",
+        milestone_id: "Jalon",
       },
       timeline: {
         empty:
@@ -336,6 +337,17 @@ export const frenchCrmMessages = {
       },
       action: {
         new: "Nouveau sprint",
+      },
+    },
+    milestones: {
+      name: "Jalon |||| Jalons",
+      empty: "Aucun jalon pour ce projet pour l'instant.",
+      show_all: "Afficher tous les tickets",
+      progress: "%{done}/%{total} terminé",
+      due: "Échéance",
+      overdue: "En retard",
+      action: {
+        new: "Nouveau jalon",
       },
     },
     issue_notes: {

@@ -7,7 +7,13 @@ type CanAccessParams<
   record?: RecordType;
 };
 
-const PM_RESOURCES = ["projects", "issues", "issue_notes", "sprints"];
+const PM_RESOURCES = [
+  "projects",
+  "issues",
+  "issue_notes",
+  "sprints",
+  "milestones",
+];
 // HR resources every role gets self-service access to (their own linked
 // record, enforced by RLS) alongside admins' full access.
 const HR_SELF_SERVICE_RESOURCES = [

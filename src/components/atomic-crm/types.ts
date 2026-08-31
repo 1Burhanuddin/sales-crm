@@ -163,6 +163,7 @@ export type Issue = {
   due_date?: string;
   start_date?: string;
   sprint_id?: Identifier;
+  milestone_id?: Identifier;
   sales_id?: Identifier;
   created_at: string;
   updated_at: string;
@@ -175,6 +176,15 @@ export type Sprint = {
   start_date?: string;
   end_date?: string;
   status: "planned" | "active" | "completed";
+  sales_id?: Identifier;
+  created_at: string;
+} & Pick<RaRecord, "id">;
+
+export type Milestone = {
+  project_id: Identifier;
+  name: string;
+  description?: string;
+  due_date?: string;
   sales_id?: Identifier;
   created_at: string;
 } & Pick<RaRecord, "id">;

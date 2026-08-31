@@ -14,6 +14,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 import type { Project } from "../types";
 import { IssueBoard } from "./IssueBoard";
+import { MilestonePanel } from "./MilestonePanel";
 import { SprintPanel } from "./SprintPanel";
 
 export const ProjectShow = () => (
@@ -29,6 +30,20 @@ const ProjectShowContent = () => {
   const [selectedSprintId, setSelectedSprintId] = useState<Identifier | null>(
     null,
   );
+  const [selectedMilestoneId, setSelectedMilestoneId] =
+    useState<Identifier | null>(null);
+  // A sprint and a milestone filter the board the same way (both narrow
+  // it to one dimension), so picking one clears the other rather than
+  // ANDing them together -- combining "this sprint" with "this milestone"
+  // would usually just show nothing and confuse which filter is active.
+  const selectSprint = (id: Identifier | null) => {
+    setSelectedSprintId(id);
+    if (id != null) setSelectedMilestoneId(null);
+  };
+  const selectMilestone = (id: Identifier | null) => {
+    setSelectedMilestoneId(id);
+    if (id != null) setSelectedSprintId(null);
+  };
   if (isPending || !record) return null;
 
   return (
@@ -58,16 +73,25 @@ const ProjectShowContent = () => {
       </Card>
 
       <Card>
-        <CardContent>
+        <CardContent className="flex flex-col gap-4">
           <SprintPanel
             projectId={record.id}
             selectedSprintId={selectedSprintId}
-            onSelectSprint={setSelectedSprintId}
+            onSelectSprint={selectSprint}
+          />
+          <MilestonePanel
+            projectId={record.id}
+            selectedMilestoneId={selectedMilestoneId}
+            onSelectMilestone={selectMilestone}
           />
         </CardContent>
       </Card>
 
-      <IssueBoard projectId={record.id} sprintId={selectedSprintId} />
+      <IssueBoard
+        projectId={record.id}
+        sprintId={selectedSprintId}
+        milestoneId={selectedMilestoneId}
+      />
     </div>
   );
 };
