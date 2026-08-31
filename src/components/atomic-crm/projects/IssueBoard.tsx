@@ -15,8 +15,9 @@ import { IssueTable } from "./IssueTable";
 export const IssueBoard = ({ projectId }: { projectId: Identifier }) => {
   const [viewMode, setViewMode] = useViewMode<"kanban" | "table">(
     "issues-view-mode",
-    "kanban",
+    "table",
   );
+  const isKanban = viewMode === "kanban";
 
   return (
     <List
@@ -24,8 +25,11 @@ export const IssueBoard = ({ projectId }: { projectId: Identifier }) => {
       filter={{ project_id: projectId }}
       title={false}
       sort={{ field: "index", order: "DESC" }}
-      perPage={100}
-      pagination={null}
+      // Kanban needs every issue at once (split across status columns, not
+      // pages), so it fetches a large flat batch with pagination hidden.
+      // Table view behaves like every other list page in the app.
+      perPage={isKanban ? 100 : 25}
+      pagination={isKanban ? null : undefined}
       actions={false}
       empty={false}
     >
