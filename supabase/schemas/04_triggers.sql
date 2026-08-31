@@ -28,6 +28,10 @@ create or replace trigger set_task_sales_id_trigger
     before insert on public.tasks
     for each row execute function public.set_sales_id_default();
 
+create or replace trigger generate_employee_code_trigger
+    before insert on public.employees
+    for each row execute function public.generate_employee_code();
+
 create or replace trigger set_project_sales_id_trigger
     before insert on public.projects
     for each row execute function public.set_sales_id_default();

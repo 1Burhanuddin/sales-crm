@@ -14,7 +14,10 @@ export const EmployeeCreate = () => {
           <Form>
             <Card>
               <CardContent>
-                <EmployeeInputs />
+                {/* Reaching this form at all already requires admin (route
+                    is admin-only-create gated), so isAdmin is always true
+                    here -- no need to wait on identity to know that. */}
+                <EmployeeInputs isAdmin />
                 <div
                   role="toolbar"
                   className="sticky flex pt-4 pb-4 md:pb-0 bottom-0 bg-linear-to-b from-transparent to-card to-10% flex-row justify-end gap-2"

@@ -4,6 +4,7 @@ import { useStore } from "ra-core";
 import type {
   CategoryRule,
   DealStage,
+  Designation,
   LabeledValue,
   LeaveType,
   NoteStatus,
@@ -24,7 +25,7 @@ export interface ConfigurationContextValue {
   noteStatuses: NoteStatus[];
   taskTypes: LabeledValue[];
   departments: LabeledValue[];
-  designations: LabeledValue[];
+  designations: Designation[];
   employmentTypes: LabeledValue[];
   employeeStatuses: LabeledValue[];
   leaveTypes: LeaveType[];

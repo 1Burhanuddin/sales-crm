@@ -318,6 +318,18 @@ begin
 end;
 $$;
 
+CREATE OR REPLACE FUNCTION "public"."generate_employee_code"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+begin
+  if new.employee_code is null then
+    new.employee_code := 'EMP-' || lpad(nextval('public.employee_code_seq')::text, 4, '0');
+  end if;
+  return new;
+end;
+$$;
+
 CREATE OR REPLACE FUNCTION "public"."merge_contacts"("loser_id" bigint, "winner_id" bigint) RETURNS bigint
     LANGUAGE "plpgsql"
     SET "search_path" TO 'public'

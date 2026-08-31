@@ -1,5 +1,5 @@
 import type { ConfigurationContextValue } from "./ConfigurationContext";
-import type { TransactionCategory } from "../types";
+import type { Designation, TransactionCategory } from "../types";
 // Import the logos as module assets so Vite resolves their URL relative to the
 // JS chunk (import.meta.url), not the current route. A plain "./logos/..." path
 // breaks on nested routes like /oauth/consent and under a deployment sub-path.
@@ -86,9 +86,18 @@ export const defaultDepartments = [
   { value: "hr", label: "HR" },
 ];
 
-export const defaultDesignations = [
-  { value: "software-engineer", label: "Software Engineer" },
-  { value: "sales-executive", label: "Sales Executive" },
+// department is optional -- a designation without one shows for every
+// department (e.g. Manager/Intern), one with a department only shows once
+// that department is picked (see EmployeeInputs.tsx).
+export const defaultDesignations: Designation[] = [
+  { value: "software-engineer", label: "Software Engineer", department: "engineering" },
+  { value: "engineering-manager", label: "Engineering Manager", department: "engineering" },
+  { value: "sales-executive", label: "Sales Executive", department: "sales" },
+  { value: "sales-manager", label: "Sales Manager", department: "sales" },
+  { value: "operations-executive", label: "Operations Executive", department: "operations" },
+  { value: "operations-manager", label: "Operations Manager", department: "operations" },
+  { value: "hr-executive", label: "HR Executive", department: "hr" },
+  { value: "hr-manager", label: "HR Manager", department: "hr" },
   { value: "manager", label: "Manager" },
   { value: "intern", label: "Intern" },
 ];

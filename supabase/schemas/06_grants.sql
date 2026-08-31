@@ -69,6 +69,10 @@ grant all on function public.has_pm_access() to anon;
 grant all on function public.has_pm_access() to authenticated;
 grant all on function public.has_pm_access() to service_role;
 
+grant all on function public.generate_employee_code() to anon;
+grant all on function public.generate_employee_code() to authenticated;
+grant all on function public.generate_employee_code() to service_role;
+
 grant all on function public.calculate_payslip_totals() to anon;
 grant all on function public.calculate_payslip_totals() to authenticated;
 grant all on function public.calculate_payslip_totals() to service_role;
@@ -204,6 +208,10 @@ grant all on table public.projects_summary to authenticated;
 grant all on table public.projects_summary to service_role;
 
 -- Sequence grants
+grant usage on sequence public.employee_code_seq to anon;
+grant usage on sequence public.employee_code_seq to authenticated;
+grant usage on sequence public.employee_code_seq to service_role;
+
 grant all on sequence public.companies_id_seq to anon;
 grant all on sequence public.companies_id_seq to authenticated;
 grant all on sequence public.companies_id_seq to service_role;

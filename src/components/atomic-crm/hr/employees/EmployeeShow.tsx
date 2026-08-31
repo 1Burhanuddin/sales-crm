@@ -9,7 +9,7 @@ import { Link } from "react-router";
 import { Pencil } from "lucide-react";
 import { DeleteButton } from "@/components/admin/delete-button";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import type { Employee } from "../../types";
 import { SalaryStructureCard } from "../payroll/SalaryStructureCard";
@@ -25,6 +25,22 @@ const EmployeeShowContent = () => {
   const { isPending } = useShowContext<Employee>();
   const record = useRecordContext<Employee>();
   if (isPending || !record) return null;
+
+  const hasPastEmployment =
+    record.previous_employer ||
+    record.previous_designation ||
+    record.total_experience_years ||
+    record.qualification;
+  const hasBankDetails =
+    record.bank_name ||
+    record.bank_account_name ||
+    record.bank_account_number ||
+    record.bank_ifsc;
+  const hasPersonalDetails =
+    record.date_of_birth ||
+    record.address ||
+    record.emergency_contact_name ||
+    record.emergency_contact_phone;
 
   return (
     <div className="mt-2 flex flex-col gap-4 pb-2">
@@ -88,6 +104,133 @@ const EmployeeShowContent = () => {
           </div>
         </CardContent>
       </Card>
+
+      {hasPersonalDetails && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-medium text-muted-foreground">
+              {translate("resources.employees.sections.personal", {
+                _: "Personal Details",
+              })}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-4">
+            <Field
+              label={translate("resources.employees.fields.date_of_birth")}
+              value={record.date_of_birth}
+            />
+            <Field
+              label={translate("resources.employees.fields.address")}
+              value={record.address}
+            />
+            <Field
+              label={translate(
+                "resources.employees.fields.emergency_contact_name",
+              )}
+              value={record.emergency_contact_name}
+            />
+            <Field
+              label={translate(
+                "resources.employees.fields.emergency_contact_phone",
+              )}
+              value={record.emergency_contact_phone}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {hasPastEmployment && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-medium text-muted-foreground">
+              {translate("resources.employees.sections.past_employment", {
+                _: "Past Employment",
+              })}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-4">
+            <Field
+              label={translate(
+                "resources.employees.fields.previous_employer",
+              )}
+              value={record.previous_employer}
+            />
+            <Field
+              label={translate(
+                "resources.employees.fields.previous_designation",
+              )}
+              value={record.previous_designation}
+            />
+            <Field
+              label={translate(
+                "resources.employees.fields.total_experience_years",
+              )}
+              value={
+                record.total_experience_years != null
+                  ? String(record.total_experience_years)
+                  : undefined
+              }
+            />
+            <Field
+              label={translate("resources.employees.fields.qualification")}
+              value={record.qualification}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {hasBankDetails && (
+        // No extra CanAccess gate here -- RLS already restricts a
+        // non-admin to only reach this page for their own employee row,
+        // and there's no reason to hide someone's own bank details from
+        // themselves.
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-medium text-muted-foreground">
+              {translate("resources.employees.sections.bank", {
+                _: "Bank Details",
+              })}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-4">
+            <Field
+              label={translate("resources.employees.fields.bank_name")}
+              value={record.bank_name}
+            />
+            <Field
+              label={translate(
+                "resources.employees.fields.bank_account_name",
+              )}
+              value={record.bank_account_name}
+            />
+            <Field
+              label={translate(
+                "resources.employees.fields.bank_account_number",
+              )}
+              value={record.bank_account_number}
+            />
+            <Field
+              label={translate("resources.employees.fields.bank_ifsc")}
+              value={record.bank_ifsc}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {record.background && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-medium text-muted-foreground">
+              {translate("resources.employees.sections.background", {
+                _: "Background",
+              })}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm whitespace-pre-line">{record.background}</p>
+          </CardContent>
+        </Card>
+      )}
 
       <CanAccess resource="salary_structures" action="create">
         <SalaryStructureCard employeeId={record.id} />
