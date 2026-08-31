@@ -29,7 +29,7 @@ const DealList = () => {
   const translate = useTranslate();
   const [viewMode, setViewMode] = useViewMode<"kanban" | "table">(
     "deals-view-mode",
-    "kanban",
+    "table",
   );
 
   if (!identity) return null;
