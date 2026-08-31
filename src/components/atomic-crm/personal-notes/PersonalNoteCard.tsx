@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+import { Markdown } from "../misc/Markdown";
 import type { PersonalNote, Tag } from "../types";
 
 export const PersonalNoteCard = () => {
@@ -40,6 +41,20 @@ export const PersonalNoteCard = () => {
     record.type === "checklist"
       ? record.checklist_items.slice(0, 6)
       : undefined;
+
+  const toggleChecklistItem = (e: React.MouseEvent, index: number) => {
+    e.stopPropagation();
+    const checklist_items = record.checklist_items.map((item, i) =>
+      i === index ? { ...item, checked: !item.checked } : item,
+    );
+    dataProvider
+      .update("personal_notes", {
+        id: record.id,
+        data: { checklist_items },
+        previousData: record,
+      })
+      .catch(() => notify("ra.notification.http_error", { type: "error" }));
+  };
 
   return (
     <Card
@@ -71,7 +86,9 @@ export const PersonalNoteCard = () => {
         <ul className="text-sm space-y-1.5">
           {checklistPreview.map((item, i) => (
             <li key={i} className="flex items-center gap-2">
-              <span
+              <button
+                type="button"
+                onClick={(e) => toggleChecklistItem(e, i)}
                 className={cn(
                   "w-3.5 h-3.5 rounded-[3px] border border-current/40 shrink-0",
                   item.checked && "bg-current/60",
@@ -87,12 +104,17 @@ export const PersonalNoteCard = () => {
               </span>
             </li>
           ))}
+          {record.checklist_items.length > 6 && (
+            <li className="text-xs text-muted-foreground pl-5.5">
+              +{record.checklist_items.length - 6} more
+            </li>
+          )}
         </ul>
       ) : (
         record.content && (
-          <p className="text-sm leading-snug line-clamp-6 whitespace-pre-line">
+          <Markdown className="text-sm leading-snug line-clamp-6 [&_ul]:my-0 [&_ol]:my-0 [&_p]:my-0">
             {record.content}
-          </p>
+          </Markdown>
         )
       )}
 
