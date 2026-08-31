@@ -114,11 +114,14 @@ async function inviteUser(req: Request, currentUserSale: any) {
   const { data, error: userError } = await supabaseAdmin.auth.admin.createUser({
     email,
     password,
-    // A password provided directly means there's no invite-email step for
-    // the user to confirm through -- without this they'd be created with
-    // a working password but still blocked at login by "Email not
-    // confirmed" (exactly what happened before this was added).
-    email_confirm: !!password,
+    // Always confirm admin-created users on creation. The project's
+    // "Confirm email" dashboard setting only governs *future* signups,
+    // not accounts created this way -- without this every admin-created
+    // user hits "Email not confirmed" at login regardless of that
+    // setting (what happened to insiyayeola1@gmail.com, #54). This is
+    // also independent of whether an invite email gets sent below --
+    // that email sets a *password*, confirmation is separate.
+    email_confirm: true,
     user_metadata: { first_name, last_name },
   });
 
