@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/sidebar";
 
 import { canAccess, getRole } from "../providers/commons/canAccess";
+import { usePreferences } from "../preferences";
 import { useConfigurationContext } from "../root/ConfigurationContext";
 
 type NavItem = {
@@ -53,6 +54,7 @@ export const AppSidebar = () => {
   const { identity } = useGetIdentity();
   const location = useLocation();
   const translate = useTranslate();
+  const { sidebarVariant, sidebarCollapsible } = usePreferences();
   // UserIdentity is declared with only id/fullName/avatar (plus a `[key:
   // string]: any` index signature) — administrator/is_developer are our
   // own authProvider's extra fields, so TS's weak-type check needs a hint
@@ -182,7 +184,7 @@ export const AppSidebar = () => {
   ];
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar variant={sidebarVariant} collapsible={sidebarCollapsible}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>

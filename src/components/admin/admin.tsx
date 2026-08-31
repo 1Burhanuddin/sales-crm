@@ -14,6 +14,7 @@ import { Ready } from "@/components/admin/ready";
 import { ThemeProvider } from "@/components/admin/theme-provider";
 import { AuthCallback } from "@/components/admin/authentication";
 import { useEffect } from "react";
+import { PreferencesProvider } from "@/components/atomic-crm/preferences";
 
 const defaultStore = localStorageStore();
 
@@ -56,14 +57,16 @@ const AdminUI = (props: CoreAdminUIProps) => {
 
   return (
     <ThemeProvider>
-      <CoreAdminUI
-        layout={Layout}
-        loginPage={LoginPage}
-        ready={Ready}
-        authCallbackPage={AuthCallback}
-        disableTelemetry // Disable telemetry in CoreAdminUI to avoid double logging
-        {...rest}
-      />
+      <PreferencesProvider>
+        <CoreAdminUI
+          layout={Layout}
+          loginPage={LoginPage}
+          ready={Ready}
+          authCallbackPage={AuthCallback}
+          disableTelemetry // Disable telemetry in CoreAdminUI to avoid double logging
+          {...rest}
+        />
+      </PreferencesProvider>
     </ThemeProvider>
   );
 };
