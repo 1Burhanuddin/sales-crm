@@ -45,7 +45,6 @@ export const LeaveRequestShow = ({
 };
 
 const LeaveRequestShowContent = () => {
-  const translate = useTranslate();
   const { leaveTypes } = useConfigurationContext();
   const record = useRecordContext<LeaveRequest>();
   if (!record) return null;

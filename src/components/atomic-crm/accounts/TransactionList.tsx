@@ -24,7 +24,7 @@ export const TransactionList = () => {
       optionText="label"
       optionValue="value"
       label={false}
-      placeholder="Category"
+      emptyText="Category"
     />,
     <ReferenceInput source="statement_import_id" reference="statement_imports">
       <AutocompleteInput label={false} placeholder="Statement" />

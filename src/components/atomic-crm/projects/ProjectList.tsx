@@ -12,7 +12,6 @@ import { TopToolbar } from "../layout/TopToolbar";
 const filters = [<SearchInput source="q" alwaysOn />];
 
 export const ProjectList = () => {
-  const translate = useTranslate();
   return (
     <List
       title={false}
