@@ -411,6 +411,36 @@ export const frenchCrmMessages = {
         description: "Il semble que votre liste de bulletins de paie soit vide.",
       },
     },
+    transactions: {
+      name: "Transaction |||| Transactions",
+      fields: {
+        date: "Date",
+        description: "Description",
+        amount: "Montant",
+        category: "Catégorie",
+        balance_after: "Solde après",
+        source: "Source",
+        statement_import_id: "Relevé",
+        notes: "Notes",
+      },
+      action: {
+        new: "Ajouter une transaction",
+        create: "Ajouter une transaction",
+      },
+      empty: {
+        title: "Aucune transaction trouvée",
+        description: "Il semble que votre liste de transactions soit vide.",
+      },
+    },
+    statement_imports: {
+      name: "Import de relevé |||| Imports de relevés",
+      fields: {
+        filename: "Nom du fichier",
+        period_from: "Période du",
+        period_to: "Période au",
+        transaction_count: "Transactions",
+      },
+    },
     notes: {
       name: "Note |||| Notes",
       forcedCaseName: "Note",
@@ -627,6 +657,9 @@ export const frenchCrmMessages = {
       no_employee_record:
         "Demandez à votre administrateur RH de lier votre compte à une fiche employé.",
     },
+    accounts: {
+      nav_label: "Comptes",
+    },
     image_editor: {
       change: "Changer",
       drop_hint:
@@ -684,6 +717,12 @@ export const frenchCrmMessages = {
         leave_types: "Types de congé",
         attendance_statuses: "Statuts de présence",
       },
+      accounts: {
+        categories: "Catégories",
+        rules: "Règles de catégorisation",
+        rules_help:
+          "Lors de l'import d'un relevé, une transaction dont la description contient ce mot-clé est catégorisée automatiquement. Modifiez ces règles pour correspondre à vos relevés réels.",
+      },
       notes: {
         statuses: "Statuts",
       },
@@ -704,6 +743,7 @@ export const frenchCrmMessages = {
       sections: {
         branding: "Image de marque",
         hr: "RH",
+        accounts: "Comptes",
       },
       validation: {
         duplicate: "%{display_name} en double : %{items}",
@@ -721,6 +761,7 @@ export const frenchCrmMessages = {
           employee_statuses: "statuts des employés",
           leave_types: "types de congé",
           attendance_statuses: "statuts de présence",
+          transaction_categories: "catégories de transaction",
         },
       },
     },

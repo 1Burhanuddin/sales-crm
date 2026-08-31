@@ -18,6 +18,7 @@ import { toSlug } from "@/lib/toSlug";
 import { ArrayInput } from "@/components/admin/array-input";
 import { AutocompleteInput } from "@/components/admin/autocomplete-input";
 import { NumberInput } from "@/components/admin/number-input";
+import { SelectInput } from "@/components/admin/select-input";
 import { SimpleFormIterator } from "@/components/admin/simple-form-iterator";
 import { TextInput } from "@/components/admin/text-input";
 
@@ -45,6 +46,11 @@ const SECTIONS = [
   { id: "notes", label: "resources.notes.name", fallback: "Notes" },
   { id: "tasks", label: "resources.tasks.name", fallback: "Tasks" },
   { id: "hr", label: "crm.settings.sections.hr", fallback: "HR" },
+  {
+    id: "accounts",
+    label: "crm.settings.sections.accounts",
+    fallback: "Accounts",
+  },
 ];
 
 /** Ensure every item in a { value, label } array has a value (slug from label). */
@@ -139,6 +145,8 @@ const transformFormValues = (data: Record<string, any>) => ({
     employeeStatuses: ensureValues(data.employeeStatuses),
     leaveTypes: ensureValues(data.leaveTypes),
     attendanceStatuses: ensureValues(data.attendanceStatuses),
+    transactionCategories: ensureValues(data.transactionCategories),
+    categoryRules: data.categoryRules,
   } as ConfigurationContextValue,
 });
 
@@ -195,6 +203,8 @@ const SettingsForm = () => {
       employeeStatuses: config.employeeStatuses,
       leaveTypes: config.leaveTypes,
       attendanceStatuses: config.attendanceStatuses,
+      transactionCategories: config.transactionCategories,
+      categoryRules: config.categoryRules,
     }),
     [config],
   );
@@ -262,6 +272,12 @@ const SettingsFormFields = () => {
   });
   const attendanceStatusDisplayName = translate(
     "crm.settings.validation.entities.attendance_statuses",
+  );
+  const { data: transactions } = useGetList("transactions", {
+    pagination: { page: 1, perPage: 1000 },
+  });
+  const transactionCategoryDisplayName = translate(
+    "crm.settings.validation.entities.transaction_categories",
   );
 
   const validationMessages = useMemo(
@@ -351,6 +367,18 @@ const SettingsFormFields = () => {
         validationMessages,
       ),
     [attendanceStatusDisplayName, attendanceRecords, validationMessages],
+  );
+
+  const validateTransactionCategories = useCallback(
+    (items: { value: string; label: string }[] | undefined) =>
+      validateItemsInUse(
+        items,
+        transactions,
+        "category",
+        transactionCategoryDisplayName,
+        validationMessages,
+      ),
+    [transactionCategoryDisplayName, transactions, validationMessages],
   );
 
   const validateDealStages = useCallback(
@@ -796,6 +824,60 @@ const SettingsFormFields = () => {
             </ArrayInput>
           </CardContent>
         </Card>
+
+        {/* Accounts */}
+        <Card id="accounts">
+          <CardContent className="space-y-4">
+            <h2 className="text-xl font-semibold text-muted-foreground">
+              {translate("crm.settings.sections.accounts")}
+            </h2>
+            <h3 className="text-lg font-medium text-muted-foreground">
+              {translate("crm.settings.accounts.categories")}
+            </h3>
+            <ArrayInput
+              source="transactionCategories"
+              label={false}
+              helperText={false}
+              validate={validateTransactionCategories}
+            >
+              <SimpleFormIterator inline disableReordering disableClear>
+                <TextInput source="label" label={false} className="flex-1" />
+                <SelectInput
+                  source="type"
+                  label={false}
+                  helperText={false}
+                  choices={[
+                    { id: "income", name: "Income" },
+                    { id: "expense", name: "Expense" },
+                  ]}
+                  className="w-32"
+                />
+              </SimpleFormIterator>
+            </ArrayInput>
+
+            <Separator />
+
+            <h3 className="text-lg font-medium text-muted-foreground">
+              {translate("crm.settings.accounts.rules")}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {translate("crm.settings.accounts.rules_help", {
+                _: "When a statement is imported, a transaction whose description contains this keyword is auto-categorized. Edit these to match real narrations.",
+              })}
+            </p>
+            <ArrayInput source="categoryRules" label={false} helperText={false}>
+              <SimpleFormIterator inline disableClear>
+                <TextInput
+                  source="keyword"
+                  label={false}
+                  placeholder="Keyword"
+                  className="flex-1"
+                />
+                <TransactionCategorySelect />
+              </SimpleFormIterator>
+            </ArrayInput>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Sticky save button */}
@@ -838,6 +920,25 @@ const SettingsFormFields = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+/** category picker for a categoryRules row, sourced from the in-form (not
+ * yet saved) transactionCategories list so it stays in sync while editing. */
+const TransactionCategorySelect = () => {
+  const { watch } = useFormContext();
+  const transactionCategories: { value: string; label: string }[] =
+    watch("transactionCategories") ?? [];
+  return (
+    <SelectInput
+      source="category"
+      label={false}
+      helperText={false}
+      choices={transactionCategories}
+      optionText="label"
+      optionValue="value"
+      className="w-40"
+    />
   );
 };
 

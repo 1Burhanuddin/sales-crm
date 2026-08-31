@@ -35,6 +35,8 @@ const Header = () => {
     currentPath = "/payslips";
   } else if (matchPath("/my-hr", location.pathname)) {
     currentPath = "/my-hr";
+  } else if (matchPath("/transactions/*", location.pathname)) {
+    currentPath = "/transactions";
   } else {
     currentPath = false;
   }
@@ -145,6 +147,15 @@ const Header = () => {
                     to="/my-hr"
                     isActive={currentPath === "/my-hr"}
                   />
+                  <CanAccess resource="transactions" action="list">
+                    <NavigationTab
+                      label={translate("crm.accounts.nav_label", {
+                        _: "Accounts",
+                      })}
+                      to="/transactions"
+                      isActive={currentPath === "/transactions"}
+                    />
+                  </CanAccess>
                 </nav>
               </div>
               <div className="flex items-center">

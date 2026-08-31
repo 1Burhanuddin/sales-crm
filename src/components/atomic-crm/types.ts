@@ -235,6 +235,29 @@ export type Payslip = {
   updated_at: string;
 } & Pick<RaRecord, "id">;
 
+export type StatementImport = {
+  filename: string;
+  period_from?: string | null;
+  period_to?: string | null;
+  transaction_count: number;
+  sales_id?: Identifier;
+  created_at: string;
+} & Pick<RaRecord, "id">;
+
+export type Transaction = {
+  date: string;
+  description: string;
+  amount: number;
+  category?: string | null;
+  balance_after?: number | null;
+  source: "manual" | "statement";
+  statement_import_id?: Identifier | null;
+  notes?: string;
+  sales_id?: Identifier;
+  created_at: string;
+  updated_at: string;
+} & Pick<RaRecord, "id">;
+
 export type IssueNote = {
   issue_id: Identifier;
   text: string;
@@ -328,6 +351,15 @@ export interface NoteStatus extends LabeledValue {
 
 export interface LeaveType extends LabeledValue {
   annual_days: number;
+}
+
+export interface TransactionCategory extends LabeledValue {
+  type: "income" | "expense";
+}
+
+export interface CategoryRule {
+  keyword: string;
+  category: string;
 }
 
 export interface ContactGender {

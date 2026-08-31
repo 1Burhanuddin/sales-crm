@@ -26,6 +26,10 @@ const ADMIN_ONLY_CREATE_RESOURCES = ["companies", "contacts", "employees"];
 // can't see params.record, so these gate the button/UI only — the real
 // enforcement is the leave_requests RLS "with check" clauses.
 const ADMIN_ONLY_ACTIONS = ["approve", "reject"];
+// Accounts (personal finance tracking) is fully admin-only, not
+// self-service — same treatment as "sales"/"configuration" below, not the
+// HR_SELF_SERVICE_RESOURCES pattern.
+const ACCOUNTS_RESOURCES = ["transactions", "statement_imports"];
 
 // Shared by the developer and plain-user branches so HR rules can't drift
 // apart between the two self-service roles.
@@ -90,6 +94,11 @@ export const canAccess = <
 
   // Non admins can't access the configuration resource
   if (params.resource === "configuration") {
+    return false;
+  }
+
+  // Non admins can't access Accounts (personal finance tracking) at all
+  if (ACCOUNTS_RESOURCES.includes(params.resource)) {
     return false;
   }
 
