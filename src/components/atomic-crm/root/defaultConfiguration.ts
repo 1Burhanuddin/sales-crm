@@ -132,14 +132,46 @@ export const defaultTransactionCategories: TransactionCategory[] = [
   { value: "shopping", label: "Shopping", type: "expense" },
   { value: "entertainment", label: "Entertainment", type: "expense" },
   { value: "healthcare", label: "Healthcare", type: "expense" },
+  { value: "education", label: "Education", type: "expense" },
+  { value: "subscriptions", label: "Subscriptions & Software", type: "expense" },
+  { value: "advertising", label: "Advertising", type: "expense" },
+  { value: "government-fees", label: "Government & Fees", type: "expense" },
+  { value: "fees-charges", label: "Bank & Card Charges", type: "expense" },
   { value: "transfer", label: "Transfer", type: "expense" },
   { value: "other", label: "Other", type: "expense" },
 ];
 
+// Calibrated against a real Bank of Baroda statement's UPI/NEFT description
+// patterns (see accounts/statementParser.ts). Substring match, first rule
+// wins — kept roughly most-specific-first so a generic handle fragment
+// can't shadow a more specific merchant keyword above it.
 export const defaultCategoryRules = [
-  { keyword: "SALARY", category: "salary" },
+  { keyword: "DARSHAN UNIVERSITY", category: "salary" },
+  { keyword: "AEPS/MT", category: "other-income" },
+  { keyword: "BY CASH", category: "other-income" },
+  { keyword: "INT.PD", category: "other-income" },
   { keyword: "SWIGGY", category: "food" },
   { keyword: "ZOMATO", category: "food" },
+  { keyword: "ICE CR", category: "food" },
+  { keyword: "DMART", category: "groceries" },
+  { keyword: "PINEDMART", category: "groceries" },
+  { keyword: "MEESHO", category: "shopping" },
+  { keyword: "BHARATPE", category: "shopping" },
+  { keyword: "GSRTC", category: "transport" },
+  { keyword: "ROPPENTRANSPORT", category: "transport" },
+  { keyword: "MSAAYUSHHEALTHCARE", category: "healthcare" },
+  { keyword: "ELEARNINGQURAN", category: "education" },
+  { keyword: "GOOGLECLOUD", category: "subscriptions" },
+  { keyword: "PLAYSTORE", category: "subscriptions" },
+  { keyword: "LINKEDIN", category: "subscriptions" },
+  { keyword: "VYAPAR", category: "subscriptions" },
+  { keyword: "FACEBOOKADS", category: "advertising" },
+  { keyword: "FACEBOOKINDIA", category: "advertising" },
+  { keyword: "PASSPORTSEVA", category: "government-fees" },
+  { keyword: "SETUVERIFY", category: "fees-charges" },
+  { keyword: "DCARDFEE", category: "fees-charges" },
+  { keyword: "SMS CHARGES", category: "fees-charges" },
+  { keyword: "SALARY", category: "salary" },
 ];
 
 export const defaultConfiguration: ConfigurationContextValue = {

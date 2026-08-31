@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { FileUp } from "lucide-react";
 import { useTranslate } from "ra-core";
 import { CreateButton } from "@/components/admin/create-button";
 import { DataTable } from "@/components/admin/data-table";
@@ -10,9 +12,11 @@ import { AutocompleteInput } from "@/components/admin/autocomplete-input";
 import { SearchInput } from "@/components/admin/search-input";
 import { SelectField } from "@/components/admin/select-field";
 import { SelectInput } from "@/components/admin/select-input";
+import { Button } from "@/components/ui/button";
 
 import { TopToolbar } from "../layout/TopToolbar";
 import { useConfigurationContext } from "../root/ConfigurationContext";
+import { StatementUploadDialog } from "./StatementUploadDialog";
 
 export const TransactionList = () => {
   const { transactionCategories, currency } = useConfigurationContext();
@@ -66,13 +70,29 @@ export const TransactionList = () => {
 
 const TransactionListActions = () => {
   const translate = useTranslate();
+  const [uploadOpen, setUploadOpen] = useState(false);
   return (
     <TopToolbar>
       <ExportButton />
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={() => setUploadOpen(true)}
+      >
+        <FileUp className="w-4 h-4" />
+        {translate("resources.transactions.upload.button", {
+          _: "Upload Statement",
+        })}
+      </Button>
       <CreateButton
         label={translate("resources.transactions.action.new", {
           _: "Add Transaction",
         })}
+      />
+      <StatementUploadDialog
+        open={uploadOpen}
+        onClose={() => setUploadOpen(false)}
       />
     </TopToolbar>
   );
