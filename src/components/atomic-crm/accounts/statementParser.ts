@@ -43,13 +43,22 @@ type Row = { y: number; items: PositionedText[] };
 // Column x-ranges in PDF points, empirically calibrated against a real BOB
 // statement. Generous margins on each side to tolerate minor per-document
 // drift.
+//
+// The chequeNumber/debit boundary sits well clear of 395 on purpose: a
+// wide right-aligned debit amount (5+ digits, e.g. "15,000.00") starts
+// further left than a narrow one, and a real statement had one begin at
+// x=394.9 -- 0.1pt short of the old boundary at exactly 395, landing it
+// in chequeNumber (which real UPI-heavy statements never populate)
+// instead of debit and silently dropping the whole transaction (no
+// amount in either debit or credit -> discarded). 20pt of headroom
+// comfortably covers a 6-digit debit too.
 const COLUMNS = {
   serial: [-Infinity, 45],
   txnDate: [45, 95],
   valueDate: [95, 145],
   description: [145, 320],
-  chequeNumber: [320, 395],
-  debit: [395, 455],
+  chequeNumber: [320, 375],
+  debit: [375, 455],
   credit: [455, 530],
   balance: [530, Infinity],
 } as const satisfies Record<string, readonly [number, number]>;
