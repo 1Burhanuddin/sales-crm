@@ -405,6 +405,37 @@ export const englishCrmMessages = {
         description: "It seems your payslip list is empty.",
       },
     },
+    personal_notes: {
+      name: "Note |||| Notes",
+      fields: {
+        title: "Title",
+        content: "Content",
+        color: "Color",
+        tags: "Tags",
+        attachments: "Attachments",
+        updated_at: "Updated",
+      },
+      action: {
+        new: "New Note",
+        pin: "Pin",
+        unpin: "Unpin",
+        archive: "Archive",
+        unarchive: "Unarchive",
+        trash: "Move to trash",
+        restore: "Restore",
+      },
+      tabs: {
+        notes: "Notes",
+        archived: "Archived",
+        trash: "Trash",
+      },
+      pinned: "Pinned",
+      others: "Others",
+      empty: {
+        title: "No notes found",
+        description: "It seems your note list is empty.",
+      },
+    },
     notes: {
       name: "Note |||| Notes",
       forcedCaseName: "Note",

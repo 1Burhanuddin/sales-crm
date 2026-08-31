@@ -235,6 +235,27 @@ export type Payslip = {
   updated_at: string;
 } & Pick<RaRecord, "id">;
 
+export type ChecklistItem = {
+  text: string;
+  checked: boolean;
+};
+
+export type PersonalNote = {
+  sales_id?: Identifier;
+  title?: string;
+  content?: string;
+  type: "note" | "checklist";
+  checklist_items: ChecklistItem[];
+  tags?: number[];
+  color?: string | null;
+  pinned: boolean;
+  archived_at?: string | null;
+  deleted_at?: string | null;
+  attachments?: AttachmentNote[];
+  created_at: string;
+  updated_at: string;
+} & Pick<RaRecord, "id">;
+
 export type IssueNote = {
   issue_id: Identifier;
   text: string;

@@ -411,6 +411,37 @@ export const frenchCrmMessages = {
         description: "Il semble que votre liste de bulletins de paie soit vide.",
       },
     },
+    personal_notes: {
+      name: "Note |||| Notes",
+      fields: {
+        title: "Titre",
+        content: "Contenu",
+        color: "Couleur",
+        tags: "Étiquettes",
+        attachments: "Pièces jointes",
+        updated_at: "Mis à jour",
+      },
+      action: {
+        new: "Nouvelle note",
+        pin: "Épingler",
+        unpin: "Désépingler",
+        archive: "Archiver",
+        unarchive: "Désarchiver",
+        trash: "Mettre à la corbeille",
+        restore: "Restaurer",
+      },
+      tabs: {
+        notes: "Notes",
+        archived: "Archivées",
+        trash: "Corbeille",
+      },
+      pinned: "Épinglées",
+      others: "Autres",
+      empty: {
+        title: "Aucune note trouvée",
+        description: "Il semble que votre liste de notes soit vide.",
+      },
+    },
     notes: {
       name: "Note |||| Notes",
       forcedCaseName: "Note",

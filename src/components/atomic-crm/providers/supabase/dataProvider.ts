@@ -11,6 +11,7 @@ import type {
   Deal,
   DealNote,
   IssueNote,
+  PersonalNote,
   RAFile,
   Sale,
   SalesFormData,
@@ -400,6 +401,20 @@ const lifeCycleCallbacks: ResourceCallbacks[] = [
         "employee_code",
         "email",
       ])(params);
+    },
+  },
+  {
+    resource: "personal_notes",
+    beforeSave: async (data: PersonalNote, _, __) => {
+      if (data.attachments) {
+        data.attachments = await Promise.all(
+          data.attachments.map((fi) => uploadToBucket(fi)),
+        );
+      }
+      return data;
+    },
+    beforeGetList: async (params) => {
+      return applyFullTextSearch(["title", "content"])(params);
     },
   },
 ];

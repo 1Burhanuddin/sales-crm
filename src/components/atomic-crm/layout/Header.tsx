@@ -35,6 +35,8 @@ const Header = () => {
     currentPath = "/payslips";
   } else if (matchPath("/my-hr", location.pathname)) {
     currentPath = "/my-hr";
+  } else if (matchPath("/personal_notes/*", location.pathname)) {
+    currentPath = "/personal_notes";
   } else {
     currentPath = false;
   }
@@ -145,6 +147,16 @@ const Header = () => {
                     to="/my-hr"
                     isActive={currentPath === "/my-hr"}
                   />
+                  <CanAccess resource="personal_notes" action="list">
+                    <NavigationTab
+                      label={translate("resources.personal_notes.name", {
+                        smart_count: 2,
+                        _: "Notes",
+                      })}
+                      to="/personal_notes"
+                      isActive={currentPath === "/personal_notes"}
+                    />
+                  </CanAccess>
                 </nav>
               </div>
               <div className="flex items-center">
