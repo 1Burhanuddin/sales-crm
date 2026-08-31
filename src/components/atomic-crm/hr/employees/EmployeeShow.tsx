@@ -1,4 +1,10 @@
-import { ShowBase, useRecordContext, useShowContext, useTranslate } from "ra-core";
+import {
+  CanAccess,
+  ShowBase,
+  useRecordContext,
+  useShowContext,
+  useTranslate,
+} from "ra-core";
 import { Link } from "react-router";
 import { Pencil } from "lucide-react";
 import { DeleteButton } from "@/components/admin/delete-button";
@@ -6,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 import type { Employee } from "../../types";
+import { SalaryStructureCard } from "../payroll/SalaryStructureCard";
 
 export const EmployeeShow = () => (
   <ShowBase>
@@ -81,6 +88,10 @@ const EmployeeShowContent = () => {
           </div>
         </CardContent>
       </Card>
+
+      <CanAccess resource="salary_structures" action="create">
+        <SalaryStructureCard employeeId={record.id} />
+      </CanAccess>
     </div>
   );
 };

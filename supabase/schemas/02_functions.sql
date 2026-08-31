@@ -484,3 +484,24 @@ BEGIN
   RETURN NEW;
 END;
 $$;
+
+-- HRMS: compute payslip gross/net pay server-side from the allowances/
+-- deductions jsonb line items. Never trust client-submitted totals for money.
+create or replace function public.calculate_payslip_totals()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+declare
+  allowances_total numeric(12,2);
+  deductions_total numeric(12,2);
+begin
+  select coalesce(sum((elem->>'amount')::numeric), 0) into allowances_total
+    from jsonb_array_elements(coalesce(new.allowances, '[]'::jsonb)) elem;
+  select coalesce(sum((elem->>'amount')::numeric), 0) into deductions_total
+    from jsonb_array_elements(coalesce(new.deductions, '[]'::jsonb)) elem;
+  new.gross_pay := new.basic + allowances_total;
+  new.net_pay := new.basic + allowances_total - deductions_total;
+  return new;
+end;
+$$;

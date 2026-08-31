@@ -371,6 +371,40 @@ export const englishCrmMessages = {
         description: "It seems your attendance log is empty.",
       },
     },
+    salary_structures: {
+      name: "Salary |||| Salaries",
+      fields: {
+        employee_id: "Employee",
+        basic: "Basic",
+        allowances: "Allowances",
+        deductions: "Deductions",
+        effective_from: "Effective from",
+      },
+    },
+    payslips: {
+      name: "Payslip |||| Payslips",
+      fields: {
+        employee_id: "Employee",
+        month: "Month",
+        year: "Year",
+        basic: "Basic",
+        allowances: "Allowances",
+        deductions: "Deductions",
+        gross_pay: "Gross pay",
+        net_pay: "Net pay",
+        status: "Status",
+      },
+      action: {
+        new: "New Payslip",
+        create: "Create Payslip",
+        finalize: "Finalize",
+      },
+      finalized: "Payslip finalized",
+      empty: {
+        title: "No payslips found",
+        description: "It seems your payslip list is empty.",
+      },
+    },
     notes: {
       name: "Note |||| Notes",
       forcedCaseName: "Note",
@@ -578,6 +612,12 @@ export const englishCrmMessages = {
     },
     header: {
       import_data: "Import data",
+    },
+    hr: {
+      my_hr: "My HR",
+      leave_balance: "Leave Balance",
+      no_employee_record:
+        "Ask your HR admin to link your account to an employee record.",
     },
     image_editor: {
       change: "Change",

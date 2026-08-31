@@ -14,13 +14,31 @@ const HR_SELF_SERVICE_RESOURCES = [
   "employees",
   "leave_requests",
   "attendance_records",
+  "salary_structures",
+  "payslips",
 ];
+// HR resources that are view-only for self-service, even on your own
+// record — payroll is computed/managed by HR, not self-edited.
+const HR_ADMIN_MANAGED_RESOURCES = ["salary_structures", "payslips"];
 // Records only an admin can create, regardless of role.
 const ADMIN_ONLY_CREATE_RESOURCES = ["companies", "contacts", "employees"];
 // Non-CRUD actions only an admin can take, regardless of role. canAccess
 // can't see params.record, so these gate the button/UI only — the real
 // enforcement is the leave_requests RLS "with check" clauses.
 const ADMIN_ONLY_ACTIONS = ["approve", "reject"];
+
+// Shared by the developer and plain-user branches so HR rules can't drift
+// apart between the two self-service roles.
+const restrictHrAdminActions = (params: CanAccessParams<any>) => {
+  if (
+    HR_ADMIN_MANAGED_RESOURCES.includes(params.resource) &&
+    params.action !== "list" &&
+    params.action !== "show"
+  ) {
+    return false;
+  }
+  return !ADMIN_ONLY_ACTIONS.includes(params.action);
+};
 
 export const canAccess = <
   RecordType extends Record<string, any> = Record<string, any>,
@@ -49,10 +67,7 @@ export const canAccess = <
     ) {
       return false;
     }
-    if (ADMIN_ONLY_ACTIONS.includes(params.action)) {
-      return false;
-    }
-    return true;
+    return restrictHrAdminActions(params);
   }
 
   // Only admins can delete records
@@ -65,11 +80,6 @@ export const canAccess = <
     params.action === "create" &&
     ADMIN_ONLY_CREATE_RESOURCES.includes(params.resource)
   ) {
-    return false;
-  }
-
-  // Only admins can approve/reject leave requests
-  if (ADMIN_ONLY_ACTIONS.includes(params.action)) {
     return false;
   }
 
@@ -88,5 +98,5 @@ export const canAccess = <
     return false;
   }
 
-  return true;
+  return restrictHrAdminActions(params);
 };

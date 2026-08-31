@@ -206,6 +206,35 @@ export type AttendanceRecord = {
   updated_at: string;
 } & Pick<RaRecord, "id">;
 
+export type SalaryLineItem = {
+  label: string;
+  amount: number;
+};
+
+export type SalaryStructure = {
+  employee_id: Identifier;
+  basic: number;
+  allowances: SalaryLineItem[];
+  deductions: SalaryLineItem[];
+  effective_from: string;
+  updated_at: string;
+} & Pick<RaRecord, "id">;
+
+export type Payslip = {
+  employee_id: Identifier;
+  month: number;
+  year: number;
+  basic: number;
+  allowances: SalaryLineItem[];
+  deductions: SalaryLineItem[];
+  gross_pay: number;
+  net_pay: number;
+  status: "draft" | "finalized";
+  finalized_at?: string | null;
+  created_at: string;
+  updated_at: string;
+} & Pick<RaRecord, "id">;
+
 export type IssueNote = {
   issue_id: Identifier;
   text: string;

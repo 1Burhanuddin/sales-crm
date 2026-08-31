@@ -377,6 +377,40 @@ export const frenchCrmMessages = {
         description: "Il semble que votre registre de présence soit vide.",
       },
     },
+    salary_structures: {
+      name: "Salaire |||| Salaires",
+      fields: {
+        employee_id: "Employé",
+        basic: "Base",
+        allowances: "Primes",
+        deductions: "Retenues",
+        effective_from: "Effectif à partir du",
+      },
+    },
+    payslips: {
+      name: "Bulletin de paie |||| Bulletins de paie",
+      fields: {
+        employee_id: "Employé",
+        month: "Mois",
+        year: "Année",
+        basic: "Base",
+        allowances: "Primes",
+        deductions: "Retenues",
+        gross_pay: "Salaire brut",
+        net_pay: "Salaire net",
+        status: "Statut",
+      },
+      action: {
+        new: "Nouveau bulletin de paie",
+        create: "Créer le bulletin de paie",
+        finalize: "Finaliser",
+      },
+      finalized: "Bulletin de paie finalisé",
+      empty: {
+        title: "Aucun bulletin de paie trouvé",
+        description: "Il semble que votre liste de bulletins de paie soit vide.",
+      },
+    },
     notes: {
       name: "Note |||| Notes",
       forcedCaseName: "Note",
@@ -586,6 +620,12 @@ export const frenchCrmMessages = {
     },
     header: {
       import_data: "Importer des données",
+    },
+    hr: {
+      my_hr: "Mon espace RH",
+      leave_balance: "Solde de congés",
+      no_employee_record:
+        "Demandez à votre administrateur RH de lier votre compte à une fiche employé.",
     },
     image_editor: {
       change: "Changer",
