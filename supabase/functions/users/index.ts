@@ -61,7 +61,6 @@ async function createSale(
   user_id: string,
   data: {
     email: string;
-    password: string;
     first_name: string;
     last_name: string;
     disabled: boolean;
@@ -115,6 +114,11 @@ async function inviteUser(req: Request, currentUserSale: any) {
   const { data, error: userError } = await supabaseAdmin.auth.admin.createUser({
     email,
     password,
+    // A password provided directly means there's no invite-email step for
+    // the user to confirm through -- without this they'd be created with
+    // a working password but still blocked at login by "Email not
+    // confirmed" (exactly what happened before this was added).
+    email_confirm: !!password,
     user_metadata: { first_name, last_name },
   });
 
@@ -152,9 +156,13 @@ async function inviteUser(req: Request, currentUserSale: any) {
         );
       }
 
+      // Note: `password` is deliberately not passed here -- the sales
+      // table has no such column (it lives only in Supabase auth). This
+      // branch only runs when the auth user already exists but its
+      // sales row doesn't (e.g. the DB was reset but auth wasn't) --
+      // there's no new password to set in that case anyway.
       const sale = await createSale(user.id, {
         email,
-        password,
         first_name,
         last_name,
         disabled,
@@ -191,8 +199,13 @@ async function inviteUser(req: Request, currentUserSale: any) {
       console.error("Error inviting user: undefined user");
       return createErrorResponse(500, "Internal Server Error");
     }
-    const { error: emailError } =
-      await supabaseAdmin.auth.admin.inviteUserByEmail(email);
+    // Only send the set-password invite email when no password was given
+    // directly -- the user already has one to log in with otherwise, and
+    // this project's invite email is unreliable (hits Supabase's
+    // send-rate-limit fast, no custom SMTP configured).
+    const { error: emailError } = password
+      ? { error: null }
+      : await supabaseAdmin.auth.admin.inviteUserByEmail(email);
 
     if (emailError) {
       console.error(`Error inviting user, email_error=${emailError}`);

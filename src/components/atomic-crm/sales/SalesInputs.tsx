@@ -16,6 +16,14 @@ export function SalesInputs() {
         validate={[required(), email()]}
         helperText={false}
       />
+      {!record && (
+        <TextInput
+          source="password"
+          type="password"
+          validate={required()}
+          helperText="resources.sales.fields.password_helper"
+        />
+      )}
       <BooleanInput
         source="administrator"
         readOnly={record?.id === identity?.id}
