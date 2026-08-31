@@ -60,11 +60,13 @@ export const AppSidebar = () => {
   const translate = useTranslate();
   const { sidebarVariant, sidebarCollapsible } = usePreferences();
   // UserIdentity is declared with only id/fullName/avatar (plus a `[key:
-  // string]: any` index signature) — administrator/is_developer are our
-  // own authProvider's extra fields, so TS's weak-type check needs a hint
-  // here even though they're safely present at runtime.
+  // string]: any` index signature) — administrator/is_developer/notes_only
+  // are our own authProvider's extra fields, so TS's weak-type check needs
+  // a hint here even though they're safely present at runtime.
   const role = getRole(
-    identity as { administrator?: boolean; is_developer?: boolean } | undefined,
+    identity as
+      | { administrator?: boolean; is_developer?: boolean; notes_only?: boolean }
+      | undefined,
   );
 
   const groups: NavGroup[] = [
@@ -206,6 +208,19 @@ export const AppSidebar = () => {
     },
   ];
 
+  // The "notes-only" role gets nothing but the Workspace group — Dashboard
+  // and "My HR" have no `resource` field (every other role always sees
+  // them), so per-item canAccess filtering below can't hide those two on
+  // its own; drop every other group outright instead.
+  const visibleGroups =
+    role === "notes-only"
+      ? groups.filter(
+          (g) =>
+            g.label ===
+            translate("crm.navigation.groups.workspace", { _: "Workspace" }),
+        )
+      : groups;
+
   return (
     <Sidebar variant={sidebarVariant} collapsible={sidebarCollapsible}>
       <SidebarHeader>
@@ -232,7 +247,7 @@ export const AppSidebar = () => {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {groups.map((group) => {
+        {visibleGroups.map((group) => {
           const visibleItems = group.items.filter(
             (item) =>
               !item.resource ||

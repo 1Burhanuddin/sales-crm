@@ -21,6 +21,7 @@ import companies from "../companies";
 import contacts from "../contacts";
 import { Dashboard } from "../dashboard/Dashboard";
 import { MobileDashboard } from "../dashboard/MobileDashboard";
+import { withRoleAwareDashboard } from "../dashboard/RoleAwareDashboard";
 import deals from "../deals";
 import attendanceRecords from "../hr/attendance";
 import employees from "../hr/employees";
@@ -282,7 +283,7 @@ const DesktopAdmin = (
   return (
     <Admin
       layout={props.layout ?? Layout}
-      dashboard={props.dashboard ?? Dashboard}
+      dashboard={withRoleAwareDashboard(props.dashboard ?? Dashboard)}
       {...props}
     >
       <CustomRoutes noLayout>
@@ -304,7 +305,14 @@ const DesktopAdmin = (
         <Route path={SettingsPage.path} element={<SettingsPage />} />
         <Route path={ImportPage.path} element={<ImportPage />} />
         <Route path={ChangelogPage.path} element={<ChangelogPage />} />
-        <Route path={MyHrDashboard.path} element={<MyHrDashboard />} />
+        <Route
+          path={MyHrDashboard.path}
+          element={
+            <CanAccess resource="employees" action="list">
+              <MyHrDashboard />
+            </CanAccess>
+          }
+        />
         <Route
           path={AccountsDashboard.path}
           element={
@@ -389,7 +397,7 @@ const MobileAdmin = (
       <Admin
         queryClient={queryClient}
         layout={props.layout ?? MobileLayout}
-        dashboard={props.dashboard ?? MobileDashboard}
+        dashboard={withRoleAwareDashboard(props.dashboard ?? MobileDashboard)}
         {...props}
       >
         <CustomRoutes noLayout>

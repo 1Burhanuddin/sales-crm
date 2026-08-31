@@ -25,6 +25,7 @@ export type SalesFormData = {
   administrator: boolean;
   disabled: boolean;
   is_developer: boolean;
+  notes_only: boolean;
 };
 
 export type Sale = {
@@ -34,6 +35,9 @@ export type Sale = {
   avatar?: RAFile;
   disabled?: boolean;
   is_developer?: boolean;
+  /** Fully restricted role: can only access Notes, nothing else. See
+   * canAccess.ts's "notes-only" role branch. */
+  notes_only?: boolean;
   user_id: string;
 
   /**

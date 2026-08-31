@@ -305,6 +305,20 @@ begin
 end;
 $$;
 
+-- Fully restricted role: can only access Notes, nothing else in the app
+-- (see canAccess.ts's "notes-only" role branch). Same shape as
+-- is_developer() above.
+CREATE OR REPLACE FUNCTION "public"."is_notes_only"() RETURNS boolean
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+begin
+  return exists (
+    select 1 from public.sales where user_id = auth.uid() and notes_only = true
+  );
+end;
+$$;
+
 CREATE OR REPLACE FUNCTION "public"."has_pm_access"() RETURNS boolean
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''

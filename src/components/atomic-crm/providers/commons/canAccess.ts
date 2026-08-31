@@ -59,11 +59,15 @@ const restrictHrAdminActions = (params: CanAccessParams<any>) => {
 // sidebar hiding empty nav groups) — one place computing "admin" /
 // "developer" / "user" so the two can't drift apart.
 export const getRole = (
-  sale: { administrator?: boolean; is_developer?: boolean } | null | undefined,
+  sale:
+    | { administrator?: boolean; is_developer?: boolean; notes_only?: boolean }
+    | null
+    | undefined,
 ): string => {
   if (!sale) return "user";
   if (sale.administrator) return "admin";
   if (sale.is_developer) return "developer";
+  if (sale.notes_only) return "notes-only";
   return "user";
 };
 
@@ -75,6 +79,13 @@ export const canAccess = <
 ) => {
   if (role === "admin") {
     return true;
+  }
+
+  // Fully restricted role: Notes only, nothing else in the app —
+  // no Dashboard, no CRM/PM/HR/Accounts, not even the plain-user default
+  // access. Checked before the developer branch since it's stricter.
+  if (role === "notes-only") {
+    return PERSONAL_NOTE_RESOURCES.includes(params.resource);
   }
 
   if (role === "developer") {

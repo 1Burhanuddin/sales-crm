@@ -22,6 +22,7 @@ const getBaseAuthProvider = () =>
         // off the same role logic canAccess() uses, without an extra
         // round-trip through the async authProvider.canAccess check.
         is_developer: sale.is_developer,
+        notes_only: sale.notes_only,
       };
     },
   });

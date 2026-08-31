@@ -614,6 +614,7 @@ export const frenchCrmMessages = {
         administrator: "Admin",
         disabled: "Désactivé",
         is_developer: "Développeur",
+        notes_only: "Notes uniquement",
       },
       create: {
         error:
