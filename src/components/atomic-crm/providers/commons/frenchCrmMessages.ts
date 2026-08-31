@@ -807,6 +807,12 @@ export const frenchCrmMessages = {
         view_projects: "Voir tous les projets",
         no_data: "Créez un projet pour voir un aperçu ici.",
       },
+      calendar: {
+        nav_label: "Calendrier",
+        title: "Calendrier des échéances",
+        today: "Aujourd'hui",
+        more: "de plus",
+      },
     },
     accounts: {
       nav_label: "Comptes",

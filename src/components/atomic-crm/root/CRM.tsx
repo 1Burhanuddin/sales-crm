@@ -94,6 +94,11 @@ const LazyHrDashboard = lazy(() =>
 const LazyMyHrDashboard = lazy(() =>
   import("../hr/MyHrDashboard").then((m) => ({ default: m.MyHrDashboard })),
 );
+const LazyIssueCalendar = lazy(() =>
+  import("../projects/IssueCalendar").then((m) => ({
+    default: m.IssueCalendar,
+  })),
+);
 
 const defaultStore = localStorageStore(undefined, "CRM");
 
@@ -337,6 +342,14 @@ const DesktopAdmin = (
           element={
             <CanAccess resource="projects" action="list">
               <LazyPmDashboard />
+            </CanAccess>
+          }
+        />
+        <Route
+          path="/pm/calendar"
+          element={
+            <CanAccess resource="projects" action="list">
+              <LazyIssueCalendar />
             </CanAccess>
           }
         />
