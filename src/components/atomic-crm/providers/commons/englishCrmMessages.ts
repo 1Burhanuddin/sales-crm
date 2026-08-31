@@ -424,6 +424,8 @@ export const englishCrmMessages = {
         trash: "Move to trash",
         restore: "Restore",
         history: "Version history",
+        share: "Share",
+        add_person: "Add person",
       },
       tabs: {
         notes: "Notes",
@@ -434,6 +436,8 @@ export const englishCrmMessages = {
       others: "Others",
       no_versions: "No earlier versions yet.",
       version_restored: "Version restored",
+      no_one_to_share: "No one else to share with",
+      shared_read_only: "Shared with you — view only.",
       empty: {
         title: "No notes found",
         description: "It seems your note list is empty.",

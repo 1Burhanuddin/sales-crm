@@ -430,6 +430,8 @@ export const frenchCrmMessages = {
         trash: "Mettre à la corbeille",
         restore: "Restaurer",
         history: "Historique des versions",
+        share: "Partager",
+        add_person: "Ajouter une personne",
       },
       tabs: {
         notes: "Notes",
@@ -440,6 +442,8 @@ export const frenchCrmMessages = {
       others: "Autres",
       no_versions: "Aucune version antérieure pour le moment.",
       version_restored: "Version restaurée",
+      no_one_to_share: "Personne d'autre avec qui partager",
+      shared_read_only: "Partagée avec vous — lecture seule.",
       empty: {
         title: "Aucune note trouvée",
         description: "Il semble que votre liste de notes soit vide.",
