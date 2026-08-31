@@ -88,6 +88,12 @@ export const DealsChart = memo(() => {
     },
     { min: 0, max: 0 },
   );
+  // A zero-span domain (no deals in the period, or every month nets to
+  // exactly 0) makes nivo/d3's linear scale divide by zero internally,
+  // producing NaN bar heights/transforms — pad it out so it's never flat.
+  if (range.max <= range.min) {
+    range.max = range.min + 1;
+  }
   return (
     <div className="flex flex-col">
       <div className="flex items-center mb-4">
