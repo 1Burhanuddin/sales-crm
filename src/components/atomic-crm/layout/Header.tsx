@@ -7,6 +7,7 @@ import { UserMenu } from "@/components/admin/user-menu";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 import { ImportPage } from "../misc/ImportPage";
+import { PreferencesMenuItem } from "../preferences";
 
 // The nav itself lives in AppSidebar now — this is just the top bar's
 // right-hand cluster (theme/refresh/user menu), rendered inside Layout.tsx
@@ -24,6 +25,7 @@ const Header = () => {
         <CanAccess resource="configuration" action="edit">
           <SettingsMenu />
         </CanAccess>
+        <PreferencesMenuItem />
         <ImportFromJsonMenuItem />
       </UserMenu>
     </div>
