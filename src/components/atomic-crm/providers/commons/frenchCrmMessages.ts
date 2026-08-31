@@ -307,6 +307,7 @@ export const frenchCrmMessages = {
         start_date: "Date de début",
         due_date: "Échéance",
         project_id: "Projet",
+        sprint_id: "Sprint",
       },
       timeline: {
         empty:
@@ -321,6 +322,20 @@ export const frenchCrmMessages = {
       empty: {
         title: "Aucun ticket trouvé",
         description: "Ce projet n'a pas encore de tickets.",
+      },
+    },
+    sprints: {
+      name: "Sprint |||| Sprints",
+      empty: "Aucun sprint pour ce projet pour l'instant.",
+      show_all: "Afficher tous les tickets",
+      progress: "%{done}/%{total} terminé",
+      status: {
+        planned: "Planifié",
+        active: "Actif",
+        completed: "Terminé",
+      },
+      action: {
+        new: "Nouveau sprint",
       },
     },
     issue_notes: {

@@ -162,10 +162,21 @@ export type Issue = {
   assignee_id?: Identifier;
   due_date?: string;
   start_date?: string;
+  sprint_id?: Identifier;
   sales_id?: Identifier;
   created_at: string;
   updated_at: string;
   index: number;
+} & Pick<RaRecord, "id">;
+
+export type Sprint = {
+  project_id: Identifier;
+  name: string;
+  start_date?: string;
+  end_date?: string;
+  status: "planned" | "active" | "completed";
+  sales_id?: Identifier;
+  created_at: string;
 } & Pick<RaRecord, "id">;
 
 export type Employee = {
