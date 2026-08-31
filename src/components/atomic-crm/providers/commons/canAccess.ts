@@ -8,6 +8,11 @@ type CanAccessParams<
 };
 
 const PM_RESOURCES = ["projects", "issues", "issue_notes"];
+// HR resources every role gets self-service access to (their own linked
+// record, enforced by RLS) alongside admins' full access.
+const HR_SELF_SERVICE_RESOURCES = ["employees"];
+// Records only an admin can create, regardless of role.
+const ADMIN_ONLY_CREATE_RESOURCES = ["companies", "contacts", "employees"];
 
 export const canAccess = <
   RecordType extends Record<string, any> = Record<string, any>,
@@ -20,9 +25,23 @@ export const canAccess = <
   }
 
   if (role === "developer") {
-    // Developers only get access to the Projects/Issues module. Zero
-    // access to companies/contacts/deals/tasks/sales/configuration.
-    return PM_RESOURCES.includes(params.resource);
+    // Developers get the Projects/Issues module plus their own HR
+    // self-service records. Zero access to companies/contacts/deals/tasks/
+    // sales/configuration.
+    if (
+      ![...PM_RESOURCES, ...HR_SELF_SERVICE_RESOURCES].includes(
+        params.resource,
+      )
+    ) {
+      return false;
+    }
+    if (
+      params.action === "create" &&
+      ADMIN_ONLY_CREATE_RESOURCES.includes(params.resource)
+    ) {
+      return false;
+    }
+    return true;
   }
 
   // Only admins can delete records
@@ -30,10 +49,10 @@ export const canAccess = <
     return false;
   }
 
-  // Only admins can create new companies or contacts
+  // Only admins can create new companies, contacts, or employees
   if (
     params.action === "create" &&
-    (params.resource === "companies" || params.resource === "contacts")
+    ADMIN_ONLY_CREATE_RESOURCES.includes(params.resource)
   ) {
     return false;
   }

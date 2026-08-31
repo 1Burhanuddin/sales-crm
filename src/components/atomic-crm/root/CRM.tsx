@@ -20,6 +20,7 @@ import contacts from "../contacts";
 import { Dashboard } from "../dashboard/Dashboard";
 import { MobileDashboard } from "../dashboard/MobileDashboard";
 import deals from "../deals";
+import employees from "../hr/employees";
 import projects from "../projects";
 import { ProjectShow } from "../projects/ProjectShow.tsx";
 import { Layout } from "../layout/Layout";
@@ -292,7 +293,7 @@ const DesktopAdmin = (
       </Resource>
       <Resource name="issues" />
       <Resource name="issue_notes" />
-      <Resource name="employees" />
+      <Resource name="employees" {...employees} />
       <Resource name="contact_notes" />
       <Resource name="deal_notes" />
       <Resource name="tasks" />
