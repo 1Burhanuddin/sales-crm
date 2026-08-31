@@ -164,6 +164,7 @@ export type Issue = {
   start_date?: string;
   sprint_id?: Identifier;
   milestone_id?: Identifier;
+  parent_id?: Identifier;
   sales_id?: Identifier;
   created_at: string;
   updated_at: string;
