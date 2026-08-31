@@ -1,19 +1,28 @@
 import { useListContext, useTranslate, type Identifier } from "ra-core";
 import { Link, matchPath, useLocation } from "react-router";
-import { Kanban, Plus, Table as TableIcon } from "lucide-react";
+import {
+  GanttChartSquare,
+  Kanban,
+  Plus,
+  Table as TableIcon,
+} from "lucide-react";
 import { List } from "@/components/admin/list";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 import { useViewMode } from "../misc/useViewMode";
+import type { Issue } from "../types";
 import { IssueCreate } from "./IssueCreate";
 import { IssueEdit } from "./IssueEdit";
 import { IssueListContent } from "./IssueListContent";
 import { IssueShow } from "./IssueShow";
 import { IssueTable } from "./IssueTable";
+import { IssueTimeline } from "./IssueTimeline";
+
+type ViewMode = "kanban" | "table" | "timeline";
 
 export const IssueBoard = ({ projectId }: { projectId: Identifier }) => {
-  const [viewMode, setViewMode] = useViewMode<"kanban" | "table">(
+  const [viewMode, setViewMode] = useViewMode<ViewMode>(
     "issues-view-mode",
     "table",
   );
@@ -25,11 +34,12 @@ export const IssueBoard = ({ projectId }: { projectId: Identifier }) => {
       filter={{ project_id: projectId }}
       title={false}
       sort={{ field: "index", order: "DESC" }}
-      // Kanban needs every issue at once (split across status columns, not
-      // pages), so it fetches a large flat batch with pagination hidden.
-      // Table view behaves like every other list page in the app.
-      perPage={isKanban ? 100 : 25}
-      pagination={isKanban ? null : undefined}
+      // Kanban and timeline both need every issue at once (split across
+      // status columns / plotted on one axis, not paged), so they fetch a
+      // large flat batch with pagination hidden. Table view behaves like
+      // every other list page in the app.
+      perPage={viewMode === "table" ? 25 : 100}
+      pagination={isKanban || viewMode === "timeline" ? null : undefined}
       actions={false}
       empty={false}
     >
@@ -48,8 +58,8 @@ const IssueBoardLayout = ({
   setViewMode,
 }: {
   projectId: Identifier;
-  viewMode: "kanban" | "table";
-  setViewMode: (mode: "kanban" | "table") => void;
+  viewMode: ViewMode;
+  setViewMode: (mode: ViewMode) => void;
 }) => {
   const translate = useTranslate();
   const location = useLocation();
@@ -66,7 +76,7 @@ const IssueBoardLayout = ({
     location.pathname,
   );
 
-  const { data, isPending } = useListContext();
+  const { data, isPending } = useListContext<Issue>();
   if (isPending) return null;
 
   return (
@@ -77,15 +87,16 @@ const IssueBoardLayout = ({
           variant="outline"
           size="sm"
           value={viewMode}
-          onValueChange={(value) =>
-            value && setViewMode(value as "kanban" | "table")
-          }
+          onValueChange={(value) => value && setViewMode(value as ViewMode)}
         >
           <ToggleGroupItem value="kanban" aria-label="Kanban view">
             <Kanban className="h-4 w-4" />
           </ToggleGroupItem>
           <ToggleGroupItem value="table" aria-label="Table view">
             <TableIcon className="h-4 w-4" />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="timeline" aria-label="Timeline view">
+            <GanttChartSquare className="h-4 w-4" />
           </ToggleGroupItem>
         </ToggleGroup>
         <Button asChild size="sm" className="gap-2">
@@ -102,6 +113,8 @@ const IssueBoardLayout = ({
         </p>
       ) : viewMode === "table" ? (
         <IssueTable />
+      ) : viewMode === "timeline" ? (
+        <IssueTimeline projectId={projectId} issues={data} />
       ) : (
         <IssueListContent projectId={projectId} />
       )}

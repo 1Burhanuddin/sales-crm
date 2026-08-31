@@ -36,7 +36,14 @@ export const IssueInputs = () => {
           helperText={false}
         />
       </ReferenceInput>
-      <DateInput source="due_date" helperText={false} />
+      <div className="flex gap-4">
+        <DateInput
+          source="start_date"
+          label="resources.issues.fields.start_date"
+          helperText={false}
+        />
+        <DateInput source="due_date" helperText={false} />
+      </div>
     </div>
   );
 };

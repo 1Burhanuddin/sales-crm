@@ -149,6 +149,7 @@ create table public.issues (
     priority text,
     assignee_id bigint,
     due_date date,
+    start_date date,
     sales_id bigint,
     created_at timestamp with time zone not null default now(),
     updated_at timestamp with time zone not null default now(),
