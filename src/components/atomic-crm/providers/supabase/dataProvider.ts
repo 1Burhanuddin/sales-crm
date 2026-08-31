@@ -11,6 +11,7 @@ import type {
   Deal,
   DealNote,
   IssueNote,
+  PersonalNote,
   RAFile,
   Sale,
   SalesFormData,
@@ -400,6 +401,44 @@ const lifeCycleCallbacks: ResourceCallbacks[] = [
         "employee_code",
         "email",
       ])(params);
+    },
+  },
+  {
+    resource: "personal_notes",
+    beforeSave: async (data: PersonalNote, _, __) => {
+      if (data.attachments) {
+        data.attachments = await Promise.all(
+          data.attachments.map((fi) => uploadToBucket(fi)),
+        );
+      }
+      return data;
+    },
+    beforeGetList: async (params) => {
+      const base = applyFullTextSearch(["title", "content"])(params);
+      const q = params.filter?.q;
+      if (!q) return base;
+
+      // Also match notes tagged with a tag whose name matches the search
+      // term — the "title"/"content" ilike columns above can't see tag
+      // names since personal_notes.tags only stores tag ids.
+      const { data: matchingTags } = await getSupabaseClient()
+        .from("tags")
+        .select("id")
+        .ilike("name", `%${q}%`)
+        .limit(50);
+
+      if (!matchingTags?.length) return base;
+
+      return {
+        ...base,
+        filter: {
+          ...base.filter,
+          "@or": {
+            ...base.filter["@or"],
+            "tags@ov": `{${matchingTags.map((t) => t.id).join(",")}}`,
+          },
+        },
+      };
     },
   },
 ];

@@ -26,6 +26,7 @@ import employees from "../hr/employees";
 import leaveRequests from "../hr/leave";
 import { MyHrDashboard } from "../hr/MyHrDashboard";
 import payslips from "../hr/payroll";
+import personalNotes from "../personal-notes";
 import projects from "../projects";
 import { ProjectShow } from "../projects/ProjectShow.tsx";
 import { Layout } from "../layout/Layout";
@@ -318,6 +319,9 @@ const DesktopAdmin = (
       <Resource name="payslips" {...payslips} />
       <Resource name="transactions" {...transactions} />
       <Resource name="statement_imports" />
+      <Resource name="personal_notes" {...personalNotes} />
+      <Resource name="personal_note_versions" />
+      <Resource name="personal_note_shares" />
       <Resource name="contact_notes" />
       <Resource name="deal_notes" />
       <Resource name="tasks" />

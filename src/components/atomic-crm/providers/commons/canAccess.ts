@@ -30,6 +30,16 @@ const ADMIN_ONLY_ACTIONS = ["approve", "reject"];
 // self-service — same treatment as "sales"/"configuration" below, not the
 // HR_SELF_SERVICE_RESOURCES pattern.
 const ACCOUNTS_RESOURCES = ["transactions", "statement_imports"];
+// Personal notes are fully self-service for every role, including
+// developer — zero relation to CRM/HR/PM data. Unlike everything else in
+// this file, a plain user can also delete their own note (see the
+// personal_notes RLS policy: delete does NOT require admin, since these
+// are private scratch content, not shared business/HR data).
+const PERSONAL_NOTE_RESOURCES = [
+  "personal_notes",
+  "personal_note_shares",
+  "personal_note_versions",
+];
 
 // Shared by the developer and plain-user branches so HR rules can't drift
 // apart between the two self-service roles.
@@ -59,9 +69,11 @@ export const canAccess = <
     // self-service records. Zero access to companies/contacts/deals/tasks/
     // sales/configuration.
     if (
-      ![...PM_RESOURCES, ...HR_SELF_SERVICE_RESOURCES].includes(
-        params.resource,
-      )
+      ![
+        ...PM_RESOURCES,
+        ...HR_SELF_SERVICE_RESOURCES,
+        ...PERSONAL_NOTE_RESOURCES,
+      ].includes(params.resource)
     ) {
       return false;
     }
@@ -74,8 +86,12 @@ export const canAccess = <
     return restrictHrAdminActions(params);
   }
 
-  // Only admins can delete records
-  if (params.action === "delete" || params.action === "delete_many") {
+  // Only admins can delete records — except personal notes, which are
+  // private scratch content a user can delete themselves (RLS-enforced).
+  if (
+    (params.action === "delete" || params.action === "delete_many") &&
+    !PERSONAL_NOTE_RESOURCES.includes(params.resource)
+  ) {
     return false;
   }
 

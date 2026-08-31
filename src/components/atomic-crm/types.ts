@@ -258,6 +258,44 @@ export type Transaction = {
   updated_at: string;
 } & Pick<RaRecord, "id">;
 
+export type ChecklistItem = {
+  text: string;
+  checked: boolean;
+};
+
+export type PersonalNote = {
+  sales_id?: Identifier;
+  title?: string;
+  content?: string;
+  type: "note" | "checklist";
+  checklist_items: ChecklistItem[];
+  tags?: number[];
+  color?: string | null;
+  pinned: boolean;
+  archived_at?: string | null;
+  deleted_at?: string | null;
+  attachments?: AttachmentNote[];
+  created_at: string;
+  updated_at: string;
+} & Pick<RaRecord, "id">;
+
+export type PersonalNoteVersion = {
+  note_id: Identifier;
+  title?: string;
+  content?: string;
+  type: "note" | "checklist";
+  checklist_items: ChecklistItem[];
+  tags?: number[];
+  color?: string | null;
+  created_at: string;
+} & Pick<RaRecord, "id">;
+
+export type PersonalNoteShare = {
+  note_id: Identifier;
+  shared_with_sales_id: Identifier;
+  created_at: string;
+} & Pick<RaRecord, "id">;
+
 export type IssueNote = {
   issue_id: Identifier;
   text: string;

@@ -69,6 +69,10 @@ grant all on function public.calculate_payslip_totals() to anon;
 grant all on function public.calculate_payslip_totals() to authenticated;
 grant all on function public.calculate_payslip_totals() to service_role;
 
+grant all on function public.snapshot_personal_note_version() to anon;
+grant all on function public.snapshot_personal_note_version() to authenticated;
+grant all on function public.snapshot_personal_note_version() to service_role;
+
 grant all on function public.lowercase_email_jsonb() to anon;
 grant all on function public.lowercase_email_jsonb() to authenticated;
 grant all on function public.lowercase_email_jsonb() to service_role;
@@ -161,6 +165,18 @@ grant all on table public.statement_imports to service_role;
 grant all on table public.transactions to anon;
 grant all on table public.transactions to authenticated;
 grant all on table public.transactions to service_role;
+
+grant all on table public.personal_notes to anon;
+grant all on table public.personal_notes to authenticated;
+grant all on table public.personal_notes to service_role;
+
+grant all on table public.personal_note_versions to anon;
+grant all on table public.personal_note_versions to authenticated;
+grant all on table public.personal_note_versions to service_role;
+
+grant all on table public.personal_note_shares to anon;
+grant all on table public.personal_note_shares to authenticated;
+grant all on table public.personal_note_shares to service_role;
 
 -- View grants
 grant all on table public.activity_log to anon;
@@ -259,6 +275,18 @@ grant all on sequence public.statement_imports_id_seq to service_role;
 grant all on sequence public.transactions_id_seq to anon;
 grant all on sequence public.transactions_id_seq to authenticated;
 grant all on sequence public.transactions_id_seq to service_role;
+
+grant all on sequence public.personal_notes_id_seq to anon;
+grant all on sequence public.personal_notes_id_seq to authenticated;
+grant all on sequence public.personal_notes_id_seq to service_role;
+
+grant all on sequence public.personal_note_versions_id_seq to anon;
+grant all on sequence public.personal_note_versions_id_seq to authenticated;
+grant all on sequence public.personal_note_versions_id_seq to service_role;
+
+grant all on sequence public.personal_note_shares_id_seq to anon;
+grant all on sequence public.personal_note_shares_id_seq to authenticated;
+grant all on sequence public.personal_note_shares_id_seq to service_role;
 
 -- Default privileges
 alter default privileges for role postgres in schema public grant all on sequences to postgres;
