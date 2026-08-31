@@ -6,8 +6,10 @@ import { LayoutGrid, Table as TableIcon } from "lucide-react";
 import { List } from "@/components/admin/list";
 import { SearchInput } from "@/components/admin/search-input";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { cn } from "@/lib/utils";
 
 import { useViewMode } from "../misc/useViewMode";
+import { usePreferences } from "../preferences";
 import { PersonalNoteCreate } from "./PersonalNoteCreate";
 import { PersonalNoteEdit } from "./PersonalNoteEdit";
 import { PersonalNoteGrid } from "./PersonalNoteGrid";
@@ -32,6 +34,7 @@ export const PersonalNoteList = () => {
     "personal-notes-view-mode",
     "grid",
   );
+  const { noteCorners } = usePreferences();
 
   return (
     <List
@@ -46,7 +49,11 @@ export const PersonalNoteList = () => {
           key="q"
           source="q"
           alwaysOn
-          className="h-11 rounded-full bg-muted border-none max-w-xl w-full"
+          className="max-w-xl w-full"
+          inputClassName={cn(
+            "h-11 bg-muted border-none shadow-none dark:bg-muted pr-16",
+            noteCorners === "square" ? "rounded-none" : "rounded-full",
+          )}
           placeholder="Search notes…"
         />,
       ]}
@@ -117,11 +124,15 @@ const PersonalNoteLayout = ({
 const AddCrumbBar = () => {
   const translate = useTranslate();
   const redirect = useRedirect();
+  const { noteCorners } = usePreferences();
   return (
     <button
       type="button"
       onClick={() => redirect("/personal_notes/create")}
-      className="flex-1 flex items-center gap-2 h-11 px-4 rounded-xl border bg-card text-sm text-muted-foreground hover:bg-muted transition-colors"
+      className={cn(
+        "flex-1 flex items-center gap-2 h-11 px-4 border bg-card text-sm text-muted-foreground hover:bg-muted transition-colors",
+        noteCorners === "square" ? "rounded-none" : "rounded-xl",
+      )}
     >
       <Plus className="w-4 h-4" />
       {translate("resources.personal_notes.action.new", {
