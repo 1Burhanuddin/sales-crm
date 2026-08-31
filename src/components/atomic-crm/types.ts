@@ -161,6 +161,7 @@ export type Issue = {
   priority?: string;
   assignee_id?: Identifier;
   due_date?: string;
+  start_date?: string;
   sales_id?: Identifier;
   created_at: string;
   updated_at: string;

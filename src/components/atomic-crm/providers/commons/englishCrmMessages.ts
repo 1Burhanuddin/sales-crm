@@ -299,8 +299,13 @@ export const englishCrmMessages = {
         status: "Status",
         priority: "Priority",
         assignee_id: "Assignee",
+        start_date: "Start date",
         due_date: "Due date",
         project_id: "Project",
+      },
+      timeline: {
+        empty:
+          "No issues with a due date yet — the timeline needs at least one to draw an axis.",
       },
       action: {
         back_to_issue: "Back to issue",

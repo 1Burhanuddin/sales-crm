@@ -304,8 +304,13 @@ export const frenchCrmMessages = {
         status: "Statut",
         priority: "Priorité",
         assignee_id: "Assigné à",
+        start_date: "Date de début",
         due_date: "Échéance",
         project_id: "Projet",
+      },
+      timeline: {
+        empty:
+          "Aucune tâche avec une échéance pour l'instant — la chronologie a besoin d'au moins une pour tracer un axe.",
       },
       action: {
         back_to_issue: "Retour au ticket",
