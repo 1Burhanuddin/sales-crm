@@ -20,6 +20,7 @@ import contacts from "../contacts";
 import { Dashboard } from "../dashboard/Dashboard";
 import { MobileDashboard } from "../dashboard/MobileDashboard";
 import deals from "../deals";
+import attendanceRecords from "../hr/attendance";
 import employees from "../hr/employees";
 import leaveRequests from "../hr/leave";
 import projects from "../projects";
@@ -44,6 +45,7 @@ import {
 } from "./ConfigurationContext";
 import type { CrmDataProvider } from "../providers/types";
 import {
+  defaultAttendanceStatuses,
   defaultCompanySectors,
   defaultCurrency,
   defaultDarkModeLogo,
@@ -142,6 +144,7 @@ export const CRM = ({
   employmentTypes = defaultEmploymentTypes,
   employeeStatuses = defaultEmployeeStatuses,
   leaveTypes = defaultLeaveTypes,
+  attendanceStatuses = defaultAttendanceStatuses,
   title = defaultTitle,
   dataProvider = defaultDataProviderBuilder(),
   authProvider = defaultAuthProviderBuilder(),
@@ -183,6 +186,7 @@ export const CRM = ({
         employmentTypes,
         employeeStatuses,
         leaveTypes,
+        attendanceStatuses,
         title,
         darkModeLogo,
         lightModeLogo,
@@ -299,6 +303,7 @@ const DesktopAdmin = (
       <Resource name="issue_notes" />
       <Resource name="employees" {...employees} />
       <Resource name="leave_requests" {...leaveRequests} />
+      <Resource name="attendance_records" {...attendanceRecords} />
       <Resource name="contact_notes" />
       <Resource name="deal_notes" />
       <Resource name="tasks" />

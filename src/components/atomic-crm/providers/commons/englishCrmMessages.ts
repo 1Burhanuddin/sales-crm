@@ -352,6 +352,25 @@ export const englishCrmMessages = {
         description: "It seems your leave request list is empty.",
       },
     },
+    attendance_records: {
+      name: "Attendance Record |||| Attendance",
+      fields: {
+        employee_id: "Employee",
+        date: "Date",
+        status: "Status",
+        check_in: "Check in",
+        check_out: "Check out",
+        notes: "Notes",
+      },
+      action: {
+        new: "Log Attendance",
+        create: "Log Attendance",
+      },
+      empty: {
+        title: "No attendance records found",
+        description: "It seems your attendance log is empty.",
+      },
+    },
     notes: {
       name: "Note |||| Notes",
       forcedCaseName: "Note",
@@ -615,6 +634,7 @@ export const englishCrmMessages = {
         employment_types: "Employment Types",
         employee_statuses: "Employee Statuses",
         leave_types: "Leave Types",
+        attendance_statuses: "Attendance Statuses",
       },
       notes: {
         statuses: "Statuses",
@@ -651,6 +671,7 @@ export const englishCrmMessages = {
           employment_types: "employment types",
           employee_statuses: "employee statuses",
           leave_types: "leave types",
+          attendance_statuses: "attendance statuses",
         },
       },
     },

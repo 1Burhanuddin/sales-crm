@@ -358,6 +358,25 @@ export const frenchCrmMessages = {
         description: "Il semble que votre liste de demandes de congé soit vide.",
       },
     },
+    attendance_records: {
+      name: "Présence |||| Présences",
+      fields: {
+        employee_id: "Employé",
+        date: "Date",
+        status: "Statut",
+        check_in: "Arrivée",
+        check_out: "Départ",
+        notes: "Notes",
+      },
+      action: {
+        new: "Enregistrer la présence",
+        create: "Enregistrer la présence",
+      },
+      empty: {
+        title: "Aucune présence trouvée",
+        description: "Il semble que votre registre de présence soit vide.",
+      },
+    },
     notes: {
       name: "Note |||| Notes",
       forcedCaseName: "Note",
@@ -623,6 +642,7 @@ export const frenchCrmMessages = {
         employment_types: "Types d'emploi",
         employee_statuses: "Statuts des employés",
         leave_types: "Types de congé",
+        attendance_statuses: "Statuts de présence",
       },
       notes: {
         statuses: "Statuts",
@@ -660,6 +680,7 @@ export const frenchCrmMessages = {
           employment_types: "types d'emploi",
           employee_statuses: "statuts des employés",
           leave_types: "types de congé",
+          attendance_statuses: "statuts de présence",
         },
       },
     },

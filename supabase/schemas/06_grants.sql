@@ -138,6 +138,10 @@ grant all on table public.leave_requests to anon;
 grant all on table public.leave_requests to authenticated;
 grant all on table public.leave_requests to service_role;
 
+grant all on table public.attendance_records to anon;
+grant all on table public.attendance_records to authenticated;
+grant all on table public.attendance_records to service_role;
+
 -- View grants
 grant all on table public.activity_log to anon;
 grant all on table public.activity_log to authenticated;
@@ -215,6 +219,10 @@ grant all on sequence public.employees_id_seq to service_role;
 grant all on sequence public.leave_requests_id_seq to anon;
 grant all on sequence public.leave_requests_id_seq to authenticated;
 grant all on sequence public.leave_requests_id_seq to service_role;
+
+grant all on sequence public.attendance_records_id_seq to anon;
+grant all on sequence public.attendance_records_id_seq to authenticated;
+grant all on sequence public.attendance_records_id_seq to service_role;
 
 -- Default privileges
 alter default privileges for role postgres in schema public grant all on sequences to postgres;

@@ -195,6 +195,17 @@ export type LeaveRequest = {
   updated_at: string;
 } & Pick<RaRecord, "id">;
 
+export type AttendanceRecord = {
+  employee_id: Identifier;
+  date: string;
+  status: string;
+  check_in?: string | null;
+  check_out?: string | null;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+} & Pick<RaRecord, "id">;
+
 export type IssueNote = {
   issue_id: Identifier;
   text: string;

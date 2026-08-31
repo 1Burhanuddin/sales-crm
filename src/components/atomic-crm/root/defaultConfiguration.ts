@@ -111,6 +111,14 @@ export const defaultLeaveTypes = [
   { value: "unpaid", label: "Unpaid Leave", annual_days: 0 },
 ];
 
+export const defaultAttendanceStatuses = [
+  { value: "present", label: "Present" },
+  { value: "absent", label: "Absent" },
+  { value: "half-day", label: "Half Day" },
+  { value: "on-leave", label: "On Leave" },
+  { value: "holiday", label: "Holiday" },
+];
+
 export const defaultConfiguration: ConfigurationContextValue = {
   companySectors: defaultCompanySectors,
   currency: defaultCurrency,
@@ -126,6 +134,7 @@ export const defaultConfiguration: ConfigurationContextValue = {
   employmentTypes: defaultEmploymentTypes,
   employeeStatuses: defaultEmployeeStatuses,
   leaveTypes: defaultLeaveTypes,
+  attendanceStatuses: defaultAttendanceStatuses,
   title: defaultTitle,
   darkModeLogo: defaultDarkModeLogo,
   lightModeLogo: defaultLightModeLogo,
