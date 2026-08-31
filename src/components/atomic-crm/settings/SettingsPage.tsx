@@ -138,6 +138,7 @@ const transformFormValues = (data: Record<string, any>) => ({
     employmentTypes: ensureValues(data.employmentTypes),
     employeeStatuses: ensureValues(data.employeeStatuses),
     leaveTypes: ensureValues(data.leaveTypes),
+    attendanceStatuses: ensureValues(data.attendanceStatuses),
   } as ConfigurationContextValue,
 });
 
@@ -193,6 +194,7 @@ const SettingsForm = () => {
       employmentTypes: config.employmentTypes,
       employeeStatuses: config.employeeStatuses,
       leaveTypes: config.leaveTypes,
+      attendanceStatuses: config.attendanceStatuses,
     }),
     [config],
   );
@@ -254,6 +256,12 @@ const SettingsFormFields = () => {
   });
   const leaveTypeDisplayName = translate(
     "crm.settings.validation.entities.leave_types",
+  );
+  const { data: attendanceRecords } = useGetList("attendance_records", {
+    pagination: { page: 1, perPage: 1000 },
+  });
+  const attendanceStatusDisplayName = translate(
+    "crm.settings.validation.entities.attendance_statuses",
   );
 
   const validationMessages = useMemo(
@@ -331,6 +339,18 @@ const SettingsFormFields = () => {
         validationMessages,
       ),
     [leaveTypeDisplayName, leaveRequests, validationMessages],
+  );
+
+  const validateAttendanceStatuses = useCallback(
+    (items: { value: string; label: string }[] | undefined) =>
+      validateItemsInUse(
+        items,
+        attendanceRecords,
+        "status",
+        attendanceStatusDisplayName,
+        validationMessages,
+      ),
+    [attendanceStatusDisplayName, attendanceRecords, validationMessages],
   );
 
   const validateDealStages = useCallback(
@@ -756,6 +776,22 @@ const SettingsFormFields = () => {
                   helperText={false}
                   className="w-24"
                 />
+              </SimpleFormIterator>
+            </ArrayInput>
+
+            <Separator />
+
+            <h3 className="text-lg font-medium text-muted-foreground">
+              {translate("crm.settings.hr.attendance_statuses")}
+            </h3>
+            <ArrayInput
+              source="attendanceStatuses"
+              label={false}
+              helperText={false}
+              validate={validateAttendanceStatuses}
+            >
+              <SimpleFormIterator disableReordering disableClear>
+                <TextInput source="label" label={false} />
               </SimpleFormIterator>
             </ArrayInput>
           </CardContent>

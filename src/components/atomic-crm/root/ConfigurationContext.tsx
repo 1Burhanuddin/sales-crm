@@ -21,6 +21,7 @@ export interface ConfigurationContextValue {
   employmentTypes: LabeledValue[];
   employeeStatuses: LabeledValue[];
   leaveTypes: LeaveType[];
+  attendanceStatuses: LabeledValue[];
   title: string;
   darkModeLogo: string;
   lightModeLogo: string;

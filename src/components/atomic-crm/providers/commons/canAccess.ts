@@ -10,7 +10,11 @@ type CanAccessParams<
 const PM_RESOURCES = ["projects", "issues", "issue_notes"];
 // HR resources every role gets self-service access to (their own linked
 // record, enforced by RLS) alongside admins' full access.
-const HR_SELF_SERVICE_RESOURCES = ["employees", "leave_requests"];
+const HR_SELF_SERVICE_RESOURCES = [
+  "employees",
+  "leave_requests",
+  "attendance_records",
+];
 // Records only an admin can create, regardless of role.
 const ADMIN_ONLY_CREATE_RESOURCES = ["companies", "contacts", "employees"];
 // Non-CRUD actions only an admin can take, regardless of role. canAccess

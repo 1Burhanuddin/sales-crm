@@ -19,6 +19,7 @@ alter table public.issues enable row level security;
 alter table public.issue_notes enable row level security;
 alter table public.employees enable row level security;
 alter table public.leave_requests enable row level security;
+alter table public.attendance_records enable row level security;
 
 -- Companies (visible/editable by their owning sales rep, or any admin)
 create policy "Select own or admin" on public.companies for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
@@ -120,3 +121,16 @@ create policy "Update own pending or admin" on public.leave_requests for update 
     or (status in ('pending', 'cancelled') and approved_by is null and approved_at is null)
 );
 create policy "Admin delete only" on public.leave_requests for delete to authenticated using (public.is_admin());
+
+-- Attendance records (join-through to employees.sales_id): no approval
+-- workflow in v1, self can log/edit own rows freely.
+create policy "Select own or admin" on public.attendance_records for select to authenticated using (public.is_admin() or exists (
+    select 1 from public.employees e where e.id = attendance_records.employee_id and e.sales_id = public.current_sales_id()
+));
+create policy "Insert own or admin" on public.attendance_records for insert to authenticated with check (public.is_admin() or exists (
+    select 1 from public.employees e where e.id = attendance_records.employee_id and e.sales_id = public.current_sales_id()
+));
+create policy "Update own or admin" on public.attendance_records for update to authenticated using (public.is_admin() or exists (
+    select 1 from public.employees e where e.id = attendance_records.employee_id and e.sales_id = public.current_sales_id()
+));
+create policy "Admin delete only" on public.attendance_records for delete to authenticated using (public.is_admin());
