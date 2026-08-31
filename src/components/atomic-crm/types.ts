@@ -177,6 +177,19 @@ export type Employee = {
   date_of_joining: string;
   date_of_leaving?: string;
   avatar?: RAFile;
+  date_of_birth?: string;
+  address?: string;
+  emergency_contact_name?: string;
+  emergency_contact_phone?: string;
+  bank_name?: string;
+  bank_account_name?: string;
+  bank_account_number?: string;
+  bank_ifsc?: string;
+  previous_employer?: string;
+  previous_designation?: string;
+  total_experience_years?: number;
+  qualification?: string;
+  background?: string;
   created_at: string;
   updated_at: string;
 } & Pick<RaRecord, "id">;
@@ -402,6 +415,13 @@ export interface LabeledValue {
 }
 
 export type DealStage = LabeledValue;
+
+// department is optional: a designation without one shows regardless of
+// the selected department (e.g. "Manager", "Intern"); one with a
+// department only shows for that department (see EmployeeInputs.tsx).
+export interface Designation extends LabeledValue {
+  department?: string;
+}
 
 export interface NoteStatus extends LabeledValue {
   color: string;

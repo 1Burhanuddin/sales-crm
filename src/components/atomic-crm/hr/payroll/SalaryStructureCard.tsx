@@ -39,7 +39,10 @@ export const SalaryStructureCard = ({
     <Card>
       <CardContent>
         <h3 className="text-lg font-semibold mb-4">
-          {translate("resources.salary_structures.name", { _: "Salary" })}
+          {translate("resources.salary_structures.name", {
+            smart_count: 1,
+            _: "Salary",
+          })}
         </h3>
         {existing ? (
           <EditBase
