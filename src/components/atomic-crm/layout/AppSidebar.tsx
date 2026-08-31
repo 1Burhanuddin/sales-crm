@@ -1,4 +1,5 @@
 import {
+  BarChart3,
   Building2,
   CalendarOff,
   ClipboardCheck,
@@ -140,6 +141,14 @@ export const AppSidebar = () => {
     {
       label: translate("crm.navigation.groups.accounts", { _: "Accounts" }),
       items: [
+        {
+          to: "/accounts",
+          label: translate("crm.accounts.dashboard.nav_label", {
+            _: "Overview",
+          }),
+          icon: BarChart3,
+          resource: "transactions",
+        },
         {
           to: "/transactions",
           label: translate("crm.accounts.nav_label", { _: "Accounts" }),
