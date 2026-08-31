@@ -1,4 +1,5 @@
 import { required } from "ra-core";
+import { useWatch } from "react-hook-form";
 import { DateInput } from "@/components/admin/date-input";
 import { ReferenceInput } from "@/components/admin/reference-input";
 import { AutocompleteInput } from "@/components/admin/autocomplete-input";
@@ -9,6 +10,11 @@ import { useConfigurationContext } from "../root/ConfigurationContext";
 
 export const IssueInputs = () => {
   const { issueStatuses, issuePriorities } = useConfigurationContext();
+  // Sprints are scoped to one project -- read the issue's own project_id
+  // (set as a defaultValue on create, present on the record on edit)
+  // straight off the live form, same useWatch pattern already used for
+  // EmployeeInputs.tsx's department->designation dependent dropdown.
+  const projectId = useWatch({ name: "project_id" });
   return (
     <div className="flex flex-col gap-4">
       <TextInput source="title" validate={required()} helperText={false} />
@@ -36,6 +42,18 @@ export const IssueInputs = () => {
           helperText={false}
         />
       </ReferenceInput>
+      {projectId != null && (
+        <ReferenceInput
+          source="sprint_id"
+          reference="sprints"
+          filter={{ project_id: projectId }}
+        >
+          <AutocompleteInput
+            label="resources.issues.fields.sprint_id"
+            helperText={false}
+          />
+        </ReferenceInput>
+      )}
       <div className="flex gap-4">
         <DateInput
           source="start_date"

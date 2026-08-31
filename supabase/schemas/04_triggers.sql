@@ -36,6 +36,10 @@ create or replace trigger set_project_sales_id_trigger
     before insert on public.projects
     for each row execute function public.set_sales_id_default();
 
+create or replace trigger set_sprint_sales_id_trigger
+    before insert on public.sprints
+    for each row execute function public.set_sales_id_default();
+
 create or replace trigger set_issue_sales_id_trigger
     before insert on public.issues
     for each row execute function public.set_sales_id_default();

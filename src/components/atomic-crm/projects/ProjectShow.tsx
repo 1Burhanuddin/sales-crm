@@ -1,4 +1,11 @@
-import { ShowBase, useRecordContext, useShowContext, useTranslate } from "ra-core";
+import { useState } from "react";
+import {
+  ShowBase,
+  useRecordContext,
+  useShowContext,
+  useTranslate,
+  type Identifier,
+} from "ra-core";
 import { Link } from "react-router";
 import { Pencil } from "lucide-react";
 import { DeleteButton } from "@/components/admin/delete-button";
@@ -7,6 +14,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 import type { Project } from "../types";
 import { IssueBoard } from "./IssueBoard";
+import { SprintPanel } from "./SprintPanel";
 
 export const ProjectShow = () => (
   <ShowBase>
@@ -18,6 +26,9 @@ const ProjectShowContent = () => {
   const translate = useTranslate();
   const { isPending } = useShowContext<Project>();
   const record = useRecordContext<Project>();
+  const [selectedSprintId, setSelectedSprintId] = useState<Identifier | null>(
+    null,
+  );
   if (isPending || !record) return null;
 
   return (
@@ -46,7 +57,17 @@ const ProjectShowContent = () => {
         </CardContent>
       </Card>
 
-      <IssueBoard projectId={record.id} />
+      <Card>
+        <CardContent>
+          <SprintPanel
+            projectId={record.id}
+            selectedSprintId={selectedSprintId}
+            onSelectSprint={setSelectedSprintId}
+          />
+        </CardContent>
+      </Card>
+
+      <IssueBoard projectId={record.id} sprintId={selectedSprintId} />
     </div>
   );
 };

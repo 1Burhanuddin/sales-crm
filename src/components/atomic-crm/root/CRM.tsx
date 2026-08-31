@@ -388,6 +388,7 @@ const DesktopAdmin = (
         <Route path=":id/issues/:issueId/show" element={<ProjectShow />} />
       </Resource>
       <Resource name="issues" />
+      <Resource name="sprints" />
       <Resource name="issue_notes" />
       <Resource name="employees" {...employees} />
       <Resource

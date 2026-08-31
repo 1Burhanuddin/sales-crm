@@ -21,7 +21,13 @@ import { IssueTimeline } from "./IssueTimeline";
 
 type ViewMode = "kanban" | "table" | "timeline";
 
-export const IssueBoard = ({ projectId }: { projectId: Identifier }) => {
+export const IssueBoard = ({
+  projectId,
+  sprintId,
+}: {
+  projectId: Identifier;
+  sprintId?: Identifier | null;
+}) => {
   const [viewMode, setViewMode] = useViewMode<ViewMode>(
     "issues-view-mode",
     "table",
@@ -31,7 +37,11 @@ export const IssueBoard = ({ projectId }: { projectId: Identifier }) => {
   return (
     <List
       resource="issues"
-      filter={{ project_id: projectId }}
+      filter={
+        sprintId != null
+          ? { project_id: projectId, sprint_id: sprintId }
+          : { project_id: projectId }
+      }
       title={false}
       sort={{ field: "index", order: "DESC" }}
       // Kanban and timeline both need every issue at once (split across

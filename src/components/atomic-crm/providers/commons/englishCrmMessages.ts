@@ -302,6 +302,7 @@ export const englishCrmMessages = {
         start_date: "Start date",
         due_date: "Due date",
         project_id: "Project",
+        sprint_id: "Sprint",
       },
       timeline: {
         empty:
@@ -316,6 +317,20 @@ export const englishCrmMessages = {
       empty: {
         title: "No issues found",
         description: "It seems this project has no issues yet.",
+      },
+    },
+    sprints: {
+      name: "Sprint |||| Sprints",
+      empty: "No sprints yet for this project.",
+      show_all: "Show all issues",
+      progress: "%{done}/%{total} done",
+      status: {
+        planned: "Planned",
+        active: "Active",
+        completed: "Completed",
+      },
+      action: {
+        new: "New Sprint",
       },
     },
     issue_notes: {
