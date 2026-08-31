@@ -109,13 +109,15 @@ const DealShowContent = () => {
                 {translate("resources.deals.fields.amount")}
               </span>
               <span className="text-sm">
-                {record.amount.toLocaleString("en-US", {
-                  notation: "compact",
-                  style: "currency",
-                  currency,
-                  currencyDisplay: "narrowSymbol",
-                  minimumSignificantDigits: 3,
-                })}
+                {record.amount == null
+                  ? "—"
+                  : record.amount.toLocaleString("en-US", {
+                      notation: "compact",
+                      style: "currency",
+                      currency,
+                      currencyDisplay: "narrowSymbol",
+                      minimumSignificantDigits: 3,
+                    })}
               </span>
             </div>
 
