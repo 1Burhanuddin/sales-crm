@@ -16,6 +16,10 @@ export interface ConfigurationContextValue {
   issuePriorities: LabeledValue[];
   noteStatuses: NoteStatus[];
   taskTypes: LabeledValue[];
+  departments: LabeledValue[];
+  designations: LabeledValue[];
+  employmentTypes: LabeledValue[];
+  employeeStatuses: LabeledValue[];
   title: string;
   darkModeLogo: string;
   lightModeLogo: string;

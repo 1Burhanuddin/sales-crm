@@ -297,6 +297,33 @@ export const englishCrmMessages = {
         note_or_attachment_required: "A comment or an attachment is required",
       },
     },
+    employees: {
+      name: "Employee |||| Employees",
+      fields: {
+        first_name: "First name",
+        last_name: "Last name",
+        email: "Email",
+        phone: "Phone",
+        employee_code: "Employee code",
+        department: "Department",
+        designation: "Designation",
+        employment_type: "Employment type",
+        status: "Status",
+        date_of_joining: "Date of joining",
+        date_of_leaving: "Date of leaving",
+        sales_id: "CRM login",
+      },
+      action: {
+        create: "Create employee",
+        edit: "Edit employee",
+        new: "New Employee",
+        show: "Show employee",
+      },
+      empty: {
+        title: "No employees found",
+        description: "It seems your employee list is empty.",
+      },
+    },
     notes: {
       name: "Note |||| Notes",
       forcedCaseName: "Note",
@@ -554,6 +581,12 @@ export const englishCrmMessages = {
         stages: "Stages",
       },
       light_mode_logo: "Light Mode Logo",
+      hr: {
+        departments: "Departments",
+        designations: "Designations",
+        employment_types: "Employment Types",
+        employee_statuses: "Employee Statuses",
+      },
       notes: {
         statuses: "Statuses",
       },
@@ -573,6 +606,7 @@ export const englishCrmMessages = {
       app_title: "App Title",
       sections: {
         branding: "Branding",
+        hr: "HR",
       },
       validation: {
         duplicate: "Duplicate %{display_name}: %{items}",
@@ -583,6 +617,10 @@ export const englishCrmMessages = {
           stages: "stages",
           statuses: "statuses",
           priorities: "priorities",
+          departments: "departments",
+          designations: "designations",
+          employment_types: "employment types",
+          employee_statuses: "employee statuses",
         },
       },
     },
