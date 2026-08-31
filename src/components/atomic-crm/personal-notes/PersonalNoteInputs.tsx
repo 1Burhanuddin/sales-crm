@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 import { AttachmentField } from "../notes/AttachmentField";
 import { validateNoteOrAttachmentRequired } from "../notes/noteModel";
-import { colors } from "../tags/colors";
+import { noteColors } from "./noteColors";
 
 export const PersonalNoteInputs = () => (
   <div className="flex flex-col gap-3">
@@ -41,7 +41,7 @@ const ColorSwatchInput = () => {
       >
         ✕
       </button>
-      {colors.map((color) => (
+      {noteColors.map((color) => (
         <button
           key={color}
           type="button"

@@ -1,18 +1,17 @@
 import { useState } from "react";
-import { useListContext, useTranslate } from "ra-core";
+import { Plus } from "lucide-react";
+import { useListContext, useRedirect, useTranslate } from "ra-core";
 import { matchPath, useLocation } from "react-router";
 import { LayoutGrid, Table as TableIcon } from "lucide-react";
-import { CreateButton } from "@/components/admin/create-button";
 import { List } from "@/components/admin/list";
 import { SearchInput } from "@/components/admin/search-input";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Button } from "@/components/ui/button";
 
-import { TopToolbar } from "../layout/TopToolbar";
 import { useViewMode } from "../misc/useViewMode";
 import { PersonalNoteCreate } from "./PersonalNoteCreate";
 import { PersonalNoteEdit } from "./PersonalNoteEdit";
 import { PersonalNoteGrid } from "./PersonalNoteGrid";
+import { PersonalNotesSidebar } from "./PersonalNotesSidebar";
 import { PersonalNoteTable } from "./PersonalNoteTable";
 
 type Tab = "notes" | "archived" | "trash";
@@ -37,45 +36,34 @@ export const PersonalNoteList = () => {
   return (
     <List
       title={false}
+      actions={false}
+      disableBreadcrumb
       perPage={100}
       pagination={null}
       filter={filtersForTab(tab)}
-      filters={[<SearchInput source="q" alwaysOn />]}
+      filters={[
+        <SearchInput
+          key="q"
+          source="q"
+          alwaysOn
+          className="h-11 rounded-full bg-muted border-none max-w-xl w-full"
+          placeholder="Search notes…"
+        />,
+      ]}
       sort={{ field: "updated_at", order: "DESC" }}
-      actions={
-        <PersonalNoteActions
-          tab={tab}
-          setTab={setTab}
-          viewMode={viewMode}
-          setViewMode={setViewMode}
-        />
-      }
+      className="!my-0"
     >
-      <PersonalNoteLayout viewMode={viewMode} />
+      <PersonalNoteLayout
+        tab={tab}
+        setTab={setTab}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+      />
     </List>
   );
 };
 
-const PersonalNoteLayout = ({ viewMode }: { viewMode: "grid" | "table" }) => {
-  const location = useLocation();
-  const matchCreate = matchPath("/personal_notes/create", location.pathname);
-  const matchEdit = matchPath("/personal_notes/:id", location.pathname);
-  const { isPending } = useListContext();
-  if (isPending) return null;
-
-  return (
-    <div className="w-full">
-      {viewMode === "table" ? <PersonalNoteTable /> : <PersonalNoteGrid />}
-      <PersonalNoteCreate open={!!matchCreate} />
-      <PersonalNoteEdit
-        open={!!matchEdit && !matchCreate}
-        id={matchEdit?.params.id}
-      />
-    </div>
-  );
-};
-
-const PersonalNoteActions = ({
+const PersonalNoteLayout = ({
   tab,
   setTab,
   viewMode,
@@ -86,43 +74,59 @@ const PersonalNoteActions = ({
   viewMode: "grid" | "table";
   setViewMode: (mode: "grid" | "table") => void;
 }) => {
-  const translate = useTranslate();
+  const location = useLocation();
+  const matchCreate = matchPath("/personal_notes/create", location.pathname);
+  const matchEdit = matchPath("/personal_notes/:id", location.pathname);
+  const { isPending } = useListContext();
+
   return (
-    <TopToolbar>
-      <div className="flex gap-1 mr-2">
-        {(["notes", "archived", "trash"] as const).map((t) => (
-          <Button
-            key={t}
-            type="button"
+    <div className="flex gap-6 mt-4">
+      <PersonalNotesSidebar tab={tab} setTab={setTab} />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-4">
+          <AddCrumbBar />
+          <ToggleGroup
+            type="single"
+            variant="outline"
             size="sm"
-            variant={tab === t ? "default" : "ghost"}
-            onClick={() => setTab(t)}
+            value={viewMode}
+            onValueChange={(value) =>
+              value && setViewMode(value as "grid" | "table")
+            }
           >
-            {translate(`resources.personal_notes.tabs.${t}`, {
-              _: t[0].toUpperCase() + t.slice(1),
-            })}
-          </Button>
-        ))}
+            <ToggleGroupItem value="grid" aria-label="Grid view">
+              <LayoutGrid className="h-4 w-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="table" aria-label="Table view">
+              <TableIcon className="h-4 w-4" />
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+        {!isPending &&
+          (viewMode === "table" ? <PersonalNoteTable /> : <PersonalNoteGrid />)}
       </div>
-      <ToggleGroup
-        type="single"
-        variant="outline"
-        size="sm"
-        value={viewMode}
-        onValueChange={(value) => value && setViewMode(value as "grid" | "table")}
-      >
-        <ToggleGroupItem value="grid" aria-label="Grid view">
-          <LayoutGrid className="h-4 w-4" />
-        </ToggleGroupItem>
-        <ToggleGroupItem value="table" aria-label="Table view">
-          <TableIcon className="h-4 w-4" />
-        </ToggleGroupItem>
-      </ToggleGroup>
-      <CreateButton
-        label={translate("resources.personal_notes.action.new", {
-          _: "New Note",
-        })}
+      <PersonalNoteCreate open={!!matchCreate} />
+      <PersonalNoteEdit
+        open={!!matchEdit && !matchCreate}
+        id={matchEdit?.params.id}
       />
-    </TopToolbar>
+    </div>
+  );
+};
+
+const AddCrumbBar = () => {
+  const translate = useTranslate();
+  const redirect = useRedirect();
+  return (
+    <button
+      type="button"
+      onClick={() => redirect("/personal_notes/create")}
+      className="flex-1 flex items-center gap-2 h-11 px-4 rounded-xl border bg-card text-sm text-muted-foreground hover:bg-muted transition-colors"
+    >
+      <Plus className="w-4 h-4" />
+      {translate("resources.personal_notes.action.new", {
+        _: "Add a note…",
+      })}
+    </button>
   );
 };
