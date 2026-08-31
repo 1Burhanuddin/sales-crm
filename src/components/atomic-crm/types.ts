@@ -181,6 +181,20 @@ export type Employee = {
   updated_at: string;
 } & Pick<RaRecord, "id">;
 
+export type LeaveRequest = {
+  employee_id: Identifier;
+  leave_type: string;
+  from_date: string;
+  to_date: string;
+  days?: number;
+  reason?: string;
+  status: "pending" | "approved" | "rejected" | "cancelled";
+  approved_by?: Identifier | null;
+  approved_at?: string | null;
+  created_at: string;
+  updated_at: string;
+} & Pick<RaRecord, "id">;
+
 export type IssueNote = {
   issue_id: Identifier;
   text: string;
@@ -270,6 +284,10 @@ export type DealStage = LabeledValue;
 
 export interface NoteStatus extends LabeledValue {
   color: string;
+}
+
+export interface LeaveType extends LabeledValue {
+  annual_days: number;
 }
 
 export interface ContactGender {
