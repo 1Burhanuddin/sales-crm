@@ -280,6 +280,20 @@ CREATE OR REPLACE FUNCTION "public"."current_sales_id"() RETURNS bigint
   select id from public.sales where user_id = auth.uid();
 $$;
 
+-- Breaks the personal_notes <-> personal_note_shares RLS cross-reference
+-- cycle (see 20260831170000_fix_personal_notes_rls_recursion.sql):
+-- personal_note_shares' policies check ownership of the parent note through
+-- this SECURITY DEFINER function instead of a raw subquery, so evaluating
+-- them doesn't re-trigger personal_notes' own policy.
+CREATE OR REPLACE FUNCTION "public"."owns_personal_note"("p_note_id" bigint) RETURNS boolean
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+  select exists (
+    select 1 from public.personal_notes pn where pn.id = p_note_id and pn.sales_id = public.current_sales_id()
+  );
+$$;
+
 CREATE OR REPLACE FUNCTION "public"."is_developer"() RETURNS boolean
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''

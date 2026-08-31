@@ -57,6 +57,10 @@ grant all on function public.current_sales_id() to anon;
 grant all on function public.current_sales_id() to authenticated;
 grant all on function public.current_sales_id() to service_role;
 
+grant all on function public.owns_personal_note(bigint) to anon;
+grant all on function public.owns_personal_note(bigint) to authenticated;
+grant all on function public.owns_personal_note(bigint) to service_role;
+
 grant all on function public.is_developer() to anon;
 grant all on function public.is_developer() to authenticated;
 grant all on function public.is_developer() to service_role;
