@@ -309,6 +309,12 @@ export const englishCrmMessages = {
         empty:
           "No issues with a due date yet — the timeline needs at least one to draw an axis.",
       },
+      subtasks: {
+        title: "Sub-tasks",
+        progress: "%{done}/%{total} done",
+        add_placeholder: "Add a sub-task…",
+        back_to_parent: "↑ Part of a larger issue",
+      },
       action: {
         back_to_issue: "Back to issue",
         create: "Create issue",

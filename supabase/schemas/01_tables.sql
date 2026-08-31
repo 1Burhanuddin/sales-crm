@@ -174,6 +174,7 @@ create table public.issues (
     start_date date,
     sprint_id bigint,
     milestone_id bigint,
+    parent_id bigint,
     sales_id bigint,
     created_at timestamp with time zone not null default now(),
     updated_at timestamp with time zone not null default now(),
@@ -447,6 +448,9 @@ alter table public.issues
     add constraint issues_milestone_id_fkey foreign key (milestone_id) references public.milestones(id) on delete set null;
 
 alter table public.issues
+    add constraint issues_parent_id_fkey foreign key (parent_id) references public.issues(id) on delete set null;
+
+alter table public.issues
     add constraint issues_assignee_id_fkey foreign key (assignee_id) references public.sales(id);
 
 alter table public.issues
@@ -523,6 +527,7 @@ create index deals_company_id_idx on public.deals using btree (company_id);
 create index issues_project_id_idx on public.issues using btree (project_id);
 create index sprints_project_id_idx on public.sprints using btree (project_id);
 create index milestones_project_id_idx on public.milestones using btree (project_id);
+create index issues_parent_id_idx on public.issues using btree (parent_id);
 create index issue_notes_issue_id_idx on public.issue_notes using btree (issue_id);
 create unique index employees_employee_code_uq on public.employees (employee_code) where employee_code is not null;
 create index leave_requests_employee_id_idx on public.leave_requests using btree (employee_id);

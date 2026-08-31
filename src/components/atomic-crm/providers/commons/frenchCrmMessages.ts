@@ -314,6 +314,12 @@ export const frenchCrmMessages = {
         empty:
           "Aucune tâche avec une échéance pour l'instant — la chronologie a besoin d'au moins une pour tracer un axe.",
       },
+      subtasks: {
+        title: "Sous-tâches",
+        progress: "%{done}/%{total} terminé",
+        add_placeholder: "Ajouter une sous-tâche…",
+        back_to_parent: "↑ Fait partie d'une tâche plus large",
+      },
       action: {
         back_to_issue: "Retour au ticket",
         create: "Créer un ticket",

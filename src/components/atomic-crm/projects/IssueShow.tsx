@@ -20,6 +20,7 @@ import type { Issue } from "../types";
 import { formatISODateString } from "../deals/dealUtils";
 import { findIssueStatusLabel } from "./issueUtils";
 import { IssueNotesIterator } from "./IssueNotesIterator";
+import { IssueSubtasks } from "./IssueSubtasks";
 
 export const IssueShow = ({
   open,
@@ -127,6 +128,19 @@ const IssueShowContent = ({ projectId }: { projectId: Identifier }) => {
           )}
         </div>
 
+        {record.parent_id != null && (
+          <div className="mx-4 mb-2">
+            <Link
+              to={`/projects/${projectId}/issues/${record.parent_id}/show`}
+              className="text-xs text-primary hover:underline"
+            >
+              {translate("resources.issues.subtasks.back_to_parent", {
+                _: "↑ Part of a larger issue",
+              })}
+            </Link>
+          </div>
+        )}
+
         {record.description && (
           <div className="m-4 whitespace-pre-line">
             <span className="text-xs text-muted-foreground tracking-wide">
@@ -135,6 +149,8 @@ const IssueShowContent = ({ projectId }: { projectId: Identifier }) => {
             <p className="text-sm leading-6">{record.description}</p>
           </div>
         )}
+
+        <IssueSubtasks issue={record} projectId={projectId} />
 
         <div className="m-4">
           <Separator className="mb-4" />
