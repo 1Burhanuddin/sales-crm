@@ -389,6 +389,7 @@ const DesktopAdmin = (
       </Resource>
       <Resource name="issues" />
       <Resource name="sprints" />
+      <Resource name="milestones" />
       <Resource name="issue_notes" />
       <Resource name="employees" {...employees} />
       <Resource

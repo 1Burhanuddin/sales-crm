@@ -16,6 +16,7 @@ alter table public.configuration enable row level security;
 alter table public.favicons_excluded_domains enable row level security;
 alter table public.projects enable row level security;
 alter table public.sprints enable row level security;
+alter table public.milestones enable row level security;
 alter table public.issues enable row level security;
 alter table public.issue_notes enable row level security;
 alter table public.employees enable row level security;
@@ -94,6 +95,13 @@ create policy "PM access select" on public.sprints for select to authenticated u
 create policy "PM access insert" on public.sprints for insert to authenticated with check (public.has_pm_access());
 create policy "PM access update" on public.sprints for update to authenticated using (public.has_pm_access()) with check (public.has_pm_access());
 create policy "Admin delete only" on public.sprints for delete to authenticated using (public.is_admin());
+
+-- Milestones (a single due-date target within a project, distinct from a
+-- sprint's date range)
+create policy "PM access select" on public.milestones for select to authenticated using (public.has_pm_access());
+create policy "PM access insert" on public.milestones for insert to authenticated with check (public.has_pm_access());
+create policy "PM access update" on public.milestones for update to authenticated using (public.has_pm_access()) with check (public.has_pm_access());
+create policy "Admin delete only" on public.milestones for delete to authenticated using (public.is_admin());
 
 -- Issues (visible/editable by anyone with PM access: admin or developer)
 create policy "PM access select" on public.issues for select to authenticated using (public.has_pm_access());

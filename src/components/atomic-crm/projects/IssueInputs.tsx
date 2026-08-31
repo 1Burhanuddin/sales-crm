@@ -43,16 +43,28 @@ export const IssueInputs = () => {
         />
       </ReferenceInput>
       {projectId != null && (
-        <ReferenceInput
-          source="sprint_id"
-          reference="sprints"
-          filter={{ project_id: projectId }}
-        >
-          <AutocompleteInput
-            label="resources.issues.fields.sprint_id"
-            helperText={false}
-          />
-        </ReferenceInput>
+        <div className="flex gap-4">
+          <ReferenceInput
+            source="sprint_id"
+            reference="sprints"
+            filter={{ project_id: projectId }}
+          >
+            <AutocompleteInput
+              label="resources.issues.fields.sprint_id"
+              helperText={false}
+            />
+          </ReferenceInput>
+          <ReferenceInput
+            source="milestone_id"
+            reference="milestones"
+            filter={{ project_id: projectId }}
+          >
+            <AutocompleteInput
+              label="resources.issues.fields.milestone_id"
+              helperText={false}
+            />
+          </ReferenceInput>
+        </div>
       )}
       <div className="flex gap-4">
         <DateInput
