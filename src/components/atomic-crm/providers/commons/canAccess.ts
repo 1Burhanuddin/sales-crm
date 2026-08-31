@@ -10,9 +10,13 @@ type CanAccessParams<
 const PM_RESOURCES = ["projects", "issues", "issue_notes"];
 // HR resources every role gets self-service access to (their own linked
 // record, enforced by RLS) alongside admins' full access.
-const HR_SELF_SERVICE_RESOURCES = ["employees"];
+const HR_SELF_SERVICE_RESOURCES = ["employees", "leave_requests"];
 // Records only an admin can create, regardless of role.
 const ADMIN_ONLY_CREATE_RESOURCES = ["companies", "contacts", "employees"];
+// Non-CRUD actions only an admin can take, regardless of role. canAccess
+// can't see params.record, so these gate the button/UI only — the real
+// enforcement is the leave_requests RLS "with check" clauses.
+const ADMIN_ONLY_ACTIONS = ["approve", "reject"];
 
 export const canAccess = <
   RecordType extends Record<string, any> = Record<string, any>,
@@ -41,6 +45,9 @@ export const canAccess = <
     ) {
       return false;
     }
+    if (ADMIN_ONLY_ACTIONS.includes(params.action)) {
+      return false;
+    }
     return true;
   }
 
@@ -54,6 +61,11 @@ export const canAccess = <
     params.action === "create" &&
     ADMIN_ONLY_CREATE_RESOURCES.includes(params.resource)
   ) {
+    return false;
+  }
+
+  // Only admins can approve/reject leave requests
+  if (ADMIN_ONLY_ACTIONS.includes(params.action)) {
     return false;
   }
 

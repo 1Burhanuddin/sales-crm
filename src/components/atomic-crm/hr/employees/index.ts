@@ -1,3 +1,4 @@
+import type { Employee } from "../../types";
 import { EmployeeList } from "./EmployeeList";
 import { EmployeeCreate } from "./EmployeeCreate";
 import { EmployeeEdit } from "./EmployeeEdit";
@@ -8,4 +9,6 @@ export default {
   create: EmployeeCreate,
   edit: EmployeeEdit,
   show: EmployeeShow,
+  recordRepresentation: (record: Employee) =>
+    `${record.first_name} ${record.last_name}`,
 };

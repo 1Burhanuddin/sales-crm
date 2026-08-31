@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { toSlug } from "@/lib/toSlug";
 import { ArrayInput } from "@/components/admin/array-input";
 import { AutocompleteInput } from "@/components/admin/autocomplete-input";
+import { NumberInput } from "@/components/admin/number-input";
 import { SimpleFormIterator } from "@/components/admin/simple-form-iterator";
 import { TextInput } from "@/components/admin/text-input";
 
@@ -136,6 +137,7 @@ const transformFormValues = (data: Record<string, any>) => ({
     designations: ensureValues(data.designations),
     employmentTypes: ensureValues(data.employmentTypes),
     employeeStatuses: ensureValues(data.employeeStatuses),
+    leaveTypes: ensureValues(data.leaveTypes),
   } as ConfigurationContextValue,
 });
 
@@ -190,6 +192,7 @@ const SettingsForm = () => {
       designations: config.designations,
       employmentTypes: config.employmentTypes,
       employeeStatuses: config.employeeStatuses,
+      leaveTypes: config.leaveTypes,
     }),
     [config],
   );
@@ -245,6 +248,12 @@ const SettingsFormFields = () => {
   );
   const employeeStatusDisplayName = translate(
     "crm.settings.validation.entities.employee_statuses",
+  );
+  const { data: leaveRequests } = useGetList("leave_requests", {
+    pagination: { page: 1, perPage: 1000 },
+  });
+  const leaveTypeDisplayName = translate(
+    "crm.settings.validation.entities.leave_types",
   );
 
   const validationMessages = useMemo(
@@ -310,6 +319,18 @@ const SettingsFormFields = () => {
         validationMessages,
       ),
     [employeeStatusDisplayName, employees, validationMessages],
+  );
+
+  const validateLeaveTypes = useCallback(
+    (items: { value: string; label: string }[] | undefined) =>
+      validateItemsInUse(
+        items,
+        leaveRequests,
+        "leave_type",
+        leaveTypeDisplayName,
+        validationMessages,
+      ),
+    [leaveTypeDisplayName, leaveRequests, validationMessages],
   );
 
   const validateDealStages = useCallback(
@@ -713,6 +734,28 @@ const SettingsFormFields = () => {
             >
               <SimpleFormIterator disableReordering disableClear>
                 <TextInput source="label" label={false} />
+              </SimpleFormIterator>
+            </ArrayInput>
+
+            <Separator />
+
+            <h3 className="text-lg font-medium text-muted-foreground">
+              {translate("crm.settings.hr.leave_types")}
+            </h3>
+            <ArrayInput
+              source="leaveTypes"
+              label={false}
+              helperText={false}
+              validate={validateLeaveTypes}
+            >
+              <SimpleFormIterator inline disableReordering disableClear>
+                <TextInput source="label" label={false} className="flex-1" />
+                <NumberInput
+                  source="annual_days"
+                  label={false}
+                  helperText={false}
+                  className="w-24"
+                />
               </SimpleFormIterator>
             </ArrayInput>
           </CardContent>

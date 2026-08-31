@@ -18,6 +18,7 @@ alter table public.projects enable row level security;
 alter table public.issues enable row level security;
 alter table public.issue_notes enable row level security;
 alter table public.employees enable row level security;
+alter table public.leave_requests enable row level security;
 
 -- Companies (visible/editable by their owning sales rep, or any admin)
 create policy "Select own or admin" on public.companies for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
@@ -95,3 +96,27 @@ create policy "Select own or admin" on public.employees for select to authentica
 create policy "Admin create only" on public.employees for insert to authenticated with check (public.is_admin());
 create policy "Update own or admin" on public.employees for update to authenticated using (public.is_admin() or sales_id = public.current_sales_id()) with check (public.is_admin() or sales_id = public.current_sales_id());
 create policy "Admin delete only" on public.employees for delete to authenticated using (public.is_admin());
+
+-- Leave requests (join-through to employees.sales_id): self can submit/cancel
+-- own pending requests but cannot self-approve; admin can approve/reject any.
+create policy "Select own or admin" on public.leave_requests for select to authenticated using (public.is_admin() or exists (
+    select 1 from public.employees e where e.id = leave_requests.employee_id and e.sales_id = public.current_sales_id()
+));
+create policy "Insert own pending or admin" on public.leave_requests for insert to authenticated with check (
+    public.is_admin()
+    or (
+        exists (select 1 from public.employees e where e.id = leave_requests.employee_id and e.sales_id = public.current_sales_id())
+        and status = 'pending' and approved_by is null and approved_at is null
+    )
+);
+create policy "Update own pending or admin" on public.leave_requests for update to authenticated using (
+    public.is_admin()
+    or (
+        exists (select 1 from public.employees e where e.id = leave_requests.employee_id and e.sales_id = public.current_sales_id())
+        and status = 'pending'
+    )
+) with check (
+    public.is_admin()
+    or (status in ('pending', 'cancelled') and approved_by is null and approved_at is null)
+);
+create policy "Admin delete only" on public.leave_requests for delete to authenticated using (public.is_admin());

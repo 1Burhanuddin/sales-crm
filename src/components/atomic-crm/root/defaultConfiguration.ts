@@ -105,6 +105,12 @@ export const defaultEmployeeStatuses = [
   { value: "terminated", label: "Terminated" },
 ];
 
+export const defaultLeaveTypes = [
+  { value: "annual", label: "Annual Leave", annual_days: 18 },
+  { value: "sick", label: "Sick Leave", annual_days: 10 },
+  { value: "unpaid", label: "Unpaid Leave", annual_days: 0 },
+];
+
 export const defaultConfiguration: ConfigurationContextValue = {
   companySectors: defaultCompanySectors,
   currency: defaultCurrency,
@@ -119,6 +125,7 @@ export const defaultConfiguration: ConfigurationContextValue = {
   designations: defaultDesignations,
   employmentTypes: defaultEmploymentTypes,
   employeeStatuses: defaultEmployeeStatuses,
+  leaveTypes: defaultLeaveTypes,
   title: defaultTitle,
   darkModeLogo: defaultDarkModeLogo,
   lightModeLogo: defaultLightModeLogo,

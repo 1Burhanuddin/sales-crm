@@ -21,6 +21,7 @@ import { Dashboard } from "../dashboard/Dashboard";
 import { MobileDashboard } from "../dashboard/MobileDashboard";
 import deals from "../deals";
 import employees from "../hr/employees";
+import leaveRequests from "../hr/leave";
 import projects from "../projects";
 import { ProjectShow } from "../projects/ProjectShow.tsx";
 import { Layout } from "../layout/Layout";
@@ -55,6 +56,7 @@ import {
   defaultEmploymentTypes,
   defaultIssuePriorities,
   defaultIssueStatuses,
+  defaultLeaveTypes,
   defaultLightModeLogo,
   defaultNoteStatuses,
   defaultTaskTypes,
@@ -139,6 +141,7 @@ export const CRM = ({
   designations = defaultDesignations,
   employmentTypes = defaultEmploymentTypes,
   employeeStatuses = defaultEmployeeStatuses,
+  leaveTypes = defaultLeaveTypes,
   title = defaultTitle,
   dataProvider = defaultDataProviderBuilder(),
   authProvider = defaultAuthProviderBuilder(),
@@ -179,6 +182,7 @@ export const CRM = ({
         designations,
         employmentTypes,
         employeeStatuses,
+        leaveTypes,
         title,
         darkModeLogo,
         lightModeLogo,
@@ -294,6 +298,7 @@ const DesktopAdmin = (
       <Resource name="issues" />
       <Resource name="issue_notes" />
       <Resource name="employees" {...employees} />
+      <Resource name="leave_requests" {...leaveRequests} />
       <Resource name="contact_notes" />
       <Resource name="deal_notes" />
       <Resource name="tasks" />
