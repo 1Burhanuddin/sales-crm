@@ -267,6 +267,12 @@ export type PersonalNoteVersion = {
   created_at: string;
 } & Pick<RaRecord, "id">;
 
+export type PersonalNoteShare = {
+  note_id: Identifier;
+  shared_with_sales_id: Identifier;
+  created_at: string;
+} & Pick<RaRecord, "id">;
+
 export type IssueNote = {
   issue_id: Identifier;
   text: string;

@@ -24,6 +24,7 @@ alter table public.salary_structures enable row level security;
 alter table public.payslips enable row level security;
 alter table public.personal_notes enable row level security;
 alter table public.personal_note_versions enable row level security;
+alter table public.personal_note_shares enable row level security;
 
 -- Companies (visible/editable by their owning sales rep, or any admin)
 create policy "Select own or admin" on public.companies for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
@@ -157,7 +158,9 @@ create policy "Admin delete only" on public.payslips for delete to authenticated
 
 -- Personal notes (self-owned). Delete does NOT require admin, unlike every
 -- other table above — private scratch content, not shared business/HR data.
-create policy "Select own or admin" on public.personal_notes for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
+create policy "Select own, shared, or admin" on public.personal_notes for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id() or exists (
+    select 1 from public.personal_note_shares ps where ps.note_id = personal_notes.id and ps.shared_with_sales_id = public.current_sales_id()
+));
 create policy "Insert own or admin" on public.personal_notes for insert to authenticated with check (public.is_admin() or sales_id = public.current_sales_id());
 create policy "Update own or admin" on public.personal_notes for update to authenticated using (public.is_admin() or sales_id = public.current_sales_id()) with check (public.is_admin() or sales_id = public.current_sales_id());
 create policy "Delete own or admin" on public.personal_notes for delete to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
@@ -172,3 +175,18 @@ create policy "Insert own or admin" on public.personal_note_versions for insert 
 create policy "Delete own or admin" on public.personal_note_versions for delete to authenticated using (public.is_admin() or exists (
     select 1 from public.personal_notes pn where pn.id = personal_note_versions.note_id and pn.sales_id = public.current_sales_id()
 ));
+
+-- Personal note sharing: owner/admin manage shares, recipient can see their
+-- own share row. Read-only for the recipient (no update/delete grant on
+-- personal_notes itself — see the "Select own, shared, or admin" policy).
+create policy "Owner, recipient, or admin can view a share" on public.personal_note_shares for select to authenticated using (
+    public.is_admin()
+    or shared_with_sales_id = public.current_sales_id()
+    or exists (select 1 from public.personal_notes pn where pn.id = personal_note_shares.note_id and pn.sales_id = public.current_sales_id())
+);
+create policy "Owner or admin manages shares" on public.personal_note_shares for insert to authenticated with check (
+    public.is_admin() or exists (select 1 from public.personal_notes pn where pn.id = note_id and pn.sales_id = public.current_sales_id())
+);
+create policy "Owner or admin removes shares" on public.personal_note_shares for delete to authenticated using (
+    public.is_admin() or exists (select 1 from public.personal_notes pn where pn.id = personal_note_shares.note_id and pn.sales_id = public.current_sales_id())
+);

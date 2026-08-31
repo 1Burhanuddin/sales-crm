@@ -1,6 +1,7 @@
-import { Pin } from "lucide-react";
+import { Pin, Users } from "lucide-react";
 import {
   useDataProvider,
+  useGetIdentity,
   useGetMany,
   useNotify,
   useRecordContext,
@@ -19,6 +20,7 @@ export const PersonalNoteCard = () => {
   const redirect = useRedirect();
   const dataProvider = useDataProvider();
   const notify = useNotify();
+  const { identity } = useGetIdentity();
   const { data: tags } = useGetMany<Tag>(
     "tags",
     { ids: record?.tags },
@@ -26,8 +28,12 @@ export const PersonalNoteCard = () => {
   );
   if (!record) return null;
 
+  const canEdit =
+    record.sales_id === identity?.id || Boolean((identity as any)?.administrator);
+
   const togglePin = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!canEdit) return;
     dataProvider
       .update("personal_notes", {
         id: record.id,
@@ -44,6 +50,7 @@ export const PersonalNoteCard = () => {
 
   const toggleChecklistItem = (e: React.MouseEvent, index: number) => {
     e.stopPropagation();
+    if (!canEdit) return;
     const checklist_items = record.checklist_items.map((item, i) =>
       i === index ? { ...item, checked: !item.checked } : item,
     );
@@ -69,17 +76,26 @@ export const PersonalNoteCard = () => {
         <h3 className="font-mono font-semibold text-sm leading-snug flex-1">
           {record.title}
         </h3>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="h-6 w-6 shrink-0 -mt-1 -mr-1"
-          onClick={togglePin}
-        >
-          <Pin
-            className={`w-3.5 h-3.5 ${record.pinned ? "fill-current" : ""}`}
-          />
-        </Button>
+        <div className="flex items-center shrink-0 -mt-1 -mr-1">
+          {!canEdit && (
+            <span className="p-1.5 opacity-60" title="Shared with you">
+              <Users className="w-3.5 h-3.5" />
+            </span>
+          )}
+          {canEdit && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={togglePin}
+            >
+              <Pin
+                className={`w-3.5 h-3.5 ${record.pinned ? "fill-current" : ""}`}
+              />
+            </Button>
+          )}
+        </div>
       </div>
 
       {checklistPreview ? (
