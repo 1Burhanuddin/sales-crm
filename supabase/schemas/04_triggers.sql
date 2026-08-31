@@ -40,6 +40,14 @@ create or replace trigger set_issue_notes_sales_id_trigger
     before insert on public.issue_notes
     for each row execute function public.set_sales_id_default();
 
+create or replace trigger set_statement_import_sales_id_trigger
+    before insert on public.statement_imports
+    for each row execute function public.set_sales_id_default();
+
+create or replace trigger set_transaction_sales_id_trigger
+    before insert on public.transactions
+    for each row execute function public.set_sales_id_default();
+
 -- Auto-fetch company logo from website favicon on save
 create or replace trigger company_saved
     before insert or update on public.companies

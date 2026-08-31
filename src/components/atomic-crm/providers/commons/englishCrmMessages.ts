@@ -405,6 +405,36 @@ export const englishCrmMessages = {
         description: "It seems your payslip list is empty.",
       },
     },
+    transactions: {
+      name: "Transaction |||| Transactions",
+      fields: {
+        date: "Date",
+        description: "Description",
+        amount: "Amount",
+        category: "Category",
+        balance_after: "Balance after",
+        source: "Source",
+        statement_import_id: "Statement",
+        notes: "Notes",
+      },
+      action: {
+        new: "Add Transaction",
+        create: "Add Transaction",
+      },
+      empty: {
+        title: "No transactions found",
+        description: "It seems your transaction list is empty.",
+      },
+    },
+    statement_imports: {
+      name: "Statement Import |||| Statement Imports",
+      fields: {
+        filename: "Filename",
+        period_from: "Period from",
+        period_to: "Period to",
+        transaction_count: "Transactions",
+      },
+    },
     personal_notes: {
       name: "Note |||| Notes",
       fields: {
@@ -657,6 +687,9 @@ export const englishCrmMessages = {
       no_employee_record:
         "Ask your HR admin to link your account to an employee record.",
     },
+    accounts: {
+      nav_label: "Accounts",
+    },
     image_editor: {
       change: "Change",
       drop_hint: "Drop a file to upload, or click to select it.",
@@ -714,6 +747,12 @@ export const englishCrmMessages = {
         leave_types: "Leave Types",
         attendance_statuses: "Attendance Statuses",
       },
+      accounts: {
+        categories: "Categories",
+        rules: "Category Rules",
+        rules_help:
+          "When a statement is imported, a transaction whose description contains this keyword is auto-categorized. Edit these to match real narrations.",
+      },
       notes: {
         statuses: "Statuses",
       },
@@ -734,6 +773,7 @@ export const englishCrmMessages = {
       sections: {
         branding: "Branding",
         hr: "HR",
+        accounts: "Accounts",
       },
       validation: {
         duplicate: "Duplicate %{display_name}: %{items}",
@@ -750,6 +790,7 @@ export const englishCrmMessages = {
           employee_statuses: "employee statuses",
           leave_types: "leave types",
           attendance_statuses: "attendance statuses",
+          transaction_categories: "transaction categories",
         },
       },
     },

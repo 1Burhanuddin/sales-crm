@@ -35,6 +35,8 @@ const Header = () => {
     currentPath = "/payslips";
   } else if (matchPath("/my-hr", location.pathname)) {
     currentPath = "/my-hr";
+  } else if (matchPath("/transactions/*", location.pathname)) {
+    currentPath = "/transactions";
   } else if (matchPath("/personal_notes/*", location.pathname)) {
     currentPath = "/personal_notes";
   } else {
@@ -147,6 +149,15 @@ const Header = () => {
                     to="/my-hr"
                     isActive={currentPath === "/my-hr"}
                   />
+                  <CanAccess resource="transactions" action="list">
+                    <NavigationTab
+                      label={translate("crm.accounts.nav_label", {
+                        _: "Accounts",
+                      })}
+                      to="/transactions"
+                      isActive={currentPath === "/transactions"}
+                    />
+                  </CanAccess>
                   <CanAccess resource="personal_notes" action="list">
                     <NavigationTab
                       label={translate("resources.personal_notes.name", {

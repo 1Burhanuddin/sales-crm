@@ -158,6 +158,14 @@ grant all on table public.payslips to anon;
 grant all on table public.payslips to authenticated;
 grant all on table public.payslips to service_role;
 
+grant all on table public.statement_imports to anon;
+grant all on table public.statement_imports to authenticated;
+grant all on table public.statement_imports to service_role;
+
+grant all on table public.transactions to anon;
+grant all on table public.transactions to authenticated;
+grant all on table public.transactions to service_role;
+
 grant all on table public.personal_notes to anon;
 grant all on table public.personal_notes to authenticated;
 grant all on table public.personal_notes to service_role;
@@ -259,6 +267,14 @@ grant all on sequence public.salary_structures_id_seq to service_role;
 grant all on sequence public.payslips_id_seq to anon;
 grant all on sequence public.payslips_id_seq to authenticated;
 grant all on sequence public.payslips_id_seq to service_role;
+
+grant all on sequence public.statement_imports_id_seq to anon;
+grant all on sequence public.statement_imports_id_seq to authenticated;
+grant all on sequence public.statement_imports_id_seq to service_role;
+
+grant all on sequence public.transactions_id_seq to anon;
+grant all on sequence public.transactions_id_seq to authenticated;
+grant all on sequence public.transactions_id_seq to service_role;
 
 grant all on sequence public.personal_notes_id_seq to anon;
 grant all on sequence public.personal_notes_id_seq to authenticated;

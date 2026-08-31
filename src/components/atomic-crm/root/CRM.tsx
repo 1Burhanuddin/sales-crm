@@ -15,6 +15,7 @@ import { ForgotPasswordPage } from "@/components/supabase/forgot-password-page";
 import { SetPasswordPage } from "@/components/supabase/set-password-page";
 import { OAuthConsentPage } from "@/components/supabase/oauth-consent-page";
 
+import transactions from "../accounts";
 import companies from "../companies";
 import contacts from "../contacts";
 import { Dashboard } from "../dashboard/Dashboard";
@@ -49,6 +50,7 @@ import {
 import type { CrmDataProvider } from "../providers/types";
 import {
   defaultAttendanceStatuses,
+  defaultCategoryRules,
   defaultCompanySectors,
   defaultCurrency,
   defaultDarkModeLogo,
@@ -66,6 +68,7 @@ import {
   defaultNoteStatuses,
   defaultTaskTypes,
   defaultTitle,
+  defaultTransactionCategories,
 } from "./defaultConfiguration";
 import { i18nProvider as defaulti18nProvider } from "../providers/commons/i18nProvider";
 import { StartPage } from "../login/StartPage.tsx";
@@ -148,6 +151,8 @@ export const CRM = ({
   employeeStatuses = defaultEmployeeStatuses,
   leaveTypes = defaultLeaveTypes,
   attendanceStatuses = defaultAttendanceStatuses,
+  transactionCategories = defaultTransactionCategories,
+  categoryRules = defaultCategoryRules,
   title = defaultTitle,
   dataProvider = defaultDataProviderBuilder(),
   authProvider = defaultAuthProviderBuilder(),
@@ -190,6 +195,8 @@ export const CRM = ({
         employeeStatuses,
         leaveTypes,
         attendanceStatuses,
+        transactionCategories,
+        categoryRules,
         title,
         darkModeLogo,
         lightModeLogo,
@@ -310,6 +317,8 @@ const DesktopAdmin = (
       <Resource name="attendance_records" {...attendanceRecords} />
       <Resource name="salary_structures" />
       <Resource name="payslips" {...payslips} />
+      <Resource name="transactions" {...transactions} />
+      <Resource name="statement_imports" />
       <Resource name="personal_notes" {...personalNotes} />
       <Resource name="personal_note_versions" />
       <Resource name="personal_note_shares" />

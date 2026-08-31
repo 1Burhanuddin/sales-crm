@@ -1,4 +1,5 @@
 import type { ConfigurationContextValue } from "./ConfigurationContext";
+import type { TransactionCategory } from "../types";
 // Import the logos as module assets so Vite resolves their URL relative to the
 // JS chunk (import.meta.url), not the current route. A plain "./logos/..." path
 // breaks on nested routes like /oauth/consent and under a deployment sub-path.
@@ -119,6 +120,28 @@ export const defaultAttendanceStatuses = [
   { value: "holiday", label: "Holiday" },
 ];
 
+export const defaultTransactionCategories: TransactionCategory[] = [
+  { value: "salary", label: "Salary", type: "income" },
+  { value: "business-income", label: "Business Income", type: "income" },
+  { value: "other-income", label: "Other Income", type: "income" },
+  { value: "food", label: "Food", type: "expense" },
+  { value: "groceries", label: "Groceries", type: "expense" },
+  { value: "rent", label: "Rent", type: "expense" },
+  { value: "utilities", label: "Utilities", type: "expense" },
+  { value: "transport", label: "Transport", type: "expense" },
+  { value: "shopping", label: "Shopping", type: "expense" },
+  { value: "entertainment", label: "Entertainment", type: "expense" },
+  { value: "healthcare", label: "Healthcare", type: "expense" },
+  { value: "transfer", label: "Transfer", type: "expense" },
+  { value: "other", label: "Other", type: "expense" },
+];
+
+export const defaultCategoryRules = [
+  { keyword: "SALARY", category: "salary" },
+  { keyword: "SWIGGY", category: "food" },
+  { keyword: "ZOMATO", category: "food" },
+];
+
 export const defaultConfiguration: ConfigurationContextValue = {
   companySectors: defaultCompanySectors,
   currency: defaultCurrency,
@@ -135,6 +158,8 @@ export const defaultConfiguration: ConfigurationContextValue = {
   employeeStatuses: defaultEmployeeStatuses,
   leaveTypes: defaultLeaveTypes,
   attendanceStatuses: defaultAttendanceStatuses,
+  transactionCategories: defaultTransactionCategories,
+  categoryRules: defaultCategoryRules,
   title: defaultTitle,
   darkModeLogo: defaultDarkModeLogo,
   lightModeLogo: defaultLightModeLogo,

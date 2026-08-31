@@ -1,7 +1,14 @@
 import { useMemo } from "react";
 import { useStore } from "ra-core";
 
-import type { DealStage, LabeledValue, LeaveType, NoteStatus } from "../types";
+import type {
+  CategoryRule,
+  DealStage,
+  LabeledValue,
+  LeaveType,
+  NoteStatus,
+  TransactionCategory,
+} from "../types";
 import { defaultConfiguration } from "./defaultConfiguration";
 
 export const CONFIGURATION_STORE_KEY = "app.configuration";
@@ -22,6 +29,8 @@ export interface ConfigurationContextValue {
   employeeStatuses: LabeledValue[];
   leaveTypes: LeaveType[];
   attendanceStatuses: LabeledValue[];
+  transactionCategories: TransactionCategory[];
+  categoryRules: CategoryRule[];
   title: string;
   darkModeLogo: string;
   lightModeLogo: string;
