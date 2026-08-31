@@ -17,6 +17,7 @@ import {
   type ContentLayout,
   type FontPreset,
   type NavbarStyle,
+  type NoteCorners,
   type SidebarCollapsible,
   type SidebarVariant,
   type ThemePreset,
@@ -230,6 +231,30 @@ export const PreferencesPanel = () => {
             onChange={(value) =>
               prefs.setPreference("sidebarCollapsible", value)
             }
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <PreferenceLabel>
+            {translate("crm.preferences.note_corners", {
+              _: "Note Corners",
+            })}
+          </PreferenceLabel>
+          <SegmentedControl<NoteCorners>
+            value={prefs.noteCorners}
+            options={[
+              {
+                value: "rounded",
+                label: translate("crm.preferences.rounded", {
+                  _: "Rounded",
+                }),
+              },
+              {
+                value: "square",
+                label: translate("crm.preferences.square", { _: "Square" }),
+              },
+            ]}
+            onChange={(value) => prefs.setPreference("noteCorners", value)}
           />
         </div>
 

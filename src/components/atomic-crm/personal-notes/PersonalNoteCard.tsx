@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { Markdown } from "../misc/Markdown";
+import { usePreferences } from "../preferences";
 import type { PersonalNote, Tag } from "../types";
 
 export const PersonalNoteCard = () => {
@@ -21,6 +22,7 @@ export const PersonalNoteCard = () => {
   const dataProvider = useDataProvider();
   const notify = useNotify();
   const { identity } = useGetIdentity();
+  const { noteCorners } = usePreferences();
   const { data: tags } = useGetMany<Tag>(
     "tags",
     { ids: record?.tags },
@@ -87,6 +89,7 @@ export const PersonalNoteCard = () => {
       className={cn(
         "break-inside-avoid mb-3 flex flex-col justify-between p-4 gap-2 cursor-pointer",
         "border-black/5 shadow-sm hover:shadow-md transition-shadow",
+        noteCorners === "square" && "rounded-none",
       )}
       style={{ backgroundColor: record.color || undefined, ...colorOverrideVars }}
       onClick={() => redirect(`/personal_notes/${record.id}`)}

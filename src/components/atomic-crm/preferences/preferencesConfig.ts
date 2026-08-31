@@ -18,6 +18,7 @@ export type ContentLayout = "centered" | "full-width";
 export type NavbarStyle = "sticky" | "scroll";
 export type SidebarVariant = "sidebar" | "floating" | "inset";
 export type SidebarCollapsible = "icon" | "offcanvas";
+export type NoteCorners = "rounded" | "square";
 
 export const THEME_OPTIONS: {
   value: ThemePreset;
@@ -50,6 +51,7 @@ export const DEFAULT_PREFERENCES = {
   navbarStyle: "sticky" as NavbarStyle,
   sidebarVariant: "floating" as SidebarVariant,
   sidebarCollapsible: "icon" as SidebarCollapsible,
+  noteCorners: "rounded" as NoteCorners,
 };
 
 export type Preferences = typeof DEFAULT_PREFERENCES;

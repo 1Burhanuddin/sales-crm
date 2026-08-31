@@ -6,6 +6,7 @@ import {
   type ContentLayout,
   type FontPreset,
   type NavbarStyle,
+  type NoteCorners,
   type Preferences,
   type SidebarCollapsible,
   type SidebarVariant,
@@ -61,6 +62,10 @@ export const PreferencesProvider = ({
       "preferences.sidebarCollapsible",
       DEFAULT_PREFERENCES.sidebarCollapsible,
     );
+  const [noteCorners, setNoteCorners] = useStore<NoteCorners>(
+    "preferences.noteCorners",
+    DEFAULT_PREFERENCES.noteCorners,
+  );
 
   // Theme preset -> a class on <html>, alongside the existing light/dark
   // class ThemeProvider already manages there (see index.css for the
@@ -108,6 +113,9 @@ export const PreferencesProvider = ({
       case "sidebarCollapsible":
         setSidebarCollapsible(value as SidebarCollapsible);
         break;
+      case "noteCorners":
+        setNoteCorners(value as NoteCorners);
+        break;
     }
   };
 
@@ -118,6 +126,7 @@ export const PreferencesProvider = ({
     setNavbarStyle(DEFAULT_PREFERENCES.navbarStyle);
     setSidebarVariant(DEFAULT_PREFERENCES.sidebarVariant);
     setSidebarCollapsible(DEFAULT_PREFERENCES.sidebarCollapsible);
+    setNoteCorners(DEFAULT_PREFERENCES.noteCorners);
   };
 
   const value = useMemo<PreferencesContextValue>(
@@ -128,6 +137,7 @@ export const PreferencesProvider = ({
       navbarStyle,
       sidebarVariant,
       sidebarCollapsible,
+      noteCorners,
       setPreference,
       restoreDefaults,
     }),
@@ -138,6 +148,7 @@ export const PreferencesProvider = ({
       navbarStyle,
       sidebarVariant,
       sidebarCollapsible,
+      noteCorners,
     ],
   );
 
