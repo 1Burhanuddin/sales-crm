@@ -23,7 +23,12 @@ export const PreferencesMenuItem = () => {
         onSelect={(e) => {
           e.preventDefault();
           userMenuContext.onClose();
-          setOpen(true);
+          // Radix's DropdownMenu returns focus to its trigger as it
+          // closes; opening the Dialog in the same tick makes that focus
+          // shift look like an outside-interaction to the Dialog's
+          // DismissableLayer, closing it right back. Deferring one tick
+          // lets the dropdown finish closing first.
+          setTimeout(() => setOpen(true), 0);
         }}
         className="flex items-center gap-2"
       >
