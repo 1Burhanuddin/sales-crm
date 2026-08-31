@@ -31,7 +31,11 @@ const ADMIN_ONLY_ACTIONS = ["approve", "reject"];
 // this file, a plain user can also delete their own note (see the
 // personal_notes RLS policy: delete does NOT require admin, since these
 // are private scratch content, not shared business/HR data).
-const PERSONAL_NOTE_RESOURCES = ["personal_notes", "personal_note_shares"];
+const PERSONAL_NOTE_RESOURCES = [
+  "personal_notes",
+  "personal_note_shares",
+  "personal_note_versions",
+];
 
 // Shared by the developer and plain-user branches so HR rules can't drift
 // apart between the two self-service roles.
