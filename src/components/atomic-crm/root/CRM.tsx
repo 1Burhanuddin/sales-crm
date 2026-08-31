@@ -5,7 +5,7 @@ import type {
   LayoutComponent,
 } from "ra-core";
 import { CanAccess, CustomRoutes, localStorageStore, Resource } from "ra-core";
-import { useEffect, useMemo } from "react";
+import { lazy, useEffect, useMemo } from "react";
 import { Route } from "react-router";
 import { QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
@@ -15,25 +15,15 @@ import { ForgotPasswordPage } from "@/components/supabase/forgot-password-page";
 import { SetPasswordPage } from "@/components/supabase/set-password-page";
 import { OAuthConsentPage } from "@/components/supabase/oauth-consent-page";
 
-import transactions from "../accounts";
-import { AccountsDashboard } from "../accounts/AccountsDashboard";
 import companies from "../companies";
 import contacts from "../contacts";
 import { Dashboard } from "../dashboard/Dashboard";
 import { MobileDashboard } from "../dashboard/MobileDashboard";
 import { withRoleAwareDashboard } from "../dashboard/RoleAwareDashboard";
 import deals from "../deals";
-import attendanceRecords from "../hr/attendance";
 import employees from "../hr/employees";
-import { HrDashboard } from "../hr/HrDashboard";
-import leaveRequests from "../hr/leave";
-import leads from "../leads";
-import { MyHrDashboard } from "../hr/MyHrDashboard";
-import payslips from "../hr/payroll";
-import personalNotes from "../personal-notes";
-import projects from "../projects";
-import { PmDashboard } from "../projects/PmDashboard";
 import { ProjectShow } from "../projects/ProjectShow.tsx";
+import { lazyResource } from "./lazyResource";
 import { Layout } from "../layout/Layout";
 import { MobileLayout } from "../layout/MobileLayout";
 import { SignupPage } from "../login/SignupPage";
@@ -83,6 +73,27 @@ import { ContactListMobile } from "../contacts/ContactList.tsx";
 import { ContactShow } from "../contacts/ContactShow.tsx";
 import { CompanyShow } from "../companies/CompanyShow.tsx";
 import { NoteShowPage } from "../notes/NoteShowPage.tsx";
+
+// Lazy-loaded so each feature area's code only downloads when its route
+// is actually visited, instead of on every page load (see
+// lazyResource.ts). companies/contacts/deals/employees/sales stay eager
+// -- the primary CRM surface most users touch immediately, and
+// employees/sales also export a non-component `recordRepresentation`
+// field lazyResource isn't built to split out separately.
+const LazyAccountsDashboard = lazy(() =>
+  import("../accounts/AccountsDashboard").then((m) => ({
+    default: m.AccountsDashboard,
+  })),
+);
+const LazyPmDashboard = lazy(() =>
+  import("../projects/PmDashboard").then((m) => ({ default: m.PmDashboard })),
+);
+const LazyHrDashboard = lazy(() =>
+  import("../hr/HrDashboard").then((m) => ({ default: m.HrDashboard })),
+);
+const LazyMyHrDashboard = lazy(() =>
+  import("../hr/MyHrDashboard").then((m) => ({ default: m.MyHrDashboard })),
+);
 
 const defaultStore = localStorageStore(undefined, "CRM");
 
@@ -306,34 +317,34 @@ const DesktopAdmin = (
         <Route path={ImportPage.path} element={<ImportPage />} />
         <Route path={ChangelogPage.path} element={<ChangelogPage />} />
         <Route
-          path={MyHrDashboard.path}
+          path="/my-hr"
           element={
             <CanAccess resource="employees" action="list">
-              <MyHrDashboard />
+              <LazyMyHrDashboard />
             </CanAccess>
           }
         />
         <Route
-          path={AccountsDashboard.path}
+          path="/accounts"
           element={
             <CanAccess resource="transactions" action="list">
-              <AccountsDashboard />
+              <LazyAccountsDashboard />
             </CanAccess>
           }
         />
         <Route
-          path={PmDashboard.path}
+          path="/pm"
           element={
             <CanAccess resource="projects" action="list">
-              <PmDashboard />
+              <LazyPmDashboard />
             </CanAccess>
           }
         />
         <Route
-          path={HrDashboard.path}
+          path="/hr"
           element={
             <CanAccess resource="employees" action="create">
-              <HrDashboard />
+              <LazyHrDashboard />
             </CanAccess>
           }
         />
@@ -341,8 +352,24 @@ const DesktopAdmin = (
       <Resource name="deals" {...deals} />
       <Resource name="contacts" {...contacts} />
       <Resource name="companies" {...companies} />
-      <Resource name="leads" {...leads} />
-      <Resource name="projects" {...projects}>
+      <Resource
+        name="leads"
+        {...lazyResource(() => import("../leads"), [
+          "list",
+          "create",
+          "edit",
+          "show",
+        ])}
+      />
+      <Resource
+        name="projects"
+        {...lazyResource(() => import("../projects"), [
+          "list",
+          "create",
+          "edit",
+        ])}
+        show={ProjectShow}
+      >
         <Route path=":id/issues/create" element={<ProjectShow />} />
         <Route path=":id/issues/:issueId" element={<ProjectShow />} />
         <Route path=":id/issues/:issueId/show" element={<ProjectShow />} />
@@ -350,13 +377,40 @@ const DesktopAdmin = (
       <Resource name="issues" />
       <Resource name="issue_notes" />
       <Resource name="employees" {...employees} />
-      <Resource name="leave_requests" {...leaveRequests} />
-      <Resource name="attendance_records" {...attendanceRecords} />
+      <Resource
+        name="leave_requests"
+        {...lazyResource(() => import("../hr/leave"), ["list"])}
+      />
+      <Resource
+        name="attendance_records"
+        {...lazyResource(() => import("../hr/attendance"), [
+          "list",
+          "create",
+          "edit",
+        ])}
+      />
       <Resource name="salary_structures" />
-      <Resource name="payslips" {...payslips} />
-      <Resource name="transactions" {...transactions} />
+      <Resource
+        name="payslips"
+        {...lazyResource(() => import("../hr/payroll"), [
+          "list",
+          "create",
+          "show",
+        ])}
+      />
+      <Resource
+        name="transactions"
+        {...lazyResource(() => import("../accounts"), [
+          "list",
+          "create",
+          "edit",
+        ])}
+      />
       <Resource name="statement_imports" />
-      <Resource name="personal_notes" {...personalNotes} />
+      <Resource
+        name="personal_notes"
+        {...lazyResource(() => import("../personal-notes"), ["list"])}
+      />
       <Resource name="personal_note_versions" />
       <Resource name="personal_note_shares" />
       <Resource name="contact_notes" />
