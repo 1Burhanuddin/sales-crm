@@ -1,13 +1,17 @@
 import { useGetIdentity, useListContext, useTranslate } from "ra-core";
 import { LayoutGrid, Table as TableIcon } from "lucide-react";
+import { BulkActionsToolbar } from "@/components/admin/bulk-actions-toolbar";
+import { BulkDeleteButton } from "@/components/admin/bulk-delete-button";
 import { CreateButton } from "@/components/admin/create-button";
 import { ExportButton } from "@/components/admin/export-button";
 import { List } from "@/components/admin/list";
 import { ListPagination } from "@/components/admin/list-pagination";
+import { SelectAllButton } from "@/components/admin/select-all-button";
 import { SortButton } from "@/components/admin/sort-button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 import { TopToolbar } from "../layout/TopToolbar";
+import { BulkMoveToLeadsButton } from "../leads/BulkMoveToLeadsButton";
 import { useViewMode } from "../misc/useViewMode";
 import { CompanyEmpty } from "./CompanyEmpty";
 import { CompanyListFilter } from "./CompanyListFilter";
@@ -49,9 +53,22 @@ const CompanyListLayout = ({ viewMode }: { viewMode: "grid" | "table" }) => {
       <div className="flex flex-col flex-1 min-w-0 gap-4">
         {viewMode === "table" ? <CompanyTable /> : <ImageList />}
       </div>
+      {viewMode === "table" && (
+        <BulkActionsToolbar>
+          <CompanyBulkActionButtons />
+        </BulkActionsToolbar>
+      )}
     </div>
   );
 };
+
+const CompanyBulkActionButtons = () => (
+  <>
+    <SelectAllButton />
+    <BulkMoveToLeadsButton resource="companies" />
+    <BulkDeleteButton />
+  </>
+);
 
 const CompanyListActions = ({
   viewMode,

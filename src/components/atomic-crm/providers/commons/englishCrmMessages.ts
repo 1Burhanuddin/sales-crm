@@ -1,5 +1,42 @@
 export const englishCrmMessages = {
   resources: {
+    leads: {
+      name: "Lead |||| Leads",
+      fields: {
+        first_name: "First name",
+        last_name: "Last name",
+        company_name: "Company",
+        email: "Email",
+        phone: "Phone",
+        title: "Title",
+        source: "Source",
+        source_helper: "Where this lead came from (import, website, referral...)",
+        notes: "Notes",
+        status: "Status",
+        assignee_id: "Assignee",
+        disqualify_reason: "Reason",
+      },
+      status: {
+        new: "New",
+        contacted: "Contacted",
+        qualified: "Qualified",
+        disqualified: "Disqualified",
+      },
+      action: {
+        create: "Add Lead",
+        mark_contacted: "Mark Contacted",
+        qualify: "Qualify",
+        disqualify: "Disqualify",
+        move_to_leads: "Move to Leads",
+      },
+      converted_to: "Converted to:",
+      qualified: "Lead qualified and converted.",
+      moved_to_leads: "Moved to Leads.",
+      empty: {
+        title: "No leads found",
+        description: "Raw/unqualified contact data lands here before it's promoted into a real Contact.",
+      },
+    },
     companies: {
       name: "Company |||| Companies",
       forcedCaseName: "Company",

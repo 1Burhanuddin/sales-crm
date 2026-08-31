@@ -25,6 +25,7 @@ import deals from "../deals";
 import attendanceRecords from "../hr/attendance";
 import employees from "../hr/employees";
 import leaveRequests from "../hr/leave";
+import leads from "../leads";
 import { MyHrDashboard } from "../hr/MyHrDashboard";
 import payslips from "../hr/payroll";
 import personalNotes from "../personal-notes";
@@ -314,6 +315,7 @@ const DesktopAdmin = (
       <Resource name="deals" {...deals} />
       <Resource name="contacts" {...contacts} />
       <Resource name="companies" {...companies} />
+      <Resource name="leads" {...leads} />
       <Resource name="projects" {...projects}>
         <Route path=":id/issues/create" element={<ProjectShow />} />
         <Route path=":id/issues/:issueId" element={<ProjectShow />} />

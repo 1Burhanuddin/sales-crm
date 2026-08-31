@@ -27,6 +27,7 @@ alter table public.transactions enable row level security;
 alter table public.personal_notes enable row level security;
 alter table public.personal_note_versions enable row level security;
 alter table public.personal_note_shares enable row level security;
+alter table public.leads enable row level security;
 
 -- Companies (visible/editable by their owning sales rep, or any admin)
 create policy "Select own or admin" on public.companies for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
@@ -201,3 +202,19 @@ create policy "Owner or admin manages shares" on public.personal_note_shares for
 create policy "Owner or admin removes shares" on public.personal_note_shares for delete to authenticated using (
     public.is_admin() or public.owns_personal_note(note_id)
 );
+
+-- Leads (visible/editable by their owner OR the rep they're assigned to,
+-- or any admin -- self-service like companies/contacts/deals, not
+-- admin-only, since any rep should be able to work leads assigned to them)
+create policy "Select own, assignee, or admin" on public.leads for select to authenticated using (
+    public.is_admin() or sales_id = public.current_sales_id() or assignee_id = public.current_sales_id()
+);
+create policy "Insert own or admin" on public.leads for insert to authenticated with check (
+    public.is_admin() or sales_id = public.current_sales_id()
+);
+create policy "Update own, assignee, or admin" on public.leads for update to authenticated using (
+    public.is_admin() or sales_id = public.current_sales_id() or assignee_id = public.current_sales_id()
+) with check (
+    public.is_admin() or sales_id = public.current_sales_id() or assignee_id = public.current_sales_id()
+);
+create policy "Admin delete only" on public.leads for delete to authenticated using (public.is_admin());

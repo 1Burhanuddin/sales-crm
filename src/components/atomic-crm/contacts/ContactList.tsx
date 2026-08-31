@@ -17,6 +17,7 @@ import { SortButton } from "@/components/admin/sort-button";
 import { Card } from "@/components/ui/card";
 
 import type { Company, Contact, Sale, Tag } from "../types";
+import { BulkMoveToLeadsButton } from "../leads/BulkMoveToLeadsButton";
 import { BulkTagButton } from "./BulkTagButton";
 import { ContactEmpty } from "./ContactEmpty";
 import { ContactImportButton } from "./ContactImportButton";
@@ -79,6 +80,7 @@ const ContactBulkActionButtons = () => (
   <>
     <SelectAllButton />
     <BulkTagButton />
+    <BulkMoveToLeadsButton resource="contacts" />
     <BulkExportButton />
     <BulkDeleteButton />
   </>

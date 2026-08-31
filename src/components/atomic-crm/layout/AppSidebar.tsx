@@ -3,6 +3,7 @@ import {
   Building2,
   CalendarOff,
   ClipboardCheck,
+  Filter,
   FolderKanban,
   Handshake,
   LayoutDashboard,
@@ -77,6 +78,12 @@ export const AppSidebar = () => {
     {
       label: translate("crm.navigation.groups.crm", { _: "CRM" }),
       items: [
+        {
+          to: "/leads",
+          label: translate("resources.leads.name", { smart_count: 2 }),
+          icon: Filter,
+          resource: "leads",
+        },
         {
           to: "/contacts",
           label: translate("resources.contacts.name", { smart_count: 2 }),
