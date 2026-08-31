@@ -235,10 +235,17 @@ function Sidebar({
           side === "left"
             ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
             : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
-          // Adjust the padding for the inset variant only.
+          // Adjust the padding for the inset variant only. "floating"
+          // shares the flush icon-width sizing with the plain "sidebar"
+          // variant, but (unlike it) skips the divider border — the
+          // content card's own left edge is the visual separation.
           variant === "inset"
             ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
-            : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l",
+            : cn(
+                "group-data-[collapsible=icon]:w-(--sidebar-width-icon)",
+                variant !== "floating" &&
+                  "group-data-[side=left]:border-r group-data-[side=right]:border-l"
+              ),
           className
         )}
         {...props}
@@ -314,13 +321,15 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
         "bg-background relative flex w-full flex-1 flex-col",
         // "inset": content floats away from the top/right/bottom page
         // edges but stays flush against the sidebar (ml-0).
-        "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
+        "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:overflow-hidden md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
         // "floating": the sidebar itself stays flush (see Sidebar's own
         // data-variant styling) — only the content floats, with a margin
         // on every side (including the left, unlike inset) so there's a
         // visible gap between it and the sidebar, plus a border on top of
-        // the rounded/shadow card look.
-        "md:peer-data-[variant=floating]:m-2 md:peer-data-[variant=floating]:rounded-xl md:peer-data-[variant=floating]:border md:peer-data-[variant=floating]:shadow-sm",
+        // the rounded/shadow card look. overflow-hidden clips children
+        // (e.g. a card's own shadow/ring, or a table a pixel too wide) to
+        // the rounded corners instead of letting them poke past the edge.
+        "md:peer-data-[variant=floating]:m-2 md:peer-data-[variant=floating]:rounded-xl md:peer-data-[variant=floating]:border md:peer-data-[variant=floating]:overflow-hidden md:peer-data-[variant=floating]:shadow-sm",
         className
       )}
       {...props}
