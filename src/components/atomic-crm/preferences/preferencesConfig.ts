@@ -48,7 +48,7 @@ export const DEFAULT_PREFERENCES = {
   font: "inter" as FontPreset,
   contentLayout: "centered" as ContentLayout,
   navbarStyle: "sticky" as NavbarStyle,
-  sidebarVariant: "sidebar" as SidebarVariant,
+  sidebarVariant: "floating" as SidebarVariant,
   sidebarCollapsible: "icon" as SidebarCollapsible,
 };
 
