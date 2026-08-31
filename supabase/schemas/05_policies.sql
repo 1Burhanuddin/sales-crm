@@ -185,14 +185,19 @@ create policy "Delete own or admin" on public.personal_note_versions for delete 
 -- Personal note sharing: owner/admin manage shares, recipient can see their
 -- own share row. Read-only for the recipient (no update/delete grant on
 -- personal_notes itself — see the "Select own, shared, or admin" policy).
+-- Cross-table checks go through owns_personal_note() (SECURITY DEFINER),
+-- not a raw subquery against personal_notes -- personal_notes' own select
+-- policy queries personal_note_shares directly, so a raw subquery here
+-- would create a mutual RLS cross-reference (infinite recursion). See
+-- 20260831170000_fix_personal_notes_rls_recursion.sql.
 create policy "Owner, recipient, or admin can view a share" on public.personal_note_shares for select to authenticated using (
     public.is_admin()
     or shared_with_sales_id = public.current_sales_id()
-    or exists (select 1 from public.personal_notes pn where pn.id = personal_note_shares.note_id and pn.sales_id = public.current_sales_id())
+    or public.owns_personal_note(note_id)
 );
 create policy "Owner or admin manages shares" on public.personal_note_shares for insert to authenticated with check (
-    public.is_admin() or exists (select 1 from public.personal_notes pn where pn.id = note_id and pn.sales_id = public.current_sales_id())
+    public.is_admin() or public.owns_personal_note(note_id)
 );
 create policy "Owner or admin removes shares" on public.personal_note_shares for delete to authenticated using (
-    public.is_admin() or exists (select 1 from public.personal_notes pn where pn.id = personal_note_shares.note_id and pn.sales_id = public.current_sales_id())
+    public.is_admin() or public.owns_personal_note(note_id)
 );
