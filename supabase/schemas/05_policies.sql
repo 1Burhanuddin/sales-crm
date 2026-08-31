@@ -22,6 +22,7 @@ alter table public.leave_requests enable row level security;
 alter table public.attendance_records enable row level security;
 alter table public.salary_structures enable row level security;
 alter table public.payslips enable row level security;
+alter table public.personal_notes enable row level security;
 
 -- Companies (visible/editable by their owning sales rep, or any admin)
 create policy "Select own or admin" on public.companies for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
@@ -152,3 +153,10 @@ create policy "Select own or admin" on public.payslips for select to authenticat
 create policy "Admin write only" on public.payslips for insert to authenticated with check (public.is_admin());
 create policy "Admin update only" on public.payslips for update to authenticated using (public.is_admin()) with check (public.is_admin());
 create policy "Admin delete only" on public.payslips for delete to authenticated using (public.is_admin());
+
+-- Personal notes (self-owned). Delete does NOT require admin, unlike every
+-- other table above — private scratch content, not shared business/HR data.
+create policy "Select own or admin" on public.personal_notes for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
+create policy "Insert own or admin" on public.personal_notes for insert to authenticated with check (public.is_admin() or sales_id = public.current_sales_id());
+create policy "Update own or admin" on public.personal_notes for update to authenticated using (public.is_admin() or sales_id = public.current_sales_id()) with check (public.is_admin() or sales_id = public.current_sales_id());
+create policy "Delete own or admin" on public.personal_notes for delete to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
