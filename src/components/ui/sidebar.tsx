@@ -137,7 +137,7 @@ function SidebarProvider({
             } as React.CSSProperties
           }
           className={cn(
-            "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full",
+            "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar has-data-[variant=floating]:bg-sidebar flex min-h-svh w-full",
             className
           )}
           {...props}
@@ -212,14 +212,18 @@ function Sidebar({
       data-side={side}
       data-slot="sidebar"
     >
-      {/* This is what handles the sidebar gap on desktop */}
+      {/* This is what handles the sidebar gap on desktop.
+          "floating" deliberately behaves like the plain "sidebar" variant
+          here — the sidebar itself stays flush against the page (no p-2
+          gap, no rounded/border/shadow card look); it's the content area
+          (SidebarInset) that gets the floating-card treatment instead. */}
       <div
         data-slot="sidebar-gap"
         className={cn(
           "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
           "group-data-[collapsible=offcanvas]:w-0",
           "group-data-[side=right]:rotate-180",
-          variant === "floating" || variant === "inset"
+          variant === "inset"
             ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
             : "group-data-[collapsible=icon]:w-(--sidebar-width-icon)"
         )}
@@ -231,8 +235,8 @@ function Sidebar({
           side === "left"
             ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
             : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
-          // Adjust the padding for floating and inset variants.
-          variant === "floating" || variant === "inset"
+          // Adjust the padding for the inset variant only.
+          variant === "inset"
             ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
             : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l",
           className
@@ -308,12 +312,15 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
       data-slot="sidebar-inset"
       className={cn(
         "bg-background relative flex w-full flex-1 flex-col",
-        // "inset": content floats, sidebar stays flush. "floating": both
-        // float (the Sidebar component gives the sidebar itself the
-        // rounded/border/shadow treatment; this adds the same to the
-        // content side) for a fully floating-cards look.
+        // "inset": content floats away from the top/right/bottom page
+        // edges but stays flush against the sidebar (ml-0).
         "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
-        "md:peer-data-[variant=floating]:m-2 md:peer-data-[variant=floating]:ml-0 md:peer-data-[variant=floating]:rounded-xl md:peer-data-[variant=floating]:shadow-sm md:peer-data-[variant=floating]:peer-data-[state=collapsed]:ml-2",
+        // "floating": the sidebar itself stays flush (see Sidebar's own
+        // data-variant styling) — only the content floats, with a margin
+        // on every side (including the left, unlike inset) so there's a
+        // visible gap between it and the sidebar, plus a border on top of
+        // the rounded/shadow card look.
+        "md:peer-data-[variant=floating]:m-2 md:peer-data-[variant=floating]:rounded-xl md:peer-data-[variant=floating]:border md:peer-data-[variant=floating]:shadow-sm",
         className
       )}
       {...props}
