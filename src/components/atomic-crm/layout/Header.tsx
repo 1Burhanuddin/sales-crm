@@ -1,5 +1,6 @@
 import { Import, Settings, User, Users } from "lucide-react";
 import { CanAccess, useTranslate, useUserMenu } from "ra-core";
+import { useState } from "react";
 import { Link } from "react-router";
 import { RefreshButton } from "@/components/admin/refresh-button";
 import { ThemeModeToggle } from "@/components/admin/theme-mode-toggle";
@@ -7,12 +8,18 @@ import { UserMenu } from "@/components/admin/user-menu";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 import { ImportPage } from "../misc/ImportPage";
-import { PreferencesMenuItem } from "../preferences";
+import { PreferencesDialog, PreferencesMenuItem } from "../preferences";
 
 // The nav itself lives in AppSidebar now — this is just the top bar's
 // right-hand cluster (theme/refresh/user menu), rendered inside Layout.tsx
 // next to the SidebarTrigger.
 const Header = () => {
+  // Lifted up here (not local to PreferencesMenuItem) because the actual
+  // Dialog has to render as a sibling of <UserMenu>, not inside it — Radix
+  // unmounts DropdownMenuContent's whole subtree on close, which would
+  // unmount the Dialog (and its open state) right along with it.
+  const [preferencesOpen, setPreferencesOpen] = useState(false);
+
   return (
     <div className="flex items-center">
       <ThemeModeToggle />
@@ -25,9 +32,13 @@ const Header = () => {
         <CanAccess resource="configuration" action="edit">
           <SettingsMenu />
         </CanAccess>
-        <PreferencesMenuItem />
+        <PreferencesMenuItem onOpen={() => setPreferencesOpen(true)} />
         <ImportFromJsonMenuItem />
       </UserMenu>
+      <PreferencesDialog
+        open={preferencesOpen}
+        onOpenChange={setPreferencesOpen}
+      />
     </div>
   );
 };
