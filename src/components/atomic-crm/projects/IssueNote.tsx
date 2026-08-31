@@ -10,6 +10,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import type { FieldValues, SubmitHandler } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -34,6 +35,12 @@ export const IssueNote = ({ note }: { note: IssueNoteType }) => {
   const translate = useTranslate();
   const { identity } = useGetIdentity();
   const isCurrentUser = note.sales_id === identity?.id;
+  const isAdmin = Boolean((identity as any)?.administrator);
+  // Matches the RLS policies exactly: update allows the comment's own
+  // author or an admin, delete stays admin-only (unchanged) -- the two
+  // buttons need separate visibility, not one shared "can modify" flag.
+  const canEdit = isCurrentUser || isAdmin;
+  const canDelete = isAdmin;
   const salesName = useGetSalesName(note.sales_id, { enabled: !isCurrentUser });
 
   useEffect(() => {
@@ -89,40 +96,44 @@ export const IssueNote = ({ note }: { note: IssueNoteType }) => {
           )}
         </div>
         <span className={`${isHover ? "visible" : "invisible"}`}>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setEditing(!isEditing)}
-                  className="p-1 h-auto cursor-pointer"
-                >
-                  <Edit className="w-4 h-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{translate("resources.notes.action.edit")}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleDelete}
-                  className="p-1 h-auto cursor-pointer"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{translate("resources.notes.action.delete")}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          {canEdit && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setEditing(!isEditing)}
+                    className="p-1 h-auto cursor-pointer"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{translate("resources.notes.action.edit")}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+          {canDelete && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleDelete}
+                    className="p-1 h-auto cursor-pointer"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{translate("resources.notes.action.delete")}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </span>
         <div className="flex-1"></div>
         <span className="text-sm text-muted-foreground">
@@ -189,6 +200,8 @@ export const IssueNote = ({ note }: { note: IssueNoteType }) => {
 };
 
 const IssueNoteAttachments = ({ note }: { note: IssueNoteType }) => {
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+
   if (!note.attachments || note.attachments.length === 0) return null;
 
   const imageAttachments = note.attachments.filter((a: AttachmentNote) =>
@@ -203,24 +216,45 @@ const IssueNoteAttachments = ({ note }: { note: IssueNoteType }) => {
       {imageAttachments.length > 0 && (
         <div className="grid grid-cols-4 gap-8">
           {imageAttachments.map((attachment: AttachmentNote, index: number) => (
-            <a
+            <button
               key={index}
-              href={attachment.src}
+              type="button"
               title={attachment.title}
-              target="_blank"
-              rel="noopener noreferrer"
               className="block"
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxSrc(attachment.src);
+              }}
             >
               <img
                 src={attachment.src}
                 alt={attachment.title}
                 className="w-[200px] h-[100px] object-cover cursor-pointer object-left border border-border"
               />
-            </a>
+            </button>
           ))}
         </div>
       )}
+      <Dialog
+        open={!!lightboxSrc}
+        onOpenChange={(open) => !open && setLightboxSrc(null)}
+      >
+        <DialogContent
+          className="max-w-4xl w-fit p-2"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <DialogTitle className="sr-only">
+            {imageAttachments.find((a) => a.src === lightboxSrc)?.title ?? ""}
+          </DialogTitle>
+          {lightboxSrc && (
+            <img
+              src={lightboxSrc}
+              alt=""
+              className="max-h-[80vh] max-w-full object-contain"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
       {otherAttachments.map((attachment: AttachmentNote, index: number) => (
         <div key={index} className="flex items-center gap-2">
           <Paperclip className="w-4 h-4" />

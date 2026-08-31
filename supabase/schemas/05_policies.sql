@@ -94,10 +94,15 @@ create policy "PM access insert" on public.issues for insert to authenticated wi
 create policy "PM access update" on public.issues for update to authenticated using (public.has_pm_access()) with check (public.has_pm_access());
 create policy "Admin delete only" on public.issues for delete to authenticated using (public.is_admin());
 
--- Issue Notes (visible/editable by anyone with PM access: admin or developer)
+-- Issue Notes (comments). Select/insert: anyone with PM access (admin or
+-- developer). Update: own comment only, or admin -- was "anyone with PM
+-- access" before, which let any developer edit any other developer's
+-- comment; the UI never actually offered that (edit/delete only showed
+-- on hover regardless of authorship, a separate bug fixed alongside
+-- this), but the RLS itself was the real, wider-than-intended door.
 create policy "PM access select" on public.issue_notes for select to authenticated using (public.has_pm_access());
 create policy "PM access insert" on public.issue_notes for insert to authenticated with check (public.has_pm_access());
-create policy "PM access update" on public.issue_notes for update to authenticated using (public.has_pm_access()) with check (public.has_pm_access());
+create policy "Update own or admin" on public.issue_notes for update to authenticated using (public.is_admin() or sales_id = public.current_sales_id()) with check (public.is_admin() or sales_id = public.current_sales_id());
 create policy "Admin delete only" on public.issue_notes for delete to authenticated using (public.is_admin());
 
 -- Employees (visible/editable by the linked sales user, or any admin; only admins create/delete)
