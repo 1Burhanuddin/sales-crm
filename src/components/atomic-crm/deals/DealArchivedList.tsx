@@ -16,6 +16,10 @@ export const DealArchivedList = () => {
   const translate = useTranslate();
   const [locale = "en"] = useLocaleState();
   const { identity } = useGetIdentity();
+  // perPage:1000 is intentional (audited in #84) -- this shows the full
+  // archive history, grouped by date, so a lower cap would silently drop
+  // older archived deals rather than just page them. Bounded by a small
+  // team's total historical deal volume, not by any single user's input.
   const {
     data: archivedLists,
     total,
