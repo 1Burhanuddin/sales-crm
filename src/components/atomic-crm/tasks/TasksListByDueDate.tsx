@@ -33,6 +33,12 @@ export const TasksListByDueDate = ({
   const isMobile = useIsMobile();
   const translate = useTranslate();
 
+  // perPage:1000 is intentional (audited in #84) -- these get bucketed
+  // client-side into overdue/today/tomorrow/this-week/later, so a lower
+  // cap could truncate the "later" bucket even though it's sorted
+  // due_date ASC. Always scoped to one contact or one sales rep's own
+  // tasks (never every task in the system), so 1000 is generous for a
+  // single person's outstanding workload, not a tight limit.
   const { data: tasks, isPending } = useGetList(
     "tasks",
     {

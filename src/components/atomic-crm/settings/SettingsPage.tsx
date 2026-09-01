@@ -233,6 +233,15 @@ const SettingsFormFields = () => {
     "crm.settings.validation.entities.categories",
   );
 
+  // These perPage:1000 fetches are deliberate, not an oversight (audited
+  // in #84): validating whether a config value (deal stage, issue status,
+  // department, etc.) is still in use before letting an admin remove it
+  // needs to see every row's relevant field, not a recent-N sample --
+  // otherwise a value used only by an older record could look safe to
+  // delete when it isn't. This app's dataProvider has no column
+  // projection (can't fetch just the one field being checked, see
+  // SprintPanel.tsx's same note), and these tables are personal/small-
+  // team scale, so 1000 is a generous, not a tight, cap for now.
   const { data: deals } = useGetList("deals", {
     pagination: { page: 1, perPage: 1000 },
   });
