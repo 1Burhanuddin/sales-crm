@@ -1,15 +1,11 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import {
-  FilterLiveForm,
-  useListContext,
-  useRedirect,
-  useTranslate,
-} from "ra-core";
-import { matchPath, useLocation } from "react-router";
+import { FilterLiveForm, useListContext, useTranslate } from "ra-core";
+import { Link, matchPath, useLocation } from "react-router";
 import { LayoutGrid, Table as TableIcon } from "lucide-react";
 import { List } from "@/components/admin/list";
 import { SearchInput } from "@/components/admin/search-input";
+import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
 
@@ -143,21 +139,27 @@ const NotesSearchInput = () => {
 
 const AddCrumbBar = () => {
   const translate = useTranslate();
-  const redirect = useRedirect();
   const { noteCorners } = usePreferences();
   return (
-    <button
-      type="button"
-      onClick={() => redirect("/personal_notes/create")}
+    // Standard primary Button now (was a custom bg-card/text-muted-
+    // foreground button, low-contrast and inconsistent with every other
+    // "add" action in the app -- e.g. the empty state's own New Note
+    // button already used the real primary color: white on dark mode,
+    // black on light mode).
+    <Button
+      asChild
+      size="sm"
       className={cn(
-        "shrink-0 flex items-center gap-1.5 h-9 px-3 border bg-card text-sm text-muted-foreground hover:bg-muted transition-colors",
-        noteCorners === "square" ? "rounded-none" : "rounded-md",
+        "shrink-0 h-9",
+        noteCorners === "square" && "rounded-none",
       )}
     >
-      <Plus className="w-4 h-4" />
-      {translate("resources.personal_notes.action.new", {
-        _: "Add a note…",
-      })}
-    </button>
+      <Link to="/personal_notes/create">
+        <Plus className="w-4 h-4" />
+        {translate("resources.personal_notes.action.new", {
+          _: "Add a note…",
+        })}
+      </Link>
+    </Button>
   );
 };
