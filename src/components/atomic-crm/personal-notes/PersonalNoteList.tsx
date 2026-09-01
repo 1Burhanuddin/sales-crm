@@ -15,9 +15,11 @@ import { cn } from "@/lib/utils";
 
 import { useViewMode } from "../misc/useViewMode";
 import { usePreferences } from "../preferences";
-import { PersonalNoteCreate } from "./PersonalNoteCreate";
-import { PersonalNoteEdit } from "./PersonalNoteEdit";
 import { PersonalNoteGrid } from "./PersonalNoteGrid";
+import {
+  PersonalNoteCreatePage,
+  PersonalNoteEditPage,
+} from "./PersonalNoteFullPageEditor";
 import { PersonalNotesSidebar } from "./PersonalNotesSidebar";
 import { PersonalNoteTable } from "./PersonalNoteTable";
 
@@ -77,6 +79,18 @@ const PersonalNoteLayout = ({
   const matchEdit = matchPath("/personal_notes/:id", location.pathname);
   const { isPending } = useListContext();
 
+  // Opening a note (or creating one) replaces this whole view with its
+  // own full page — sidebar and all — rather than overlaying a dialog on
+  // top of the grid. A calmer, more spacious writing surface than a
+  // cramped modal, and it means the note's own color can wash the entire
+  // page instead of just a card.
+  if (matchCreate) {
+    return <PersonalNoteCreatePage />;
+  }
+  if (matchEdit?.params.id) {
+    return <PersonalNoteEditPage id={matchEdit.params.id} />;
+  }
+
   return (
     <div className="flex gap-6 mt-4">
       <PersonalNotesSidebar tab={tab} setTab={setTab} />
@@ -105,11 +119,6 @@ const PersonalNoteLayout = ({
         {!isPending &&
           (viewMode === "table" ? <PersonalNoteTable /> : <PersonalNoteGrid />)}
       </div>
-      <PersonalNoteCreate open={!!matchCreate} />
-      <PersonalNoteEdit
-        open={!!matchEdit && !matchCreate}
-        id={matchEdit?.params.id}
-      />
     </div>
   );
 };
