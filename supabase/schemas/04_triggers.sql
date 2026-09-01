@@ -52,6 +52,10 @@ create or replace trigger set_issue_notes_sales_id_trigger
     before insert on public.issue_notes
     for each row execute function public.set_sales_id_default();
 
+create or replace trigger log_issue_status_change_trigger
+    after insert or update on public.issues
+    for each row execute function public.log_issue_status_change();
+
 create or replace trigger set_statement_import_sales_id_trigger
     before insert on public.statement_imports
     for each row execute function public.set_sales_id_default();

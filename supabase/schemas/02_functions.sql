@@ -566,3 +566,24 @@ begin
   return new;
 end;
 $$;
+
+-- Logs every issue status transition into issue_status_history, powering
+-- the sprint burndown chart. Not SECURITY DEFINER, same convention as
+-- snapshot_personal_note_version() above -- runs as the acting user,
+-- relying on issue_status_history's own insert policy (has_pm_access,
+-- same as issues itself) rather than bypassing RLS.
+create or replace function public.log_issue_status_change() returns trigger
+    language plpgsql
+    set search_path = ''
+    as $$
+begin
+  if tg_op = 'INSERT' then
+    insert into public.issue_status_history (issue_id, project_id, from_status, to_status)
+    values (new.id, new.project_id, null, new.status);
+  elsif tg_op = 'UPDATE' and old.status is distinct from new.status then
+    insert into public.issue_status_history (issue_id, project_id, from_status, to_status)
+    values (new.id, new.project_id, old.status, new.status);
+  end if;
+  return new;
+end;
+$$;

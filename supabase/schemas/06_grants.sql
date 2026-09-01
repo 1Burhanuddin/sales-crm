@@ -154,6 +154,10 @@ grant all on table public.issue_notes to anon;
 grant all on table public.issue_notes to authenticated;
 grant all on table public.issue_notes to service_role;
 
+grant all on table public.issue_status_history to anon;
+grant all on table public.issue_status_history to authenticated;
+grant all on table public.issue_status_history to service_role;
+
 grant all on table public.employees to anon;
 grant all on table public.employees to authenticated;
 grant all on table public.employees to service_role;
@@ -279,6 +283,10 @@ grant all on sequence public.milestones_id_seq to service_role;
 grant all on sequence public.issue_notes_id_seq to anon;
 grant all on sequence public.issue_notes_id_seq to authenticated;
 grant all on sequence public.issue_notes_id_seq to service_role;
+
+grant all on sequence public.issue_status_history_id_seq to anon;
+grant all on sequence public.issue_status_history_id_seq to authenticated;
+grant all on sequence public.issue_status_history_id_seq to service_role;
 
 grant all on sequence public.employees_id_seq to anon;
 grant all on sequence public.employees_id_seq to authenticated;

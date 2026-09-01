@@ -181,6 +181,14 @@ export type Sprint = {
   created_at: string;
 } & Pick<RaRecord, "id">;
 
+export type IssueStatusHistory = {
+  issue_id: Identifier;
+  project_id: Identifier;
+  from_status?: string | null;
+  to_status: string;
+  changed_at: string;
+} & Pick<RaRecord, "id">;
+
 export type Milestone = {
   project_id: Identifier;
   name: string;

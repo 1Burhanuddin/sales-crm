@@ -344,6 +344,13 @@ export const frenchCrmMessages = {
       action: {
         new: "Nouveau sprint",
       },
+      burndown: {
+        title: "Burndown",
+        ideal: "Idéal",
+        actual: "Réel",
+        needs_dates:
+          "Définissez une date de début et de fin pour ce sprint afin de voir un graphique burndown.",
+      },
     },
     milestones: {
       name: "Jalon |||| Jalons",

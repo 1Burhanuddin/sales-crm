@@ -22,6 +22,7 @@ import { TextInput } from "@/components/admin/text-input";
 import { cn } from "@/lib/utils";
 
 import type { Issue, Sprint } from "../types";
+import { SprintBurndownChart } from "./SprintBurndownChart";
 
 const SPRINT_STATUS_VALUES = ["planned", "active", "completed"] as const;
 
@@ -55,6 +56,11 @@ export const SprintPanel = ({
     filter: { project_id: projectId },
     pagination: { page: 1, perPage: 1000 },
   });
+
+  const selectedSprint =
+    selectedSprintId != null
+      ? sprints?.find((s) => s.id === selectedSprintId)
+      : undefined;
 
   if (sprintsPending) return null;
   if (!sprints || sprints.length === 0) {
@@ -155,6 +161,21 @@ export const SprintPanel = ({
           );
         })}
       </div>
+      {selectedSprint && (
+        <div className="pt-2">
+          <h4 className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
+            {translate("resources.sprints.burndown.title", {
+              _: "Burndown",
+            })}
+          </h4>
+          <SprintBurndownChart
+            sprint={selectedSprint}
+            issues={(issues ?? []).filter(
+              (i) => i.sprint_id === selectedSprint.id,
+            )}
+          />
+        </div>
+      )}
     </div>
   );
 };
