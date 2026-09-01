@@ -19,6 +19,7 @@ alter table public.sprints enable row level security;
 alter table public.milestones enable row level security;
 alter table public.issues enable row level security;
 alter table public.issue_notes enable row level security;
+alter table public.issue_status_history enable row level security;
 alter table public.employees enable row level security;
 alter table public.leave_requests enable row level security;
 alter table public.attendance_records enable row level security;
@@ -119,6 +120,12 @@ create policy "PM access select" on public.issue_notes for select to authenticat
 create policy "PM access insert" on public.issue_notes for insert to authenticated with check (public.has_pm_access());
 create policy "Update own or admin" on public.issue_notes for update to authenticated using (public.is_admin() or sales_id = public.current_sales_id()) with check (public.is_admin() or sales_id = public.current_sales_id());
 create policy "Admin delete only" on public.issue_notes for delete to authenticated using (public.is_admin());
+
+-- Issue status history (append-only audit log powering the sprint
+-- burndown chart -- no update/delete policies, same posture as
+-- activity_log elsewhere in this schema)
+create policy "PM access select" on public.issue_status_history for select to authenticated using (public.has_pm_access());
+create policy "PM access insert" on public.issue_status_history for insert to authenticated with check (public.has_pm_access());
 
 -- Employees (visible/editable by the linked sales user, or any admin; only admins create/delete)
 create policy "Select own or admin" on public.employees for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());

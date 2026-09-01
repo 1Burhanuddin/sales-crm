@@ -404,6 +404,7 @@ const DesktopAdmin = (
       <Resource name="sprints" />
       <Resource name="milestones" />
       <Resource name="issue_notes" />
+      <Resource name="issue_status_history" />
       <Resource
         name="employees"
         {...lazyResource(() => import("../hr/employees"), [

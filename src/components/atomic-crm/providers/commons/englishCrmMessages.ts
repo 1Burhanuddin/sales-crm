@@ -339,6 +339,13 @@ export const englishCrmMessages = {
       action: {
         new: "New Sprint",
       },
+      burndown: {
+        title: "Burndown",
+        ideal: "Ideal",
+        actual: "Actual",
+        needs_dates:
+          "Set a start and end date on this sprint to see a burndown chart.",
+      },
     },
     milestones: {
       name: "Milestone |||| Milestones",
