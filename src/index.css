@@ -188,6 +188,31 @@ body {
 }
 
 /*
+ * Sidebar scroll area: thin, theme-colored scrollbar instead of the
+ * default OS one (wide, grey, clashes with the dark sidebar background).
+ * scrollbar-width/-color cover Firefox and modern Chromium; the
+ * ::-webkit-scrollbar rules cover Safari and older Chromium builds that
+ * don't yet read the standard properties.
+ */
+[data-slot="sidebar-content"] {
+  scrollbar-width: thin;
+  scrollbar-color: var(--sidebar-border) transparent;
+}
+[data-slot="sidebar-content"]::-webkit-scrollbar {
+  width: 6px;
+}
+[data-slot="sidebar-content"]::-webkit-scrollbar-track {
+  background: transparent;
+}
+[data-slot="sidebar-content"]::-webkit-scrollbar-thumb {
+  background-color: var(--sidebar-border);
+  border-radius: 9999px;
+}
+[data-slot="sidebar-content"]::-webkit-scrollbar-thumb:hover {
+  background-color: var(--sidebar-accent);
+}
+
+/*
  * Preferences panel: theme presets + fonts.
  *
  * Applied by PreferencesProvider as classes on <html> (theme-*) and <body>
