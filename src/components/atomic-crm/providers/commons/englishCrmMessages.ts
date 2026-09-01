@@ -559,6 +559,7 @@ export const englishCrmMessages = {
         tags: "Tags",
         attachments: "Attachments",
         updated_at: "Updated",
+        remind_at: "Remind me",
       },
       type: {
         note: "Note",
@@ -580,6 +581,7 @@ export const englishCrmMessages = {
         history: "Version history",
         share: "Share",
         add_person: "Add person",
+        clear_reminder: "Clear reminder",
       },
       tabs: {
         notes: "Notes",
@@ -588,6 +590,7 @@ export const englishCrmMessages = {
       },
       pinned: "Pinned",
       others: "Others",
+      reminders_due: "Reminders",
       no_versions: "No earlier versions yet.",
       version_restored: "Version restored",
       no_one_to_share: "No one else to share with",

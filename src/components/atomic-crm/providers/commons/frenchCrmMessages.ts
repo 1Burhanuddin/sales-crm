@@ -565,6 +565,7 @@ export const frenchCrmMessages = {
         tags: "Étiquettes",
         attachments: "Pièces jointes",
         updated_at: "Mis à jour",
+        remind_at: "Me le rappeler",
       },
       type: {
         note: "Note",
@@ -586,6 +587,7 @@ export const frenchCrmMessages = {
         history: "Historique des versions",
         share: "Partager",
         add_person: "Ajouter une personne",
+        clear_reminder: "Effacer le rappel",
       },
       tabs: {
         notes: "Notes",
@@ -594,6 +596,7 @@ export const frenchCrmMessages = {
       },
       pinned: "Épinglées",
       others: "Autres",
+      reminders_due: "Rappels",
       no_versions: "Aucune version antérieure pour le moment.",
       version_restored: "Version restaurée",
       no_one_to_share: "Personne d'autre avec qui partager",

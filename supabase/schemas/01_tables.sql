@@ -337,6 +337,7 @@ create table public.personal_notes (
     archived_at timestamp with time zone,
     deleted_at timestamp with time zone,
     attachments jsonb[],
+    remind_at timestamp with time zone,
     created_at timestamp with time zone not null default now(),
     updated_at timestamp with time zone not null default now(),
     constraint personal_notes_type_check check (type in ('note', 'checklist'))
