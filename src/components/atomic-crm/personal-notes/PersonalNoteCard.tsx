@@ -7,6 +7,7 @@ import {
   useNotify,
   useRecordContext,
   useRedirect,
+  useRefresh,
   useTranslate,
 } from "ra-core";
 import { Card } from "@/components/ui/card";
@@ -24,6 +25,7 @@ export const PersonalNoteCard = () => {
   const redirect = useRedirect();
   const dataProvider = useDataProvider();
   const notify = useNotify();
+  const refresh = useRefresh();
   const translate = useTranslate();
   const { identity } = useGetIdentity();
   const { noteCorners } = usePreferences();
@@ -46,6 +48,13 @@ export const PersonalNoteCard = () => {
         data: { pinned: !record.pinned },
         previousData: record,
       })
+      // Without this, the card stayed in whichever section (Pinned vs
+      // Others) it was in when the list was first fetched -- the update
+      // reached the server fine, but nothing told the grid's cached list
+      // query to refetch, so pinning/unpinning from a card looked like
+      // it silently did nothing until some other action forced a
+      // refresh. Same bug class as EditHeader's moveToTrash.
+      .then(() => refresh())
       .catch(() => notify("ra.notification.http_error", { type: "error" }));
   };
 
@@ -85,6 +94,7 @@ export const PersonalNoteCard = () => {
         data: { checklist_items },
         previousData: record,
       })
+      .then(() => refresh())
       .catch(() => notify("ra.notification.http_error", { type: "error" }));
   };
 
