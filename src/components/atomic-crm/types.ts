@@ -315,6 +315,7 @@ export type PersonalNote = {
   archived_at?: string | null;
   deleted_at?: string | null;
   attachments?: AttachmentNote[];
+  remind_at?: string | null;
   created_at: string;
   updated_at: string;
 } & Pick<RaRecord, "id">;

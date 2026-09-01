@@ -2,6 +2,8 @@ import {
   Archive,
   ArchiveRestore,
   ArrowLeft,
+  Bell,
+  BellOff,
   CheckSquare,
   Pin,
   PinOff,
@@ -25,6 +27,7 @@ import {
 } from "ra-core";
 import { useWatch, useFormContext } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import { DateTimeInput } from "@/components/admin/date-time-input";
 import { DeleteButton } from "@/components/admin/delete-button";
 import { FileInput } from "@/components/admin/file-input";
 import { TextInput } from "@/components/admin/text-input";
@@ -329,6 +332,7 @@ const NoteFields = ({ autoFocus }: { autoFocus?: boolean }) => {
 
       <div className="flex flex-col gap-3 pt-4 mt-2 border-t">
         <ColorSwatchInput />
+        <ReminderInput />
         <PersonalNoteTagsEdit />
         <FileInput
           source="attachments"
@@ -403,6 +407,46 @@ const ColorSwatchInput = () => {
           title={color}
         />
       ))}
+    </div>
+  );
+};
+
+const ReminderInput = () => {
+  const translate = useTranslate();
+  const { setValue } = useFormContext();
+  // Read-only watch, not a second useInput -- DateTimeInput below already
+  // owns the controlled registration for this field; a second useInput
+  // here would just be a redundant competing registration for the same
+  // source when all this needs is "does it currently have a value".
+  const remindAt = useWatch({ name: "remind_at" });
+  return (
+    <div className="flex items-center gap-2 flex-wrap">
+      <span className="text-xs text-muted-foreground flex items-center gap-1">
+        <Bell className="w-3.5 h-3.5" />
+        {translate("resources.personal_notes.fields.remind_at", {
+          _: "Remind me",
+        })}
+      </span>
+      <DateTimeInput
+        source="remind_at"
+        label={false}
+        helperText={false}
+        className="h-8 text-xs w-auto"
+      />
+      {remindAt && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => setValue("remind_at", null, { shouldDirty: true })}
+          title={translate("resources.personal_notes.action.clear_reminder", {
+            _: "Clear reminder",
+          })}
+        >
+          <BellOff className="w-3.5 h-3.5" />
+        </Button>
+      )}
     </div>
   );
 };

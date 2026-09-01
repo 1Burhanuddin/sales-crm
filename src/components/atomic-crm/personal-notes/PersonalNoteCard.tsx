@@ -1,4 +1,5 @@
-import { Pin, Users } from "lucide-react";
+import { Bell, Pin, Users } from "lucide-react";
+import { isPast } from "date-fns";
 import {
   useDataProvider,
   useGetIdentity,
@@ -6,12 +7,14 @@ import {
   useNotify,
   useRecordContext,
   useRedirect,
+  useTranslate,
 } from "ra-core";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+import { formatRelativeDate } from "../misc/RelativeDate";
 import { Markdown } from "../misc/Markdown";
 import { usePreferences } from "../preferences";
 import type { PersonalNote, Tag } from "../types";
@@ -21,6 +24,7 @@ export const PersonalNoteCard = () => {
   const redirect = useRedirect();
   const dataProvider = useDataProvider();
   const notify = useNotify();
+  const translate = useTranslate();
   const { identity } = useGetIdentity();
   const { noteCorners } = usePreferences();
   const { data: tags } = useGetMany<Tag>(
@@ -170,6 +174,24 @@ export const PersonalNoteCard = () => {
               {record.content}
             </Markdown>
           )
+        )}
+
+        {record.remind_at && (
+          <Badge
+            variant={isPast(new Date(record.remind_at)) ? "destructive" : "outline"}
+            className={cn(
+              "self-start text-[10px] font-normal gap-1",
+              hasCustomColor &&
+                !isPast(new Date(record.remind_at)) &&
+                "text-black/70 bg-black/5 border-black/10",
+            )}
+            title={translate("resources.personal_notes.fields.remind_at", {
+              _: "Remind me",
+            })}
+          >
+            <Bell className="w-2.5 h-2.5" />
+            {formatRelativeDate(record.remind_at)}
+          </Badge>
         )}
 
         {tags && tags.length > 0 && (

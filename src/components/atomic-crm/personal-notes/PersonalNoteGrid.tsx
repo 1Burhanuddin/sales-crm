@@ -1,3 +1,4 @@
+import { isPast } from "date-fns";
 import { NotebookPen } from "lucide-react";
 import { RecordContextProvider, useListContext, useTranslate } from "ra-core";
 import { Link } from "react-router";
@@ -12,15 +13,37 @@ export const PersonalNoteGrid = () => {
   const translate = useTranslate();
   if (isPending) return <LoadingSkeleton />;
 
-  const pinned = data?.filter((n) => n.pinned) ?? [];
-  const others = data?.filter((n) => !n.pinned) ?? [];
-
   if (data?.length === 0) {
     return <EmptyState />;
   }
 
+  // A note appears in exactly one section: a due/overdue reminder is the
+  // most actionable signal, so it takes priority over pinned even if a
+  // note is both -- then pinned, then everything else. No separate
+  // dismiss/snooze mechanism for reminders in this pass; clearing the
+  // date on the note itself is how one leaves this section.
+  const due = (data ?? []).filter(
+    (n) => n.remind_at && isPast(new Date(n.remind_at)),
+  );
+  const dueIds = new Set(due.map((n) => n.id));
+  const pinned = (data ?? []).filter((n) => n.pinned && !dueIds.has(n.id));
+  const pinnedIds = new Set(pinned.map((n) => n.id));
+  const others = (data ?? []).filter(
+    (n) => !dueIds.has(n.id) && !pinnedIds.has(n.id),
+  );
+
   return (
     <div className="flex flex-col gap-2">
+      {due.length > 0 && (
+        <div>
+          <h4 className="text-xs uppercase tracking-wide text-destructive mb-2">
+            {translate("resources.personal_notes.reminders_due", {
+              _: "Reminders",
+            })}
+          </h4>
+          <MasonryColumns notes={due} />
+        </div>
+      )}
       {pinned.length > 0 && (
         <div>
           <h4 className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
@@ -29,7 +52,7 @@ export const PersonalNoteGrid = () => {
           <MasonryColumns notes={pinned} />
         </div>
       )}
-      {pinned.length > 0 && others.length > 0 && (
+      {(due.length > 0 || pinned.length > 0) && others.length > 0 && (
         <h4 className="text-xs uppercase tracking-wide text-muted-foreground mt-2 mb-2">
           {translate("resources.personal_notes.others", { _: "Others" })}
         </h4>
