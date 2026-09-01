@@ -560,6 +560,15 @@ export const englishCrmMessages = {
         attachments: "Attachments",
         updated_at: "Updated",
       },
+      type: {
+        note: "Note",
+        checklist: "Checklist",
+      },
+      title_placeholder: "Title",
+      content_placeholder:
+        "Take a note… (markdown supported: - bullets, **bold**, etc.)",
+      no_color: "No color",
+      edited: "Edited",
       action: {
         new: "New Note",
         pin: "Pin",

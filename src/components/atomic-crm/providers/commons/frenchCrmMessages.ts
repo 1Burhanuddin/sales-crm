@@ -566,6 +566,15 @@ export const frenchCrmMessages = {
         attachments: "Pièces jointes",
         updated_at: "Mis à jour",
       },
+      type: {
+        note: "Note",
+        checklist: "Liste de contrôle",
+      },
+      title_placeholder: "Titre",
+      content_placeholder:
+        "Prenez une note… (markdown pris en charge : - listes, **gras**, etc.)",
+      no_color: "Aucune couleur",
+      edited: "Modifié",
       action: {
         new: "Nouvelle note",
         pin: "Épingler",
