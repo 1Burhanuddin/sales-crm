@@ -21,8 +21,7 @@ import { Dashboard } from "../dashboard/Dashboard";
 import { MobileDashboard } from "../dashboard/MobileDashboard";
 import { withRoleAwareDashboard } from "../dashboard/RoleAwareDashboard";
 import deals from "../deals";
-import employees from "../hr/employees";
-import { ProjectShow } from "../projects/ProjectShow.tsx";
+import { employeeRecordRepresentation } from "../hr/employees/employeeRecordRepresentation";
 import { lazyResource } from "./lazyResource";
 import { Layout } from "../layout/Layout";
 import { MobileLayout } from "../layout/MobileLayout";
@@ -34,7 +33,7 @@ import {
   getAuthProvider as defaultAuthProviderBuilder,
   getDataProvider as defaultDataProviderBuilder,
 } from "../providers/supabase";
-import sales from "../sales";
+import { salesRecordRepresentation } from "../sales/salesRecordRepresentation";
 import { SettingsPageMobile } from "../settings/SettingsPageMobile";
 import { ProfilePage } from "../settings/ProfilePage";
 import { SettingsPage } from "../settings/SettingsPage";
@@ -97,6 +96,17 @@ const LazyMyHrDashboard = lazy(() =>
 const LazyIssueCalendar = lazy(() =>
   import("../projects/IssueCalendar").then((m) => ({
     default: m.IssueCalendar,
+  })),
+);
+// ProjectShow itself pulls in IssueBoard, SprintPanel, MilestonePanel,
+// IssueTimeline, and IssueSubtasks -- a project's entire issue-tracking
+// surface -- so it's worth lazy-loading despite being used in two
+// places (the projects resource's `show` and the nested issue routes
+// below). One lazy() definition, reused both places, keeps it one chunk
+// either way rather than loading it twice.
+const LazyProjectShow = lazy(() =>
+  import("../projects/ProjectShow").then((m) => ({
+    default: m.ProjectShow,
   })),
 );
 
@@ -381,17 +391,29 @@ const DesktopAdmin = (
           "create",
           "edit",
         ])}
-        show={ProjectShow}
+        show={LazyProjectShow}
       >
-        <Route path=":id/issues/create" element={<ProjectShow />} />
-        <Route path=":id/issues/:issueId" element={<ProjectShow />} />
-        <Route path=":id/issues/:issueId/show" element={<ProjectShow />} />
+        <Route path=":id/issues/create" element={<LazyProjectShow />} />
+        <Route path=":id/issues/:issueId" element={<LazyProjectShow />} />
+        <Route
+          path=":id/issues/:issueId/show"
+          element={<LazyProjectShow />}
+        />
       </Resource>
       <Resource name="issues" />
       <Resource name="sprints" />
       <Resource name="milestones" />
       <Resource name="issue_notes" />
-      <Resource name="employees" {...employees} />
+      <Resource
+        name="employees"
+        {...lazyResource(() => import("../hr/employees"), [
+          "list",
+          "create",
+          "edit",
+          "show",
+        ])}
+        recordRepresentation={employeeRecordRepresentation}
+      />
       <Resource
         name="leave_requests"
         {...lazyResource(() => import("../hr/leave"), ["list"])}
@@ -431,7 +453,11 @@ const DesktopAdmin = (
       <Resource name="contact_notes" />
       <Resource name="deal_notes" />
       <Resource name="tasks" />
-      <Resource name="sales" {...sales} />
+      <Resource
+        name="sales"
+        {...lazyResource(() => import("../sales"), ["list", "create", "edit"])}
+        recordRepresentation={salesRecordRepresentation}
+      />
       <Resource name="tags" />
     </Admin>
   );
