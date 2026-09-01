@@ -45,17 +45,27 @@ import { PersonalNoteTagsEdit } from "./PersonalNoteTagsEdit";
 import { PersonalNoteVersionHistory } from "./PersonalNoteVersionHistory";
 import { ShareDialog } from "./ShareDialog";
 
-/** A note's own color washes the whole page, not just its card, the same
- * readable-text override PersonalNoteCard.tsx uses. Reads the *live form
- * value* (not the saved record) via useWatch so picking a new color
- * repaints the page immediately, and so it works identically in create
- * mode, where there's no saved record to read a color off yet. */
+/** A note's own color washes the whole page, not just its card. Reads
+ * the *live form value* (not the saved record) via useWatch so picking a
+ * new color repaints the page immediately, and so it works identically
+ * in create mode, where there's no saved record to read a color off yet.
+ *
+ * Sets a real `color` on the wrapper, not just a --card-foreground CSS
+ * variable the way PersonalNoteCard.tsx does -- that trick only works
+ * there because the Card component itself has a text-card-foreground
+ * class to consume the variable. This page's wrapper is a plain <div>
+ * with nothing reading that variable, so overriding it alone was a
+ * silent no-op: every descendant (title, body, the footer's Cancel
+ * button) kept inheriting the app's normal light-mode text color
+ * instead, readable against a colored background only by coincidence.
+ * An explicit `color` here is inherited by every descendant regardless
+ * of what classes they happen to have. */
 const useColorWashStyle = (): React.CSSProperties => {
   const color = useWatch({ name: "color" });
   if (!color) return {};
   return {
     backgroundColor: color,
-    "--card-foreground": "#2b2b2b",
+    color: "#2b2b2b",
     "--muted-foreground": "#5a5a5a",
     "--muted": "rgba(0,0,0,0.06)",
     "--border": "rgba(0,0,0,0.12)",
@@ -278,8 +288,19 @@ const SaveFooter = () => {
   const translate = useTranslate();
   const redirect = useRedirect();
   const { formState } = useFormContext();
+  // Same wash as the rest of the page, not a separate hardcoded
+  // bg-background bar -- previously this was its own opaque dark strip
+  // regardless of the note's color, which is exactly the mismatch this
+  // was reported against. bg-background stays as a class fallback for
+  // when no color is set (washStyle is {} then, so nothing to override
+  // it with) -- the sticky footer still needs to be opaque either way,
+  // since content can scroll underneath it.
+  const washStyle = useColorWashStyle();
   return (
-    <div className="sticky bottom-0 inset-x-0 border-t bg-background/80 backdrop-blur-sm px-6 md:px-10 py-3 flex justify-end gap-2">
+    <div
+      className="sticky bottom-0 inset-x-0 border-t bg-background px-6 md:px-10 py-3 flex justify-end gap-2"
+      style={washStyle}
+    >
       <Button
         type="button"
         variant="ghost"
