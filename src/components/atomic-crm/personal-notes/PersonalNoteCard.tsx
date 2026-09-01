@@ -87,91 +87,108 @@ export const PersonalNoteCard = () => {
   return (
     <Card
       className={cn(
-        "break-inside-avoid mb-3 flex flex-col justify-between p-4 gap-2 cursor-pointer",
-        "border-black/5 shadow-sm hover:shadow-md transition-shadow",
+        "relative overflow-hidden break-inside-avoid mb-3 flex flex-col justify-between p-4 gap-2 cursor-pointer",
+        "border-black/5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-[transform,box-shadow] duration-200",
         noteCorners === "square" && "rounded-none",
       )}
       style={{ backgroundColor: record.color || undefined, ...colorOverrideVars }}
       onClick={() => redirect(`/personal_notes/${record.id}`)}
     >
-      <div className="flex justify-between items-start gap-2">
-        <h3 className="font-mono font-semibold text-sm leading-snug flex-1">
-          {record.title}
-        </h3>
-        <div className="flex items-center shrink-0 -mt-1 -mr-1">
-          {!canEdit && (
-            <span className="p-1.5 opacity-60" title="Shared with you">
-              <Users className="w-3.5 h-3.5" />
-            </span>
-          )}
-          {canEdit && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              onClick={togglePin}
-            >
-              <Pin
-                className={`w-3.5 h-3.5 ${record.pinned ? "fill-current" : ""}`}
-              />
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {checklistPreview ? (
-        <ul className="text-sm space-y-1.5">
-          {checklistPreview.map((item, i) => (
-            <li key={i} className="flex items-center gap-2">
-              <button
+      {hasCustomColor && (
+        // A faint diagonal sheen on colored cards -- just enough to keep
+        // a flat pastel from reading as a solid block of color, without
+        // drawing attention to itself. Absolutely positioned + pointer-
+        // events-none so it never interferes with clicks/drag. z-index
+        // stays implicit (auto) -- the real content below is explicitly
+        // z-10 so it always paints above this regardless of DOM order.
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(255,255,255,0.35), transparent 55%)",
+          }}
+        />
+      )}
+      <div className="relative z-10 flex flex-col gap-2">
+        <div className="flex justify-between items-start gap-2">
+          <h3 className="font-serif font-semibold text-base leading-snug flex-1">
+            {record.title}
+          </h3>
+          <div className="flex items-center shrink-0 -mt-1 -mr-1">
+            {!canEdit && (
+              <span className="p-1.5 opacity-60" title="Shared with you">
+                <Users className="w-3.5 h-3.5" />
+              </span>
+            )}
+            {canEdit && (
+              <Button
                 type="button"
-                onClick={(e) => toggleChecklistItem(e, i)}
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={togglePin}
+              >
+                <Pin
+                  className={`w-3.5 h-3.5 ${record.pinned ? "fill-current" : ""}`}
+                />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {checklistPreview ? (
+          <ul className="text-sm space-y-1.5">
+            {checklistPreview.map((item, i) => (
+              <li key={i} className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={(e) => toggleChecklistItem(e, i)}
+                  className={cn(
+                    "w-3.5 h-3.5 rounded-[3px] border border-current/40 shrink-0 transition-colors",
+                    item.checked && "bg-current/60",
+                  )}
+                />
+                <span
+                  className={cn(
+                    "leading-tight",
+                    item.checked && "line-through opacity-50",
+                  )}
+                >
+                  {item.text}
+                </span>
+              </li>
+            ))}
+            {record.checklist_items.length > 6 && (
+              <li className="text-xs text-muted-foreground pl-5.5">
+                +{record.checklist_items.length - 6} more
+              </li>
+            )}
+          </ul>
+        ) : (
+          record.content && (
+            <Markdown className="text-sm leading-snug line-clamp-6 [&_ul]:my-0 [&_ol]:my-0 [&_p]:my-0">
+              {record.content}
+            </Markdown>
+          )
+        )}
+
+        {tags && tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-1">
+            {tags.map((tag) => (
+              <Badge
+                key={tag.id}
+                variant="secondary"
                 className={cn(
-                  "w-3.5 h-3.5 rounded-[3px] border border-current/40 shrink-0",
-                  item.checked && "bg-current/60",
-                )}
-              />
-              <span
-                className={cn(
-                  "leading-tight",
-                  item.checked && "line-through opacity-50",
+                  "text-[10px] font-normal",
+                  hasCustomColor && "text-black/70 bg-black/5",
                 )}
               >
-                {item.text}
-              </span>
-            </li>
-          ))}
-          {record.checklist_items.length > 6 && (
-            <li className="text-xs text-muted-foreground pl-5.5">
-              +{record.checklist_items.length - 6} more
-            </li>
-          )}
-        </ul>
-      ) : (
-        record.content && (
-          <Markdown className="text-sm leading-snug line-clamp-6 [&_ul]:my-0 [&_ol]:my-0 [&_p]:my-0">
-            {record.content}
-          </Markdown>
-        )
-      )}
-
-      {tags && tags.length > 0 && (
-        <div className="flex flex-wrap gap-1 mt-1">
-          {tags.map((tag) => (
-            <Badge
-              key={tag.id}
-              variant="secondary"
-              className={cn(
-                "text-[10px] font-normal",
-                hasCustomColor && "text-black/70 bg-black/5",
-              )}
-            >
-              #{tag.name}
-            </Badge>
-          ))}
-        </div>
-      )}
+                #{tag.name}
+              </Badge>
+            ))}
+          </div>
+        )}
+      </div>
     </Card>
   );
 };
