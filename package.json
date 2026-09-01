@@ -21,6 +21,7 @@
     "registry:gen": "node ./scripts/generate-registry.mjs",
     "ghpages:deploy": "node ./scripts/ghpages-deploy.mjs",
     "supabase:remote:init": "node ./scripts/supabase-remote-init.mjs",
+    "supabase": "node ./scripts/supabase.mjs",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "update-changelog": "gh api 'repos/{owner}/{repo}/releases' --paginate -q '.[] | \"## \\(.tag_name) - \\(.published_at[:10])\\n\\n\\(.body)\\n\"' > CHANGELOG.md"
