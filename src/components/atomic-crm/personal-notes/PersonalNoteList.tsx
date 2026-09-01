@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import { useListContext, useRedirect, useTranslate } from "ra-core";
+import {
+  FilterLiveForm,
+  useListContext,
+  useRedirect,
+  useTranslate,
+} from "ra-core";
 import { matchPath, useLocation } from "react-router";
 import { LayoutGrid, Table as TableIcon } from "lucide-react";
 import { List } from "@/components/admin/list";
@@ -34,7 +39,6 @@ export const PersonalNoteList = () => {
     "personal-notes-view-mode",
     "grid",
   );
-  const { noteCorners } = usePreferences();
 
   return (
     <List
@@ -44,19 +48,6 @@ export const PersonalNoteList = () => {
       perPage={100}
       pagination={null}
       filter={filtersForTab(tab)}
-      filters={[
-        <SearchInput
-          key="q"
-          source="q"
-          alwaysOn
-          className="max-w-xl w-full"
-          inputClassName={cn(
-            "h-11 bg-muted border-none shadow-none dark:bg-muted pr-16",
-            noteCorners === "square" ? "rounded-none" : "rounded-full",
-          )}
-          placeholder="Search notes…"
-        />,
-      ]}
       sort={{ field: "updated_at", order: "DESC" }}
       className="!my-0"
     >
@@ -91,7 +82,9 @@ const PersonalNoteLayout = ({
       <PersonalNotesSidebar tab={tab} setTab={setTab} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-4">
+          <NotesSearchInput />
           <AddCrumbBar />
+          <div className="flex-1" />
           <ToggleGroup
             type="single"
             variant="outline"
@@ -121,6 +114,24 @@ const PersonalNoteLayout = ({
   );
 };
 
+const NotesSearchInput = () => {
+  const { noteCorners } = usePreferences();
+  return (
+    <FilterLiveForm>
+      <SearchInput
+        source="q"
+        alwaysOn
+        className="max-w-xl w-full"
+        inputClassName={cn(
+          "h-9 bg-muted border-none shadow-none dark:bg-muted pr-16",
+          noteCorners === "square" ? "rounded-none" : "rounded-md",
+        )}
+        placeholder="Search notes…"
+      />
+    </FilterLiveForm>
+  );
+};
+
 const AddCrumbBar = () => {
   const translate = useTranslate();
   const redirect = useRedirect();
@@ -130,8 +141,8 @@ const AddCrumbBar = () => {
       type="button"
       onClick={() => redirect("/personal_notes/create")}
       className={cn(
-        "flex-1 flex items-center gap-2 h-11 px-4 border bg-card text-sm text-muted-foreground hover:bg-muted transition-colors",
-        noteCorners === "square" ? "rounded-none" : "rounded-xl",
+        "shrink-0 flex items-center gap-1.5 h-9 px-3 border bg-card text-sm text-muted-foreground hover:bg-muted transition-colors",
+        noteCorners === "square" ? "rounded-none" : "rounded-md",
       )}
     >
       <Plus className="w-4 h-4" />
