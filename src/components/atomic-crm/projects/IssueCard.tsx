@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 import { useConfigurationContext } from "../root/ConfigurationContext";
 import type { Issue } from "../types";
+import { IssueSubtaskBadge } from "./IssueSubtaskBadge";
 
 export const IssueCard = ({
   issue,
@@ -68,7 +69,10 @@ export const IssueCardContent = ({
           }`}
         >
           <CardContent className="px-3 flex flex-col gap-1">
-            <p className="text-sm font-medium">{issue.title}</p>
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-sm font-medium">{issue.title}</p>
+              <IssueSubtaskBadge />
+            </div>
             <p className="text-xs text-muted-foreground flex items-center gap-2">
               {issue.priority && (
                 <SelectField
