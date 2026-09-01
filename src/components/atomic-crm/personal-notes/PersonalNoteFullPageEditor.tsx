@@ -189,7 +189,15 @@ const EditHeader = ({ canEdit }: { canEdit: boolean }) => {
         data: { deleted_at: new Date().toISOString() },
         previousData: record,
       })
-      .then(() => redirect("/personal_notes"))
+      // patch() above refreshes after every update; this one redirected
+      // without it -- the grid's list query stayed cached from before
+      // the delete, so the note kept appearing to still be there until
+      // something else happened to force a refetch (reported as "first
+      // delete doesn't work, have to delete it again").
+      .then(() => {
+        refresh();
+        redirect("/personal_notes");
+      })
       .catch(() => notify("ra.notification.http_error", { type: "error" }));
   };
 
