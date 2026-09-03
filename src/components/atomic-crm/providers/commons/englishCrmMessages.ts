@@ -5,6 +5,7 @@ export const englishCrmMessages = {
       fields: {
         first_name: "First name",
         last_name: "Last name",
+        name: "Name",
         company_name: "Company",
         email: "Email",
         phone: "Phone",
