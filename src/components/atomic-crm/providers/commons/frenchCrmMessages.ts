@@ -250,6 +250,9 @@ export const frenchCrmMessages = {
         create: "Créer une affaire",
         new: "Nouvelle affaire",
       },
+      filters: {
+        show_not_interested: "Afficher Non intéressé",
+      },
       field_categories: {
         misc: "Divers",
       },

@@ -245,6 +245,9 @@ export const englishCrmMessages = {
         create: "Create deal",
         new: "New Deal",
       },
+      filters: {
+        show_not_interested: "Show Not Interested",
+      },
       field_categories: {
         misc: "Misc",
       },
