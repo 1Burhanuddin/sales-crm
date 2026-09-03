@@ -23,6 +23,7 @@ import { DealListContent } from "./DealListContent";
 import { DealShow } from "./DealShow";
 import { DealTable } from "./DealTable";
 import { OnlyMineInput } from "./OnlyMineInput";
+import { ShowNotInterestedInput } from "./ShowNotInterestedInput";
 
 const DealList = () => {
   const { identity } = useGetIdentity();
@@ -43,12 +44,14 @@ const DealList = () => {
       />
     </ReferenceInput>,
     <OnlyMineInput source="sales_id" alwaysOn />,
+    <ShowNotInterestedInput source="stage" alwaysOn />,
   ];
 
   return (
     <List
       perPage={100}
       filter={{ "archived_at@is": null }}
+      filterDefaultValues={{ "stage@neq": "not-interested" }}
       title={false}
       sort={{ field: "index", order: "DESC" }}
       filters={dealFilters}
@@ -67,7 +70,15 @@ const DealLayout = ({ viewMode }: { viewMode: "kanban" | "table" }) => {
   const matchEdit = matchPath("/deals/:id", location.pathname);
 
   const { data, isPending, filterValues } = useListContext();
-  const hasFilters = filterValues && Object.keys(filterValues).length > 0;
+  // "stage@neq" is on by default (see filterDefaultValues in DealList) to
+  // hide Not Interested deals -- it doesn't count as a user-applied filter
+  // for the empty-state check below, or a brand new account with only Not
+  // Interested deals would skip the real empty state in favor of a bare
+  // empty board/table.
+  const userFilterKeys = Object.keys(filterValues ?? {}).filter(
+    (key) => key !== "stage@neq",
+  );
+  const hasFilters = userFilterKeys.length > 0;
 
   if (isPending) return null;
   if (!data?.length && !hasFilters)
