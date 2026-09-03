@@ -50,6 +50,7 @@ const DealList = () => {
       <AutocompleteInput
         label={false}
         placeholder={translate("resources.deals.fields.company_id")}
+        popoverClassName="min-w-64"
       />
     </ReferenceInput>,
     <OnlyMineInput source="sales_id" alwaysOn />,

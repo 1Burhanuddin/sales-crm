@@ -88,6 +88,12 @@ export const AutocompleteInput = (
       inputText?:
         | React.ReactNode
         | ((option: any | undefined) => React.ReactNode);
+      /** Extra classes for the dropdown itself, e.g. a min-w-* to keep it
+       * legible when the trigger button is narrow (a filter-bar chip,
+       * say) -- the popover otherwise matches the trigger's width exactly
+       * via max-w-(--radix-popover-trigger-width), which per the CSS spec
+       * still yields to a wider min-width here rather than overriding it. */
+      popoverClassName?: string;
     } & Pick<PopoverProps, "modal">,
 ) => {
   const {
@@ -101,6 +107,7 @@ export const AutocompleteInput = (
     onCreate,
     optionText,
     modal,
+    popoverClassName,
   } = props;
   const {
     allChoices = [],
@@ -236,7 +243,12 @@ export const AutocompleteInput = (
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-full max-w-(--radix-popover-trigger-width) p-0">
+            <PopoverContent
+              className={cn(
+                "w-full max-w-(--radix-popover-trigger-width) p-0",
+                popoverClassName,
+              )}
+            >
               {/* We handle the filtering ourselves */}
               <Command shouldFilter={!isFromReference}>
                 <CommandInput
