@@ -1,4 +1,5 @@
 import { useGetIdentity, useListContext, useTranslate } from "ra-core";
+import { useState } from "react";
 import { matchPath, useLocation } from "react-router";
 import { Kanban, Table as TableIcon } from "lucide-react";
 import { AutocompleteInput } from "@/components/admin/autocomplete-input";
@@ -32,6 +33,14 @@ const DealList = () => {
     "deals-view-mode",
     "table",
   );
+  // Local state, not a react-admin filter -- filterDefaultValues only seeds
+  // a *pristine* list store (ra-core's hasCustomParams check skips it once
+  // anything else, like sort/page/an earlier "Only mine" toggle, is already
+  // stored for this resource), so it would silently fail to hide Not
+  // Interested deals for any returning user. Computing the fixed `filter`
+  // prop from local state below always applies, every fresh page load, for
+  // every user, no exceptions.
+  const [showNotInterested, setShowNotInterested] = useState(false);
 
   if (!identity) return null;
 
@@ -44,14 +53,21 @@ const DealList = () => {
       />
     </ReferenceInput>,
     <OnlyMineInput source="sales_id" alwaysOn />,
-    <ShowNotInterestedInput source="stage" alwaysOn />,
+    <ShowNotInterestedInput
+      source="stage"
+      alwaysOn
+      checked={showNotInterested}
+      onCheckedChange={setShowNotInterested}
+    />,
   ];
 
   return (
     <List
       perPage={100}
-      filter={{ "archived_at@is": null }}
-      filterDefaultValues={{ "stage@neq": "not-interested" }}
+      filter={{
+        "archived_at@is": null,
+        ...(!showNotInterested && { "stage@neq": "not-interested" }),
+      }}
       title={false}
       sort={{ field: "index", order: "DESC" }}
       filters={dealFilters}
@@ -70,15 +86,7 @@ const DealLayout = ({ viewMode }: { viewMode: "kanban" | "table" }) => {
   const matchEdit = matchPath("/deals/:id", location.pathname);
 
   const { data, isPending, filterValues } = useListContext();
-  // "stage@neq" is on by default (see filterDefaultValues in DealList) to
-  // hide Not Interested deals -- it doesn't count as a user-applied filter
-  // for the empty-state check below, or a brand new account with only Not
-  // Interested deals would skip the real empty state in favor of a bare
-  // empty board/table.
-  const userFilterKeys = Object.keys(filterValues ?? {}).filter(
-    (key) => key !== "stage@neq",
-  );
-  const hasFilters = userFilterKeys.length > 0;
+  const hasFilters = filterValues && Object.keys(filterValues).length > 0;
 
   if (isPending) return null;
   if (!data?.length && !hasFilters)
