@@ -31,6 +31,7 @@ alter table public.personal_notes enable row level security;
 alter table public.personal_note_versions enable row level security;
 alter table public.personal_note_shares enable row level security;
 alter table public.leads enable row level security;
+alter table public.lead_activities enable row level security;
 
 -- Companies (visible/editable by their owning sales rep, or any admin)
 create policy "Select own or admin" on public.companies for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
@@ -245,3 +246,39 @@ create policy "Update own, assignee, or admin" on public.leads for update to aut
     public.is_admin() or sales_id = public.current_sales_id() or assignee_id = public.current_sales_id()
 );
 create policy "Admin delete only" on public.leads for delete to authenticated using (public.is_admin());
+
+-- Lead contact-attempt log: same "own, assignee, or admin" visibility as
+-- leads itself, via can_access_lead() (see 02_functions.sql). Also blocks
+-- developers from writing, like every other sales-data child-log table
+-- (contact_notes/deal_notes/tasks/deals all block both notes-only AND
+-- developer in their insert policy) -- a developer could in principle be
+-- set as a lead's assignee_id (the assignee picker isn't role-filtered), so
+-- the ownership check alone wouldn't be enough to keep that invariant true
+-- at the database layer.
+create policy "Select own, assignee, or admin" on public.lead_activities for select to authenticated using (
+    public.is_admin() or public.can_access_lead(lead_id)
+);
+-- The "sales_id is null or sales_id = current_sales_id()" clause matters as
+-- much as the lead-access check: without it, a rep who can see a lead could
+-- still submit an explicit sales_id for a *different* rep, falsely
+-- attributing (or stealing credit for) a contact attempt -- undermining the
+-- one thing this table exists to make trustworthy. set_sales_id_default()
+-- only fills sales_id in when it's null, it doesn't overwrite an explicit
+-- value, so this has to be enforced here too, not left to the trigger.
+create policy "Insert own, assignee, or admin, not notes-only or developer" on public.lead_activities for insert to authenticated with check (
+    not public.is_notes_only()
+    and not public.is_developer()
+    and (sales_id is null or sales_id = public.current_sales_id() or public.is_admin())
+    and (public.is_admin() or public.can_access_lead(lead_id))
+);
+create policy "Update own, assignee, or admin, not developer" on public.lead_activities for update to authenticated using (
+    public.is_admin() or public.can_access_lead(lead_id)
+) with check (
+    public.is_admin()
+    or (
+        not public.is_developer()
+        and (sales_id is null or sales_id = public.current_sales_id())
+        and public.can_access_lead(lead_id)
+    )
+);
+create policy "Admin delete only" on public.lead_activities for delete to authenticated using (public.is_admin());

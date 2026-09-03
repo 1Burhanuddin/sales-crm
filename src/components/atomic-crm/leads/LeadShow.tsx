@@ -27,6 +27,8 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { useConfigurationContext } from "../root/ConfigurationContext";
 import type { Lead } from "../types";
+import { LeadActivityLog } from "./LeadActivityLog";
+import { LeadContactActions } from "./LeadContactActions";
 import { qualifyLead } from "./qualifyLead";
 
 const STATUS_VARIANT: Record<string, "outline" | "default" | "destructive"> = {
@@ -102,6 +104,11 @@ const LeadShowContent = () => {
           {record.notes && (
             <p className="text-sm whitespace-pre-line mt-4">{record.notes}</p>
           )}
+
+          <div className="mt-4">
+            <LeadContactActions record={record} />
+          </div>
+          <LeadActivityLog leadId={record.id} />
 
           {record.status === "qualified" && (
             <div className="flex flex-col gap-1 mt-4 text-sm">

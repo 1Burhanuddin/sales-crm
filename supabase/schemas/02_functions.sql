@@ -525,6 +525,21 @@ BEGIN
 END;
 $$;
 
+-- Reused by every lead_activities RLS policy instead of repeating the "does
+-- this lead belong to me, or am I its assignee" EXISTS-join four times over
+-- -- same reason owns_personal_note() exists for personal_notes. SECURITY
+-- DEFINER so evaluating it doesn't re-trigger leads' own policy.
+create or replace function public.can_access_lead(p_lead_id bigint) returns boolean
+    language sql stable security definer
+    set search_path = ''
+    as $$
+  select exists (
+    select 1 from public.leads l
+    where l.id = p_lead_id
+      and (l.sales_id = public.current_sales_id() or l.assignee_id = public.current_sales_id())
+  );
+$$;
+
 -- HRMS: compute payslip gross/net pay server-side from the allowances/
 -- deductions jsonb line items. Never trust client-submitted totals for money.
 create or replace function public.calculate_payslip_totals()
