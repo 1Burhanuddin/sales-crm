@@ -363,6 +363,28 @@ export type Lead = {
   sales_id?: Identifier;
   created_at: string;
   updated_at: string;
+  // Computed live in leads_summary (see supabase/schemas/03_views.sql),
+  // same pattern as Company's nb_deals/nb_contacts -- only present when
+  // fetched through the leads resource (dataProvider.ts redirects
+  // getList/getOne to the view), not on a raw leads row.
+  last_contact_attempt_at?: string | null;
+  contact_attempt_count?: number;
+} & Pick<RaRecord, "id">;
+
+export type LeadActivityChannel = "call" | "whatsapp" | "email";
+export type LeadActivityOutcome =
+  | "no_answer"
+  | "responded"
+  | "wrong_number"
+  | "not_interested"
+  | "callback_later";
+
+export type LeadActivity = {
+  lead_id: Identifier;
+  sales_id?: Identifier;
+  channel: LeadActivityChannel;
+  outcome?: LeadActivityOutcome | null;
+  created_at: string;
 } & Pick<RaRecord, "id">;
 
 export type IssueNote = {

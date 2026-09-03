@@ -384,6 +384,7 @@ const DesktopAdmin = (
           "show",
         ])}
       />
+      <Resource name="lead_activities" />
       <Resource
         name="projects"
         {...lazyResource(() => import("../projects"), [

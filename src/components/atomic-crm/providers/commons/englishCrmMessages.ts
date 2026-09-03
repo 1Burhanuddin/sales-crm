@@ -16,6 +16,7 @@ export const englishCrmMessages = {
         status: "Status",
         assignee_id: "Assignee",
         disqualify_reason: "Reason",
+        last_contact_attempt_at: "Last attempt",
       },
       status: {
         new: "New",
@@ -29,6 +30,9 @@ export const englishCrmMessages = {
         qualify: "Qualify",
         disqualify: "Disqualify",
         move_to_leads: "Move to Leads",
+        call: "Call",
+        whatsapp: "WhatsApp",
+        email: "Email",
       },
       converted_to: "Converted to:",
       qualified: "Lead qualified and converted.",
@@ -36,6 +40,27 @@ export const englishCrmMessages = {
       empty: {
         title: "No leads found",
         description: "Raw/unqualified contact data lands here before it's promoted into a real Contact.",
+      },
+      activity: {
+        title: "Contact attempts",
+        empty: "No contact attempts logged yet.",
+        how_did_it_go: "How did it go?",
+        skip: "Skip",
+        never: "Never contacted",
+        you: "You",
+        count: "%{smart_count} attempt |||| %{smart_count} attempts",
+        channel: {
+          call: "Call",
+          whatsapp: "WhatsApp",
+          email: "Email",
+        },
+        outcome: {
+          no_answer: "No answer",
+          responded: "Responded",
+          wrong_number: "Wrong number",
+          not_interested: "Not interested",
+          callback_later: "Call back later",
+        },
       },
     },
     companies: {

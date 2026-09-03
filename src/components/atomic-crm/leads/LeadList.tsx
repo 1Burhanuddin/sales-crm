@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { TopToolbar } from "../layout/TopToolbar";
+import { RelativeDate } from "../misc/RelativeDate";
 import type { Lead } from "../types";
 import { LeadStatusField } from "./LeadStatusField";
 
@@ -60,6 +61,12 @@ export const LeadList = () => {
           <LeadStatusField />
         </DataTable.Col>
         <DataTable.Col source="phone" label="resources.leads.fields.phone" />
+        <DataTable.Col
+          source="last_contact_attempt_at"
+          label="resources.leads.fields.last_contact_attempt_at"
+        >
+          <LeadLastAttemptField />
+        </DataTable.Col>
         <DataTable.Col label="resources.leads.fields.assignee_id">
           <ReferenceField source="assignee_id" reference="sales" link={false} />
         </DataTable.Col>
@@ -69,6 +76,32 @@ export const LeadList = () => {
         <DataTable.Col source="email" />
       </DataTable>
     </List>
+  );
+};
+
+const LeadLastAttemptField = () => {
+  const translate = useTranslate();
+  const record = useRecordContext<Lead>();
+  if (!record) return null;
+  if (!record.last_contact_attempt_at) {
+    return (
+      <span className="text-muted-foreground">
+        {translate("resources.leads.activity.never", {
+          _: "Never contacted",
+        })}
+      </span>
+    );
+  }
+  return (
+    <span>
+      <RelativeDate date={record.last_contact_attempt_at} />
+      <span className="text-muted-foreground">
+        {" · "}
+        {translate("resources.leads.activity.count", {
+          smart_count: record.contact_attempt_count,
+        })}
+      </span>
+    </span>
   );
 };
 

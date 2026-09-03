@@ -145,3 +145,12 @@ select
 from public.projects p
     left join public.issues i on p.id = i.project_id
 group by p.id;
+
+create or replace view public.leads_summary with (security_invoker = on) as
+select
+    l.*,
+    count(la.id) as contact_attempt_count,
+    max(la.created_at) as last_contact_attempt_at
+from public.leads l
+    left join public.lead_activities la on la.lead_id = l.id
+group by l.id;

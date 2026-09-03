@@ -18,6 +18,7 @@ export const frenchCrmMessages = {
         status: "Statut",
         assignee_id: "Assigné à",
         disqualify_reason: "Raison",
+        last_contact_attempt_at: "Dernière tentative",
       },
       status: {
         new: "Nouveau",
@@ -31,6 +32,9 @@ export const frenchCrmMessages = {
         qualify: "Qualifier",
         disqualify: "Disqualifier",
         move_to_leads: "Déplacer vers les prospects",
+        call: "Appeler",
+        whatsapp: "WhatsApp",
+        email: "E-mail",
       },
       converted_to: "Converti en :",
       qualified: "Prospect qualifié et converti.",
@@ -38,6 +42,27 @@ export const frenchCrmMessages = {
       empty: {
         title: "Aucun prospect trouvé",
         description: "Les données brutes/non qualifiées atterrissent ici avant d'être converties en vrai contact.",
+      },
+      activity: {
+        title: "Tentatives de contact",
+        empty: "Aucune tentative de contact enregistrée.",
+        how_did_it_go: "Comment ça s'est passé ?",
+        skip: "Ignorer",
+        never: "Jamais contacté",
+        you: "Vous",
+        count: "%{smart_count} tentative |||| %{smart_count} tentatives",
+        channel: {
+          call: "Appel",
+          whatsapp: "WhatsApp",
+          email: "E-mail",
+        },
+        outcome: {
+          no_answer: "Pas de réponse",
+          responded: "A répondu",
+          wrong_number: "Mauvais numéro",
+          not_interested: "Pas intéressé",
+          callback_later: "Rappeler plus tard",
+        },
       },
     },
     companies: {
