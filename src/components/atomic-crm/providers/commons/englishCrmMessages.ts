@@ -550,6 +550,7 @@ export const englishCrmMessages = {
         statement_import_id: "Statement",
         notes: "Notes",
         scope: "Personal/Business",
+        recurring_expense_id: "Recurring expense",
       },
       action: {
         new: "Add Transaction",
@@ -587,6 +588,25 @@ export const englishCrmMessages = {
         period_from: "Period from",
         period_to: "Period to",
         transaction_count: "Transactions",
+      },
+    },
+    recurring_expenses: {
+      name: "Recurring Expense |||| Recurring Expenses",
+      fields: {
+        name: "Name",
+        amount: "Amount",
+        category: "Category",
+        scope: "Personal/Business",
+        due_day: "Due day",
+        match_keyword: "Match keyword",
+        active: "Active",
+      },
+      action: {
+        create: "Add Recurring Expense",
+      },
+      status: {
+        active: "Active",
+        inactive: "Inactive",
       },
     },
     personal_notes: {
@@ -922,6 +942,10 @@ export const englishCrmMessages = {
         no_expenses_this_month: "No expenses this month.",
         no_data_for_scope: "No transactions in this scope yet.",
         scope_all: "All",
+        recurring_this_month: "This Month's Recurring Expenses",
+        recurring_posted: "Posted",
+        recurring_overdue: "Overdue",
+        recurring_due_day: "Due %{day}",
       },
     },
     image_editor: {

@@ -9,6 +9,7 @@ import {
   Handshake,
   LayoutDashboard,
   Receipt,
+  Repeat,
   StickyNote,
   User,
   UserCheck,
@@ -200,6 +201,15 @@ export const AppSidebar = () => {
           label: translate("crm.accounts.nav_label", { _: "Accounts" }),
           icon: Wallet,
           resource: "transactions",
+        },
+        {
+          to: "/recurring_expenses",
+          label: translate("resources.recurring_expenses.name", {
+            smart_count: 2,
+            _: "Recurring Expenses",
+          }),
+          icon: Repeat,
+          resource: "recurring_expenses",
         },
       ],
     },

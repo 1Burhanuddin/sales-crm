@@ -556,6 +556,7 @@ export const frenchCrmMessages = {
         statement_import_id: "Relevé",
         notes: "Notes",
         scope: "Personnel/Professionnel",
+        recurring_expense_id: "Dépense récurrente",
       },
       action: {
         new: "Ajouter une transaction",
@@ -593,6 +594,25 @@ export const frenchCrmMessages = {
         period_from: "Période du",
         period_to: "Période au",
         transaction_count: "Transactions",
+      },
+    },
+    recurring_expenses: {
+      name: "Dépense récurrente |||| Dépenses récurrentes",
+      fields: {
+        name: "Nom",
+        amount: "Montant",
+        category: "Catégorie",
+        scope: "Personnel/Professionnel",
+        due_day: "Jour d'échéance",
+        match_keyword: "Mot-clé de correspondance",
+        active: "Active",
+      },
+      action: {
+        create: "Ajouter une dépense récurrente",
+      },
+      status: {
+        active: "Active",
+        inactive: "Inactive",
       },
     },
     personal_notes: {
@@ -931,6 +951,10 @@ export const frenchCrmMessages = {
         no_expenses_this_month: "Aucune dépense ce mois-ci.",
         no_data_for_scope: "Aucune transaction dans cette catégorie personnel/professionnel pour le moment.",
         scope_all: "Tout",
+        recurring_this_month: "Dépenses récurrentes de ce mois-ci",
+        recurring_posted: "Enregistrée",
+        recurring_overdue: "En retard",
+        recurring_due_day: "Échéance le %{day}",
       },
     },
     image_editor: {

@@ -186,6 +186,10 @@ grant all on table public.transactions to anon;
 grant all on table public.transactions to authenticated;
 grant all on table public.transactions to service_role;
 
+grant all on table public.recurring_expenses to anon;
+grant all on table public.recurring_expenses to authenticated;
+grant all on table public.recurring_expenses to service_role;
+
 grant all on table public.personal_notes to anon;
 grant all on table public.personal_notes to authenticated;
 grant all on table public.personal_notes to service_role;
@@ -323,6 +327,10 @@ grant all on sequence public.statement_imports_id_seq to service_role;
 grant all on sequence public.transactions_id_seq to anon;
 grant all on sequence public.transactions_id_seq to authenticated;
 grant all on sequence public.transactions_id_seq to service_role;
+
+grant all on sequence public.recurring_expenses_id_seq to anon;
+grant all on sequence public.recurring_expenses_id_seq to authenticated;
+grant all on sequence public.recurring_expenses_id_seq to service_role;
 
 grant all on sequence public.personal_notes_id_seq to anon;
 grant all on sequence public.personal_notes_id_seq to authenticated;

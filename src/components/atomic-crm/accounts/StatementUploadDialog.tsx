@@ -1,5 +1,12 @@
 import { AlertTriangle, Upload } from "lucide-react";
-import { useDataProvider, useGetIdentity, useNotify, useRefresh, useTranslate } from "ra-core";
+import {
+  useDataProvider,
+  useGetIdentity,
+  useGetList,
+  useNotify,
+  useRefresh,
+  useTranslate,
+} from "ra-core";
 import { useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,8 +29,9 @@ import {
 } from "@/components/ui/table";
 
 import { useConfigurationContext } from "../root/ConfigurationContext";
-import type { Transaction } from "../types";
+import type { RecurringExpense, Transaction } from "../types";
 import { matchCategoryRule } from "./categoryRuleMatcher";
+import { matchRecurringExpense } from "./matchRecurringExpense";
 import { SCOPE_CHOICES, type TransactionScope } from "./scope";
 import {
   parseStatementPdf,
@@ -36,6 +44,7 @@ type PreviewRow = ParsedTransaction & {
   category?: string;
   possibleDuplicate: boolean;
   scope: TransactionScope;
+  recurringExpenseId?: number | string;
 };
 
 export const StatementUploadDialog = ({
@@ -51,6 +60,21 @@ export const StatementUploadDialog = ({
   const dataProvider = useDataProvider();
   const { identity } = useGetIdentity();
   const { transactionCategories, categoryRules } = useConfigurationContext();
+  const { data: recurringExpenses = [] } = useGetList<RecurringExpense>(
+    "recurring_expenses",
+    // Same filter/sort/pagination as AccountsDashboard's own fetch of this
+    // list -- react-query keys on the full params object, so matching them
+    // exactly means the two share one cache entry/request instead of each
+    // page firing its own. `enabled: open` also means this dialog being
+    // mounted-but-closed (see TransactionListActions) doesn't fetch at all
+    // until it's actually opened.
+    {
+      filter: { active: true },
+      pagination: { page: 1, perPage: 200 },
+      sort: { field: "due_day", order: "ASC" },
+    },
+    { enabled: open },
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [file, setFile] = useState<File | null>(null);
@@ -117,12 +141,21 @@ export const StatementUploadDialog = ({
             e.description.trim().toLowerCase() ===
               t.description.trim().toLowerCase(),
         );
+        // A recurring-expense match is a stronger, more specific signal
+        // than the generic categoryRules keyword match (this line IS a
+        // known bill, not just a description that happens to contain a
+        // category-suggesting word), so it wins where they'd otherwise
+        // both apply -- category and scope both come from the matched
+        // expense's own settings rather than the categoryRules/bulk-
+        // default fallbacks.
+        const recurringMatch = matchRecurringExpense(t.description, recurringExpenses);
         return {
           ...t,
           included: !possibleDuplicate,
-          category: matchCategoryRule(t.description, categoryRules),
+          category: recurringMatch?.category ?? matchCategoryRule(t.description, categoryRules),
           possibleDuplicate,
-          scope: defaultScope,
+          scope: recurringMatch?.scope ?? defaultScope,
+          recurringExpenseId: recurringMatch?.id,
         };
       });
       setRows(preview);
@@ -171,8 +204,27 @@ export const StatementUploadDialog = ({
     );
   };
 
+  // Used only by "Mark all as..." below -- a per-row scope Select is
+  // disabled while that row is linked to a recurring expense (see the
+  // table body), so this is the one place a bulk scope change can
+  // disagree with an existing link. When it does, unlink rather than
+  // leave a mismatch for dataProvider.ts's beforeSave to silently
+  // overwrite on save -- the reviewer should see the link visibly drop
+  // (the row's recurring-expense cell goes back to "—") rather than
+  // have their bulk action's stated scope get quietly ignored for that
+  // one row at save time.
+  const applyScope = (row: PreviewRow, scope: TransactionScope): PreviewRow => {
+    const linked = recurringExpenses.find((r) => r.id === row.recurringExpenseId);
+    const stillMatches = !linked || linked.scope === scope;
+    return {
+      ...row,
+      scope,
+      recurringExpenseId: stillMatches ? row.recurringExpenseId : undefined,
+    };
+  };
+
   const setAllScope = (scope: TransactionScope) => {
-    setRows((prev) => (prev ? prev.map((row) => ({ ...row, scope })) : prev));
+    setRows((prev) => (prev ? prev.map((row) => applyScope(row, scope)) : prev));
   };
 
   const handleImport = async () => {
@@ -207,6 +259,7 @@ export const StatementUploadDialog = ({
                 source: "statement",
                 statement_import_id: statementImport.data.id,
                 scope: row.scope,
+                recurring_expense_id: row.recurringExpenseId ?? null,
               },
             });
           } catch {
@@ -384,6 +437,9 @@ export const StatementUploadDialog = ({
                     <TableHead>
                       {translate("resources.transactions.fields.scope")}
                     </TableHead>
+                    <TableHead>
+                      {translate("resources.transactions.fields.recurring_expense_id")}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -476,7 +532,7 @@ export const StatementUploadDialog = ({
                         <Select
                           value={row.scope}
                           onValueChange={(value) =>
-                            updateRow(i, { scope: value as TransactionScope })
+                            updateRow(i, applyScope(row, value as TransactionScope))
                           }
                         >
                           <SelectTrigger className="h-8 w-28 text-xs">
@@ -486,6 +542,57 @@ export const StatementUploadDialog = ({
                             {SCOPE_CHOICES.map((c) => (
                               <SelectItem key={c.value} value={c.value}>
                                 {c.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          value={
+                            row.recurringExpenseId != null
+                              ? String(row.recurringExpenseId)
+                              : "__none"
+                          }
+                          onValueChange={(value) => {
+                            // Look the real record up rather than storing
+                            // the Select's raw string `value` directly --
+                            // RecurringExpense.id can be a number (this
+                            // app's Supabase ids normally are), and
+                            // applyScope's `r.id === row.recurringExpenseId`
+                            // equality check needs the same type on both
+                            // sides or a manually-picked link would never
+                            // match its own expense on a later scope change.
+                            const picked = recurringExpenses.find(
+                              (r) => String(r.id) === value,
+                            );
+                            updateRow(i, {
+                              recurringExpenseId: picked?.id,
+                              // Symmetric with the auto-match path: picking
+                              // a recurring expense also adopts its scope
+                              // and category, rather than leaving a row
+                              // linked to one expense while still carrying
+                              // a category/scope left over from a
+                              // different (or no) match. Unlinking
+                              // ("—") re-derives category from the
+                              // generic categoryRules instead of leaving
+                              // the now-disconnected expense's category
+                              // behind with nothing to justify it anymore.
+                              scope: picked ? picked.scope : row.scope,
+                              category: picked
+                                ? (picked.category ?? row.category)
+                                : matchCategoryRule(row.description, categoryRules),
+                            });
+                          }}
+                        >
+                          <SelectTrigger className="h-8 w-36 text-xs">
+                            <SelectValue placeholder="—" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="__none">—</SelectItem>
+                            {recurringExpenses.map((r) => (
+                              <SelectItem key={r.id} value={String(r.id)}>
+                                {r.name}
                               </SelectItem>
                             ))}
                           </SelectContent>

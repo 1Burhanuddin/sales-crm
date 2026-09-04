@@ -1,4 +1,5 @@
 import type { CategoryRule } from "../types";
+import { matchByKeyword } from "./matchByKeyword";
 
 /** Matches a transaction description against the admin-editable
  * categoryRules (Settings -> Accounts): case-insensitive substring match,
@@ -7,10 +8,5 @@ import type { CategoryRule } from "../types";
 export const matchCategoryRule = (
   description: string,
   rules: CategoryRule[],
-): string | undefined => {
-  const lower = description.toLowerCase();
-  const match = rules.find((rule) =>
-    lower.includes(rule.keyword.toLowerCase()),
-  );
-  return match?.category;
-};
+): string | undefined =>
+  matchByKeyword(description, rules, (rule) => rule.keyword)?.category;

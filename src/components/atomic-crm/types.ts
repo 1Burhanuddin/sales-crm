@@ -305,6 +305,20 @@ export type Transaction = {
   created_at: string;
   updated_at: string;
   scope: "business" | "personal";
+  recurring_expense_id?: Identifier | null;
+} & Pick<RaRecord, "id">;
+
+export type RecurringExpense = {
+  name: string;
+  amount: number;
+  category?: string | null;
+  scope: "business" | "personal";
+  due_day: number;
+  match_keyword?: string | null;
+  active: boolean;
+  sales_id?: Identifier;
+  created_at: string;
+  updated_at: string;
 } & Pick<RaRecord, "id">;
 
 export type ChecklistItem = {
