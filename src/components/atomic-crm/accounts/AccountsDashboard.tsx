@@ -33,9 +33,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 import { useConfigurationContext } from "../root/ConfigurationContext";
 import type { Transaction } from "../types";
+import { SCOPE_CHOICES, type TransactionScope } from "./scope";
+
+type ScopeFilter = TransactionScope | "all";
 
 // Validated (CVD-safe, contrast-checked) colors from the dataviz skill's
 // reference palette — see references/palette.md. Diverging blue<->red for
@@ -139,6 +143,38 @@ const MoneyBarTooltip = ({
   );
 };
 
+/** All / Business / Personal -- the same toggle shown on the overview and
+ * on the "no transactions in this scope" empty state, so switching out of
+ * an empty scope is always one click away rather than needing the browser
+ * Back button. */
+const ScopeToggle = ({
+  value,
+  onChange,
+}: {
+  value: ScopeFilter;
+  onChange: (scope: ScopeFilter) => void;
+}) => {
+  const translate = useTranslate();
+  return (
+    <ToggleGroup
+      type="single"
+      variant="outline"
+      size="sm"
+      value={value}
+      onValueChange={(v) => v && onChange(v as ScopeFilter)}
+    >
+      <ToggleGroupItem value="all">
+        {translate("crm.accounts.dashboard.scope_all", { _: "All" })}
+      </ToggleGroupItem>
+      {SCOPE_CHOICES.map((c) => (
+        <ToggleGroupItem key={c.value} value={c.value}>
+          {c.label}
+        </ToggleGroupItem>
+      ))}
+    </ToggleGroup>
+  );
+};
+
 function useIsDarkMode() {
   const [isDark, setIsDark] = useState(
     () =>
@@ -211,11 +247,34 @@ export const AccountsDashboard = () => {
   });
 
   // Backed by the URL (?month=yyyy-MM-dd, the 1st of the month, matching
-  // stats.months' `month` key), not local state -- so the browser Back
-  // button leaves the drill-down instead of leaving /accounts entirely,
-  // and a specific month is bookmarkable/shareable.
+  // stats.months' `month` key; ?scope=business|personal, absent = "all"),
+  // not local state -- so the browser Back button leaves the drill-down
+  // instead of leaving /accounts entirely, and a specific month/scope is
+  // bookmarkable/shareable.
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedMonth = searchParams.get("month");
+  const scopeFilter = (searchParams.get("scope") as ScopeFilter | null) ?? "all";
+
+  const setScopeFilter = (scope: ScopeFilter) => {
+    const next = new URLSearchParams(searchParams);
+    if (scope === "all") next.delete("scope");
+    else next.set("scope", scope);
+    // Changing scope while looking at a specific month's detail should
+    // keep that month selected, just re-filtered -- only clear `month`
+    // when there wasn't one to begin with.
+    setSearchParams(next);
+  };
+
+  // Everything below (stats, charts, MonthDetail) reads scopedData, never
+  // the raw `data` -- one filter point instead of every consumer having to
+  // remember to apply it.
+  const scopedData: Transaction[] = useMemo(
+    () =>
+      scopeFilter === "all"
+        ? (data ?? [])
+        : (data ?? []).filter((t) => t.scope === scopeFilter),
+    [data, scopeFilter],
+  );
 
   const categoryLabel = useMemo(() => {
     const map = new Map(transactionCategories.map((c) => [c.value, c.label]));
@@ -232,7 +291,7 @@ export const AccountsDashboard = () => {
   });
 
   const stats = useMemo(() => {
-    const txns = data ?? [];
+    const txns = scopedData ?? [];
     const totalIncome = txns
       .filter((t) => t.amount > 0)
       .reduce((sum, t) => sum + t.amount, 0);
@@ -272,7 +331,13 @@ export const AccountsDashboard = () => {
       otherLabel,
     );
 
-    const withBalance = txns.filter((t) => t.balance_after != null);
+    // balance_after is the real whole-account balance (this bank account
+    // holds both personal and business money), not a per-scope figure --
+    // plotting it over a scope-filtered subset would show jumps actually
+    // caused by hidden transactions in the *other* scope, misrepresenting
+    // them as this scope's own activity. Only meaningful across "All".
+    const withBalance =
+      scopeFilter === "all" ? txns.filter((t) => t.balance_after != null) : [];
     const balanceSeries = withBalance.map((t, i) => ({
       x: i,
       y: t.balance_after as number,
@@ -301,7 +366,7 @@ export const AccountsDashboard = () => {
       balanceSeries,
       recentTransactions,
     };
-  }, [data, categoryLabel, otherLabel]);
+  }, [scopedData, categoryLabel, otherLabel, scopeFilter]);
 
   if (isPending) {
     return (
@@ -322,12 +387,49 @@ export const AccountsDashboard = () => {
     );
   }
 
+  const scopeToggle = (
+    <ScopeToggle value={scopeFilter} onChange={setScopeFilter} />
+  );
+
+  // Distinct from the "nothing ever imported" state above -- there IS
+  // data, just none in the currently selected scope (e.g. every
+  // transaction so far has been Business and the user just switched to
+  // Personal). Different message, and a one-click way back to "All"
+  // rather than looking like the feature is broken.
+  if (scopedData.length === 0) {
+    return (
+      <div className="mt-2 flex flex-col gap-4 pb-8">
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-semibold">
+            {translate("crm.accounts.dashboard.title", { _: "Accounts Overview" })}
+          </h1>
+          {scopeToggle}
+        </div>
+        <div className="mt-8 max-w-2xl mx-auto text-center text-muted-foreground">
+          {translate("crm.accounts.dashboard.no_data_for_scope", {
+            _: "No transactions in this scope yet.",
+          })}
+        </div>
+      </div>
+    );
+  }
+
   if (selectedMonth) {
     return (
       <MonthDetail
-        allTransactions={data}
+        // Unfiltered, not scopedData -- MonthDetail applies scopeFilter
+        // itself (see below), so switching scope while a month is already
+        // selected can reveal transactions the outer scope excluded,
+        // rather than needing a trip back to the overview first.
+        allTransactions={data ?? []}
         month={selectedMonth}
-        onBack={() => setSearchParams({})}
+        scopeFilter={scopeFilter}
+        onScopeChange={setScopeFilter}
+        onBack={() => {
+          const next = new URLSearchParams(searchParams);
+          next.delete("month");
+          setSearchParams(next);
+        }}
         categoryLabel={categoryLabel}
         otherLabel={otherLabel}
         currency={currency}
@@ -344,14 +446,17 @@ export const AccountsDashboard = () => {
             _: "Accounts Overview",
           })}
         </h1>
-        <Link
-          to="/transactions"
-          className="text-sm text-primary hover:underline"
-        >
-          {translate("crm.accounts.dashboard.view_transactions", {
-            _: "View all transactions",
-          })}
-        </Link>
+        <div className="flex items-center gap-4">
+          {scopeToggle}
+          <Link
+            to="/transactions"
+            className="text-sm text-primary hover:underline"
+          >
+            {translate("crm.accounts.dashboard.view_transactions", {
+              _: "View all transactions",
+            })}
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
@@ -411,7 +516,11 @@ export const AccountsDashboard = () => {
             enableGridY
             enableLabel={false}
             valueFormat={(v) => currencyFormat(currency, v as number)}
-            onClick={(bar) => setSearchParams({ month: bar.data.month as string })}
+            onClick={(bar) => {
+              const next = new URLSearchParams(searchParams);
+              next.set("month", bar.data.month as string);
+              setSearchParams(next);
+            }}
             tooltip={({ id, value, indexValue }) => (
               <MoneyBarTooltip
                 id={id}
@@ -608,6 +717,8 @@ AccountsDashboard.path = "/accounts";
 const MonthDetail = ({
   allTransactions,
   month,
+  scopeFilter,
+  onScopeChange,
   onBack,
   categoryLabel,
   otherLabel,
@@ -616,6 +727,8 @@ const MonthDetail = ({
 }: {
   allTransactions: Transaction[];
   month: string;
+  scopeFilter: ScopeFilter;
+  onScopeChange: (scope: ScopeFilter) => void;
   onBack: () => void;
   categoryLabel: (v: string | null | undefined) => string;
   otherLabel: string;
@@ -629,15 +742,17 @@ const MonthDetail = ({
   const monthTxns = useMemo(
     () =>
       allTransactions
-        .filter((t) =>
-          isWithinInterval(parseISO(t.date), {
-            start: monthStart,
-            end: monthEnd,
-          }),
+        .filter(
+          (t) =>
+            isWithinInterval(parseISO(t.date), {
+              start: monthStart,
+              end: monthEnd,
+            }) &&
+            (scopeFilter === "all" || t.scope === scopeFilter),
         )
         .sort((a, b) => b.date.localeCompare(a.date)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [allTransactions, month],
+    [allTransactions, month, scopeFilter],
   );
 
   const income = monthTxns
@@ -693,8 +808,8 @@ const MonthDetail = ({
     otherLabel,
   );
 
-  return (
-    <div className="mt-2 flex flex-col gap-4 pb-8">
+  const header = (
+    <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
         <button
           type="button"
@@ -710,6 +825,26 @@ const MonthDetail = ({
           {format(monthStart, "MMMM yyyy")}
         </h1>
       </div>
+      <ScopeToggle value={scopeFilter} onChange={onScopeChange} />
+    </div>
+  );
+
+  if (monthTxns.length === 0) {
+    return (
+      <div className="mt-2 flex flex-col gap-4 pb-8">
+        {header}
+        <div className="mt-8 max-w-2xl mx-auto text-center text-muted-foreground">
+          {translate("crm.accounts.dashboard.no_data_for_scope", {
+            _: "No transactions in this scope yet.",
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-2 flex flex-col gap-4 pb-8">
+      {header}
 
       <div className="grid grid-cols-3 gap-4">
         <MoneyStatTiles income={income} expense={expense} currency={currency} />

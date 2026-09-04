@@ -549,6 +549,7 @@ export const englishCrmMessages = {
         source: "Source",
         statement_import_id: "Statement",
         notes: "Notes",
+        scope: "Personal/Business",
       },
       action: {
         new: "Add Transaction",
@@ -562,6 +563,8 @@ export const englishCrmMessages = {
         button: "Upload Statement",
         title: "Upload Bank Statement",
         help: "Upload a PDF bank statement. Nothing is saved until you review and confirm below.",
+        default_scope: "This statement is for:",
+        mark_all_as: "Mark all as:",
         parsing: "Reading statement…",
         no_transactions: "No transactions could be found in this PDF. It may use a different layout than expected.",
         parse_error: "Couldn't read this PDF. It may not match the expected statement layout.",
@@ -917,6 +920,8 @@ export const englishCrmMessages = {
         weekly_trend: "Weekly Income vs Expense",
         month_transactions: "%{count} transaction |||| %{count} transactions",
         no_expenses_this_month: "No expenses this month.",
+        no_data_for_scope: "No transactions in this scope yet.",
+        scope_all: "All",
       },
     },
     image_editor: {

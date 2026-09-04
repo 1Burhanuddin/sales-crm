@@ -24,6 +24,7 @@ import {
 import { useConfigurationContext } from "../root/ConfigurationContext";
 import type { Transaction } from "../types";
 import { matchCategoryRule } from "./categoryRuleMatcher";
+import { SCOPE_CHOICES, type TransactionScope } from "./scope";
 import {
   parseStatementPdf,
   StatementPasswordRequiredError,
@@ -34,6 +35,7 @@ type PreviewRow = ParsedTransaction & {
   included: boolean;
   category?: string;
   possibleDuplicate: boolean;
+  scope: TransactionScope;
 };
 
 export const StatementUploadDialog = ({
@@ -58,6 +60,13 @@ export const StatementUploadDialog = ({
   const [error, setError] = useState<string | null>(null);
   const [needsPassword, setNeedsPassword] = useState(false);
   const [password, setPassword] = useState("");
+  // Used to initialize every row's scope as they're parsed (see runParse
+  // below) -- a statement is usually all-one-scope, so getting the default
+  // right up front means most imports need zero per-row scope edits. The
+  // "Mark all as..." buttons below the summary line let the whole batch be
+  // bulk-corrected after the fact too; individual rows stay editable via
+  // their own selector either way.
+  const [defaultScope, setDefaultScope] = useState<TransactionScope>("business");
 
   const handleClose = () => {
     setFile(null);
@@ -65,6 +74,10 @@ export const StatementUploadDialog = ({
     setError(null);
     setNeedsPassword(false);
     setPassword("");
+    // This dialog stays mounted (just hidden) between opens, so without
+    // resetting this, a Personal statement's leftover default would
+    // silently carry over and mis-tag the next, unrelated Business import.
+    setDefaultScope("business");
     onClose();
   };
 
@@ -109,6 +122,7 @@ export const StatementUploadDialog = ({
           included: !possibleDuplicate,
           category: matchCategoryRule(t.description, categoryRules),
           possibleDuplicate,
+          scope: defaultScope,
         };
       });
       setRows(preview);
@@ -157,6 +171,10 @@ export const StatementUploadDialog = ({
     );
   };
 
+  const setAllScope = (scope: TransactionScope) => {
+    setRows((prev) => (prev ? prev.map((row) => ({ ...row, scope })) : prev));
+  };
+
   const handleImport = async () => {
     if (!rows || !file) return;
     const included = rows.filter((r) => r.included);
@@ -188,6 +206,7 @@ export const StatementUploadDialog = ({
                 balance_after: row.balanceAfter ?? null,
                 source: "statement",
                 statement_import_id: statementImport.data.id,
+                scope: row.scope,
               },
             });
           } catch {
@@ -238,6 +257,28 @@ export const StatementUploadDialog = ({
                 _: "Upload a PDF bank statement. Nothing is saved until you review and confirm below.",
               })}
             </p>
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-muted-foreground">
+                {translate("resources.transactions.upload.default_scope", {
+                  _: "This statement is for:",
+                })}
+              </label>
+              <Select
+                value={defaultScope}
+                onValueChange={(value) => setDefaultScope(value as TransactionScope)}
+              >
+                <SelectTrigger className="h-8 w-32 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {SCOPE_CHOICES.map((c) => (
+                    <SelectItem key={c.value} value={c.value}>
+                      {c.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <input
               ref={fileInputRef}
               type="file"
@@ -306,6 +347,23 @@ export const StatementUploadDialog = ({
                 </>
               )}
             </p>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              {translate("resources.transactions.upload.mark_all_as", {
+                _: "Mark all as:",
+              })}
+              {SCOPE_CHOICES.map((c) => (
+                <Button
+                  key={c.value}
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-7 px-2 text-xs"
+                  onClick={() => setAllScope(c.value)}
+                >
+                  {c.label}
+                </Button>
+              ))}
+            </div>
             <div className="overflow-x-auto border rounded-md max-h-[50vh] overflow-y-auto">
               <Table>
                 <TableHeader>
@@ -322,6 +380,9 @@ export const StatementUploadDialog = ({
                     </TableHead>
                     <TableHead>
                       {translate("resources.transactions.fields.category")}
+                    </TableHead>
+                    <TableHead>
+                      {translate("resources.transactions.fields.scope")}
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -404,6 +465,25 @@ export const StatementUploadDialog = ({
                           <SelectContent>
                             <SelectItem value="__none">—</SelectItem>
                             {transactionCategories.map((c) => (
+                              <SelectItem key={c.value} value={c.value}>
+                                {c.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          value={row.scope}
+                          onValueChange={(value) =>
+                            updateRow(i, { scope: value as TransactionScope })
+                          }
+                        >
+                          <SelectTrigger className="h-8 w-28 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {SCOPE_CHOICES.map((c) => (
                               <SelectItem key={c.value} value={c.value}>
                                 {c.label}
                               </SelectItem>
