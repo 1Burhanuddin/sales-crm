@@ -20,7 +20,13 @@ import {
   Repeat,
   Wallet,
 } from "lucide-react";
-import { useGetList, useTranslate } from "ra-core";
+import {
+  useDataProvider,
+  useGetList,
+  useNotify,
+  useRefresh,
+  useTranslate,
+} from "ra-core";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { Badge } from "@/components/ui/badge";
@@ -37,7 +43,7 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 import { useConfigurationContext } from "../root/ConfigurationContext";
-import type { RecurringExpense, Transaction } from "../types";
+import type { Budget, RecurringExpense, Transaction } from "../types";
 import { currencyFormat, STATUS } from "./format";
 import { SCOPE_CHOICES, type TransactionScope } from "./scope";
 
@@ -817,6 +823,66 @@ const MonthDetail = ({
     otherLabel,
   );
 
+  // Budgets are per (category, scope, month) -- comparing "spent" against
+  // one when scope is "all" would mix a Personal budget and a Business
+  // budget (if both exist) into one misleading number, so this only
+  // fetches/shows when a specific scope is selected. `enabled` matters
+  // here, not just a render-time skip -- switching between "all" and a
+  // real scope is common (the same toggle drives this and the rest of the
+  // page), so avoiding the request entirely when it wouldn't be used is
+  // the same reasoning as StatementUploadDialog's recurring-expenses fetch.
+  // Narrowed once here rather than re-checking "!== 'all'" at every call
+  // site below -- every CategoryBudgetRow render is already inside a
+  // scopeFilter !== "all" branch by construction (the ternary in the main
+  // rows map, or budgetOnlyRows being empty otherwise), so this is a type
+  // narrowing, not a new runtime condition.
+  const narrowedScope: TransactionScope | undefined =
+    scopeFilter === "all" ? undefined : scopeFilter;
+
+  const { data: budgets } = useGetList<Budget>(
+    "budgets",
+    {
+      filter: { month, scope: scopeFilter },
+      pagination: { page: 1, perPage: 100 },
+    },
+    { enabled: narrowedScope != null },
+  );
+  const budgetByCategory = new Map((budgets ?? []).map((b) => [b.category, b]));
+
+  // Actual per-category spend this month, computed independently of
+  // categoryBreakdown's top-N grouping -- rankByCategory folds anything
+  // past MAX_CATEGORY_ROWS into an "__other" bucket, so a category
+  // missing from categoryBreakdown.rows isn't necessarily zero-spend, it
+  // may just have been collapsed into "other". budgetOnlyRows needs the
+  // real figure below, not an assumed 0.
+  const categorySpend = useMemo(() => {
+    const totals = new Map<string, number>();
+    for (const t of monthTxns) {
+      if (t.amount >= 0) continue;
+      const key = t.category ?? "__uncategorized";
+      totals.set(key, (totals.get(key) ?? 0) + Math.abs(t.amount));
+    }
+    return totals;
+  }, [monthTxns]);
+
+  // categoryBreakdown only has rows for categories with actual spend this
+  // month -- a category budgeted ahead of time with nothing posted to it
+  // yet would otherwise be invisible here, defeating the "see what's
+  // already spoken for before you spend" point of budgeting at all. Only
+  // relevant when a specific scope is selected, same as the budgets fetch
+  // above.
+  const budgetOnlyRows =
+    scopeFilter === "all"
+      ? []
+      : [...budgetByCategory.entries()]
+          .filter(([category]) => !categoryBreakdown.rows.some((r) => r.key === category))
+          .map(([category, budget]) => ({
+            key: category,
+            label: categoryLabel(category),
+            value: categorySpend.get(category) ?? 0,
+            budget,
+          }));
+
   const header = (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -904,24 +970,53 @@ const MonthDetail = ({
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-2.5">
-          {categoryBreakdown.rows.length === 0 ? (
+          {categoryBreakdown.rows.length === 0 && budgetOnlyRows.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               {translate("crm.accounts.dashboard.no_expenses_this_month", {
                 _: "No expenses this month.",
               })}
             </p>
           ) : (
-            categoryBreakdown.rows.map((row, i) => (
-              <CategoryRow
-                key={row.key}
-                label={row.label}
-                value={row.value}
-                max={categoryBreakdown.max}
-                total={Math.abs(expense)}
-                color={SEQUENTIAL_STEPS[Math.min(i, SEQUENTIAL_STEPS.length - 1)]}
-                currency={currency}
-              />
-            ))
+            <>
+              {categoryBreakdown.rows.map((row, i) =>
+                scopeFilter !== "all" &&
+                row.key !== "__other" &&
+                row.key !== "__uncategorized" ? (
+                  <CategoryBudgetRow
+                    key={row.key}
+                    category={row.key}
+                    label={row.label}
+                    spent={row.value}
+                    budget={budgetByCategory.get(row.key)}
+                    month={month}
+                    scope={narrowedScope!}
+                    currency={currency}
+                  />
+                ) : (
+                  <CategoryRow
+                    key={row.key}
+                    label={row.label}
+                    value={row.value}
+                    max={categoryBreakdown.max}
+                    total={Math.abs(expense)}
+                    color={SEQUENTIAL_STEPS[Math.min(i, SEQUENTIAL_STEPS.length - 1)]}
+                    currency={currency}
+                  />
+                ),
+              )}
+              {budgetOnlyRows.map((row) => (
+                <CategoryBudgetRow
+                  key={row.key}
+                  category={row.key}
+                  label={row.label}
+                  spent={row.value}
+                  budget={row.budget}
+                  month={month}
+                  scope={narrowedScope!}
+                  currency={currency}
+                />
+              ))}
+            </>
           )}
         </CardContent>
       </Card>
@@ -1216,3 +1311,120 @@ const CategoryRow = ({
     </span>
   </div>
 );
+
+/** Like CategoryRow, but the progress bar is spent-vs-*budget* (not
+ * spent-vs-largest-category), and the budget amount is inline-editable --
+ * click it, type a number, save. Upserts via create/update depending on
+ * whether `budget` (this category's existing row for this month+scope, if
+ * any) was passed in, rather than a dedicated Budgets CRUD page: setting a
+ * budget is something you do *from* the category you're looking at, not a
+ * separate errand. */
+const CategoryBudgetRow = ({
+  category,
+  label,
+  spent,
+  budget,
+  month,
+  scope,
+  currency,
+}: {
+  category: string;
+  label: string;
+  spent: number;
+  budget?: Budget;
+  month: string;
+  scope: TransactionScope;
+  currency: string;
+}) => {
+  const translate = useTranslate();
+  const dataProvider = useDataProvider();
+  const notify = useNotify();
+  const refresh = useRefresh();
+  const [editing, setEditing] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const startEditing = () => {
+    setInputValue(budget ? String(budget.amount) : "");
+    setEditing(true);
+  };
+
+  const handleSave = () => {
+    const amount = Number(inputValue);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setEditing(false);
+      return;
+    }
+    setSaving(true);
+    const save = budget
+      ? dataProvider.update("budgets", {
+          id: budget.id,
+          data: { amount },
+          previousData: budget,
+        })
+      : dataProvider.create("budgets", {
+          data: { category, scope, month, amount },
+        });
+    save
+      .then(() => refresh())
+      .catch(() => notify("ra.notification.http_error", { type: "error" }))
+      .finally(() => {
+        setSaving(false);
+        setEditing(false);
+      });
+  };
+
+  const pct = budget ? Math.min(100, Math.round((spent / budget.amount) * 100)) : 0;
+  const overBudget = !!budget && spent > budget.amount;
+
+  return (
+    <div className="flex items-center gap-3">
+      <span className="w-32 shrink-0 text-sm truncate">{label}</span>
+      <div className="flex-1 h-3 rounded-sm bg-muted overflow-hidden">
+        {budget && (
+          <div
+            className="h-full rounded-sm"
+            style={{
+              width: `${pct}%`,
+              backgroundColor: overBudget ? STATUS.critical : STATUS.good,
+            }}
+          />
+        )}
+      </div>
+      <span className="w-20 shrink-0 text-sm text-right tabular-nums text-muted-foreground">
+        {currencyFormat(currency, spent)}
+      </span>
+      <span className="w-24 shrink-0 text-right">
+        {editing ? (
+          <input
+            type="number"
+            step="0.01"
+            autoFocus
+            value={inputValue}
+            disabled={saving}
+            onChange={(e) => setInputValue(e.target.value)}
+            onBlur={handleSave}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSave();
+              if (e.key === "Escape") setEditing(false);
+            }}
+            className="w-24 text-xs text-right bg-transparent border-b border-border outline-none"
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={startEditing}
+            className="text-xs tabular-nums hover:underline"
+            style={{ color: budget ? undefined : "var(--color-primary)" }}
+          >
+            {budget
+              ? currencyFormat(currency, budget.amount)
+              : translate("crm.accounts.dashboard.set_budget", {
+                  _: "Set budget",
+                })}
+          </button>
+        )}
+      </span>
+    </div>
+  );
+};

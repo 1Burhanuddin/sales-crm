@@ -343,6 +343,16 @@ export type Loan = {
   created_at: string;
 } & Pick<RaRecord, "id">;
 
+export type Budget = {
+  category: string;
+  scope: "business" | "personal";
+  month: string; // always the 1st of the month, "yyyy-MM-dd"
+  amount: number;
+  sales_id?: Identifier;
+  created_at: string;
+  updated_at: string;
+} & Pick<RaRecord, "id">;
+
 export type ChecklistItem = {
   text: string;
   checked: boolean;
