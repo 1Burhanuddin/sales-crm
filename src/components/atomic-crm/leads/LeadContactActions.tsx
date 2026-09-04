@@ -13,84 +13,31 @@ const OUTCOMES: LeadActivityOutcome[] = [
   "not_interested",
 ];
 
-// Digits-only, with a leading "91" (India) assumed when the stored number
-// doesn't already carry a country code -- matches how every lead in this
-// app's data has been imported so far (Rajkot leads sheet, WhatsApp-vCard
-// imports), all plain Indian mobile numbers. A trunk-prefix "0" some
-// numbers get typed/imported with (e.g. "09876543210") isn't part of the
-// real number -- stripped first, or an 11-digit number would skip the "91"
-// prefix entirely and produce a dead wa.me link. leads.phone is a plain
-// free-text field with nothing upstream validating it, so this is a
-// heuristic, not a guarantee, for whatever wasn't imported in one of the
-// two shapes above.
+// Assumes a plain 10-digit Indian mobile number, prepending "91"; strips a
+// leading trunk "0" first so it isn't mistaken for a country code.
 const toWaNumber = (phone: string) => {
   let digits = phone.replace(/\D/g, "");
   if (digits.length === 11 && digits.startsWith("0")) digits = digits.slice(1);
   return digits.length === 10 ? `91${digits}` : digits;
 };
 
-// One state machine with three phases, not three independently-settable
-// flags -- "logging" and "an outcome prompt is showing" can never be true
-// at once (logAttempt's success case sets "pending" in the same update it
-// would have cleared a separate "logging" flag), so a discriminated union
-// makes that invariant true by construction instead of by every call site
-// remembering to derive it correctly.
 type Status =
   | { kind: "idle" }
   | { kind: "logging" }
   | { kind: "pending"; activity: LeadActivity }
   | { kind: "settingOutcome"; activity: LeadActivity };
 
-// Click-to-contact buttons that double as the attempt log: opening the
-// dialer/WhatsApp/mail app IS the log entry, so a rep never has to remember
-// to write anything down just to have a record that they tried. The outcome
-// prompt that follows is optional polish on top of an attempt that's
-// already recorded either way.
-//
-// Call/Email await the log call BEFORE navigating (a few hundred ms of
-// latency, traded for reliability) -- handing off to the dialer/mail app on
-// mobile can background or suspend this tab immediately, and a
-// fire-and-forget create call started after that handoff isn't guaranteed
-// to ever complete. WhatsApp is the one exception: window.open() has to run
-// synchronously inside the click handler or strict mobile browsers (Safari/
-// iOS especially) treat it as an unsolicited popup and block it silently
-// once an awaited network call has consumed the click's "direct user
-// gesture" window -- and unlike tel:/mailto:, opening a new tab doesn't
-// hand off to a different native app, so this tab isn't at risk of being
-// suspended before its own pending request finishes. The tradeoff: if that
-// background create() fails, the error toast fires in a CRM tab the rep has
-// likely already switched away from. There's no way to have it both ways
-// (an awaited pre-navigation check would break the popup instead) -- the
-// tab stays alive and the toast is still there whenever they come back,
-// which is the best available compromise.
-//
-// Raw dataProvider calls (not useCreate/useUpdate) don't auto-invalidate
-// any list's react-query cache, so both logAttempt and setOutcome refresh()
-// explicitly afterward -- same gotcha, same fix, as PersonalNoteCard's
-// togglePin/toggleChecklistItem. Both also notify() on failure -- silently
-// swallowing an error here would mean a rep believes an attempt was logged
-// when it wasn't, worse than not logging at all.
+// Opening the dialer/WhatsApp/mail app IS the log entry -- Call/Email await
+// the log call before navigating (mobile can suspend this tab on handoff);
+// WhatsApp opens synchronously first to avoid the popup blocker, then logs.
 export const LeadContactActions = ({ record }: { record: Lead }) => {
   const translate = useTranslate();
   const dataProvider = useDataProvider();
   const notify = useNotify();
   const refresh = useRefresh();
   const [status, setStatus] = useState<Status>({ kind: "idle" });
-  // React state updates aren't visible synchronously within the same tick,
-  // so two clicks fired before the first re-render commits (a real risk on
-  // a laggy mobile browser) could both read a stale status and slip past a
-  // state-only guard. A ref is checked/set synchronously, so the second
-  // call sees it immediately, before either promise has even started.
-  //
-  // This only covers one tab: two tabs open on the same lead (easy to hit
-  // on mobile, e.g. a link opened from a notification while the lead is
-  // already open elsewhere) can each log their own attempt independently,
-  // and both are real inserts, not a race either side can detect. Left as
-  // an accepted, low-stakes gap rather than a DB-level constraint --
-  // leads_summary counts whatever rows genuinely exist, so a rare duplicate
-  // is an occasional off-by-one in a count, not drift or corruption, and a
-  // time-windowed uniqueness rule would be real complexity for a cosmetic
-  // edge case.
+  // Synchronous mutex -- state updates aren't visible within the same
+  // tick, so a ref is needed to block a same-tick double-click.
   const loggingRef = useRef(false);
 
   if (!record.phone && !record.email) return null;
@@ -133,10 +80,7 @@ export const LeadContactActions = ({ record }: { record: Lead }) => {
         setStatus({ kind: "idle" });
       })
       .catch(() => {
-        // Back to "pending", not "idle" -- the create already succeeded,
-        // only the outcome PATCH failed, so the prompt should stay up and
-        // let the rep retry rather than silently discarding it as if they'd
-        // hit Skip.
+        // Back to "pending", not "idle" -- let the rep retry.
         notify("ra.notification.http_error", { type: "error" });
         setStatus({ kind: "pending", activity });
       });
