@@ -190,6 +190,14 @@ grant all on table public.recurring_expenses to anon;
 grant all on table public.recurring_expenses to authenticated;
 grant all on table public.recurring_expenses to service_role;
 
+grant all on table public.people to anon;
+grant all on table public.people to authenticated;
+grant all on table public.people to service_role;
+
+grant all on table public.loans to anon;
+grant all on table public.loans to authenticated;
+grant all on table public.loans to service_role;
+
 grant all on table public.personal_notes to anon;
 grant all on table public.personal_notes to authenticated;
 grant all on table public.personal_notes to service_role;
@@ -331,6 +339,14 @@ grant all on sequence public.transactions_id_seq to service_role;
 grant all on sequence public.recurring_expenses_id_seq to anon;
 grant all on sequence public.recurring_expenses_id_seq to authenticated;
 grant all on sequence public.recurring_expenses_id_seq to service_role;
+
+grant all on sequence public.people_id_seq to anon;
+grant all on sequence public.people_id_seq to authenticated;
+grant all on sequence public.people_id_seq to service_role;
+
+grant all on sequence public.loans_id_seq to anon;
+grant all on sequence public.loans_id_seq to authenticated;
+grant all on sequence public.loans_id_seq to service_role;
 
 grant all on sequence public.personal_notes_id_seq to anon;
 grant all on sequence public.personal_notes_id_seq to authenticated;

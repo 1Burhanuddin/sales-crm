@@ -453,6 +453,18 @@ const lifeCycleCallbacks: ResourceCallbacks[] = [
     },
   },
   {
+    resource: "people",
+    beforeGetList: async (params) => {
+      // Just "name" -- applyFullTextSearch special-cases the literal
+      // column name "phone" to query a phone_fts column (that special
+      // case exists for contacts_summary's computed phone_fts, not a
+      // plain phone column), and people has no such column. Passing
+      // "phone" here would send phone_fts@ilike to a table that doesn't
+      // have it and 400 on every keystroke in the person search.
+      return applyFullTextSearch(["name"])(params);
+    },
+  },
+  {
     resource: "personal_notes",
     beforeSave: async (data: PersonalNote, _, __) => {
       if (data.attachments) {

@@ -6,6 +6,7 @@ import {
   ClipboardCheck,
   Filter,
   FolderKanban,
+  HandCoins,
   Handshake,
   LayoutDashboard,
   Receipt,
@@ -210,6 +211,14 @@ export const AppSidebar = () => {
           }),
           icon: Repeat,
           resource: "recurring_expenses",
+        },
+        {
+          to: "/khatabook",
+          label: translate("crm.accounts.khatabook.nav_label", {
+            _: "Khatabook",
+          }),
+          icon: HandCoins,
+          resource: "loans",
         },
       ],
     },
