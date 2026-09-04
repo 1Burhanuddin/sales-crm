@@ -568,16 +568,7 @@ export const StatementUploadDialog = ({
                             );
                             updateRow(i, {
                               recurringExpenseId: picked?.id,
-                              // Symmetric with the auto-match path: picking
-                              // a recurring expense also adopts its scope
-                              // and category, rather than leaving a row
-                              // linked to one expense while still carrying
-                              // a category/scope left over from a
-                              // different (or no) match. Unlinking
-                              // ("—") re-derives category from the
-                              // generic categoryRules instead of leaving
-                              // the now-disconnected expense's category
-                              // behind with nothing to justify it anymore.
+                              // Picking one adopts its scope/category; unlinking re-derives from categoryRules.
                               scope: picked ? picked.scope : row.scope,
                               category: picked
                                 ? (picked.category ?? row.category)

@@ -1,25 +1,8 @@
-// Parses a Bank of Baroda (and likely similar Indian bank) statement PDF
-// into transaction rows, running entirely client-side (pdfjs-dist, lazy
-// loaded) — matching this repo's own useImportFromJson.ts precedent of
-// avoiding Edge Functions for large-file work, since they're memory/time
-// constrained.
-//
-// This is NOT a simple "one line = one row" regex parser. Calibrated
-// against a real statement: each transaction's numeric columns (serial,
-// dates, debit/credit/balance) sit on their own text line, but the
-// description column wraps across 1-2 *separate* lines that straddle that
-// numeric line above and below it (the row is vertically centered on its
-// tallest cell). So parsing works by:
-//   1. Grouping all text items on a page into rows by y-position.
-//   2. Finding "anchor" rows — a row with a bare integer in the Serial
-//      column — which carry the date/debit/credit/balance for one
-//      transaction.
-//   3. Assigning every *other* row on the page to the nearest anchor (by
-//      midpoint between consecutive anchors' y) and pulling its
-//      description-column text into that transaction.
-// A repeated table header and page footer land inside the description
-// column's x-range too, so both are located and excluded before anchors
-// are collected.
+// Parses a Bank of Baroda-style statement PDF client-side (pdfjs-dist).
+// Numeric columns sit on one text line per row, but the description wraps
+// onto separate lines above/below it -- so this groups text by y-position,
+// finds "anchor" rows (a bare integer in the Serial column), and assigns
+// every other row's text to its nearest anchor's description.
 
 export type ParsedTransaction = {
   date: string; // ISO yyyy-mm-dd
@@ -40,18 +23,9 @@ export type StatementParseResult = {
 type PositionedText = { x: number; y: number; text: string };
 type Row = { y: number; items: PositionedText[] };
 
-// Column x-ranges in PDF points, empirically calibrated against a real BOB
-// statement. Generous margins on each side to tolerate minor per-document
-// drift.
-//
-// The chequeNumber/debit boundary sits well clear of 395 on purpose: a
-// wide right-aligned debit amount (5+ digits, e.g. "15,000.00") starts
-// further left than a narrow one, and a real statement had one begin at
-// x=394.9 -- 0.1pt short of the old boundary at exactly 395, landing it
-// in chequeNumber (which real UPI-heavy statements never populate)
-// instead of debit and silently dropping the whole transaction (no
-// amount in either debit or credit -> discarded). 20pt of headroom
-// comfortably covers a 6-digit debit too.
+// Column x-ranges in PDF points, calibrated against a real BOB statement.
+// Generous margins -- a boundary too tight once landed a debit amount
+// (x=394.9) in chequeNumber instead, silently dropping the transaction.
 const COLUMNS = {
   serial: [-Infinity, 45],
   txnDate: [45, 95],

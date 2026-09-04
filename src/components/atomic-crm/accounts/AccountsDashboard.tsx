@@ -809,19 +809,8 @@ const MonthDetail = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [monthTxns]);
 
-  // Budgets are per (category, scope, month) -- comparing "spent" against
-  // one when scope is "all" would mix a Personal budget and a Business
-  // budget (if both exist) into one misleading number, so this only
-  // fetches/shows when a specific scope is selected. `enabled` matters
-  // here, not just a render-time skip -- switching between "all" and a
-  // real scope is common (the same toggle drives this and the rest of the
-  // page), so avoiding the request entirely when it wouldn't be used is
-  // the same reasoning as StatementUploadDialog's recurring-expenses fetch.
-  // Narrowed once here rather than re-checking "!== 'all'" at every call
-  // site below -- every CategoryBudgetRow render is already inside a
-  // scopeFilter !== "all" branch by construction (budgetRows is only ever
-  // non-empty in that case), so this is a type narrowing, not a new
-  // runtime condition.
+  // Budgets are per (category, scope, month), so only fetched when a
+  // specific scope is selected -- "all" would mix Business and Personal.
   const narrowedScope: TransactionScope | undefined =
     scopeFilter === "all" ? undefined : scopeFilter;
 
@@ -838,11 +827,8 @@ const MonthDetail = ({
     [budgets],
   );
 
-  // Actual per-category spend this month, computed independently of
-  // rankByCategory's top-N grouping (which folds anything past
-  // MAX_CATEGORY_ROWS into an "__other" bucket) -- every budgeted
-  // category needs its real total below, not whatever rank it happens to
-  // land at.
+  // Real per-category spend, independent of rankByCategory's top-N
+  // grouping -- a budgeted category needs its true total, not its rank.
   const categorySpend = useMemo(() => {
     const totals = new Map<string, number>();
     for (const t of monthTxns) {
@@ -853,18 +839,8 @@ const MonthDetail = ({
     return totals;
   }, [monthTxns]);
 
-  // Categories with a budget are always broken out as their own row, with
-  // their real total regardless of rank -- NOT layered on top of
-  // rankByCategory's top-N/"other" output. Doing it that way (as an
-  // earlier draft did) had two bugs: a budgeted category ranked past the
-  // cutoff would still be silently folded into "__other" AND get its own
-  // row, double-counting its spend across both; and every category
-  // (budgeted or not) in the top N would lose its bar/rank-color/%-of-
-  // total once any scope was picked, even before any budget existed.
-  // Excluding budgeted categories' own transactions before ranking the
-  // rest fixes both: rankByCategory below only ever sees non-budgeted
-  // spend, so its output is exactly the old unscoped behavior restricted
-  // to categories nobody has budgeted yet.
+  // Budgeted categories are excluded before ranking, so they're always
+  // broken out as their own row (avoids double-counting past the top N).
   const budgetedCategories = useMemo(
     () => new Set(budgetByCategory.keys()),
     [budgetByCategory],

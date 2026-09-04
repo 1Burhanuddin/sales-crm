@@ -427,16 +427,10 @@ const lifeCycleCallbacks: ResourceCallbacks[] = [
     beforeGetList: async (params) => {
       return applyFullTextSearch(["description"])(params);
     },
-    // Single authoritative point for "a transaction linked to a recurring
-    // expense must carry that expense's own scope" -- not just a rule the
-    // statement-import review UI happens to apply. Without this, the plain
-    // Transaction create/edit form (TransactionInputs.tsx) could save a
-    // recurring_expense_id and an unrelated scope with nothing to stop it,
-    // and RecurringExpensesCard would then silently misreport that
-    // expense as unpaid (wrong scope, filtered out) or paid under the
-    // wrong scope. Runs for every save regardless of which UI produced
-    // it, so the import dialog's own client-side handling only has to be
-    // a preview of this, not a second enforcement point.
+    // A transaction linked to a recurring expense must carry that
+    // expense's scope -- enforced here for every save, not just the
+    // import review UI, since TransactionInputs.tsx could otherwise save
+    // a mismatched scope.
     beforeSave: async (data: Transaction, dataProvider) => {
       if (data.recurring_expense_id) {
         const { data: expense } = await dataProvider.getOne<RecurringExpense>(
