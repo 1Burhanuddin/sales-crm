@@ -13,9 +13,11 @@ import type {
   IssueNote,
   PersonalNote,
   RAFile,
+  RecurringExpense,
   Sale,
   SalesFormData,
   SignUpData,
+  Transaction,
 } from "../../types";
 import type { ConfigurationContextValue } from "../../root/ConfigurationContext";
 import { ATTACHMENTS_BUCKET } from "../commons/attachments";
@@ -409,6 +411,45 @@ const lifeCycleCallbacks: ResourceCallbacks[] = [
         "employee_code",
         "email",
       ])(params);
+    },
+  },
+  {
+    // TransactionList.tsx's SearchInput had no matching registration here
+    // (pre-existing gap, not introduced by this change) -- every "q"
+    // search sent straight to PostgREST as a literal column filter on a
+    // table with no "q" column, erroring instead of searching. Fixed
+    // alongside adding the same registration for the new recurring_expenses
+    // list below, since both live in the same file and the gap was found
+    // while adding the second one.
+    resource: "transactions",
+    beforeGetList: async (params) => {
+      return applyFullTextSearch(["description"])(params);
+    },
+    // Single authoritative point for "a transaction linked to a recurring
+    // expense must carry that expense's own scope" -- not just a rule the
+    // statement-import review UI happens to apply. Without this, the plain
+    // Transaction create/edit form (TransactionInputs.tsx) could save a
+    // recurring_expense_id and an unrelated scope with nothing to stop it,
+    // and RecurringExpensesCard would then silently misreport that
+    // expense as unpaid (wrong scope, filtered out) or paid under the
+    // wrong scope. Runs for every save regardless of which UI produced
+    // it, so the import dialog's own client-side handling only has to be
+    // a preview of this, not a second enforcement point.
+    beforeSave: async (data: Transaction, dataProvider) => {
+      if (data.recurring_expense_id) {
+        const { data: expense } = await dataProvider.getOne<RecurringExpense>(
+          "recurring_expenses",
+          { id: data.recurring_expense_id },
+        );
+        data.scope = expense.scope;
+      }
+      return data;
+    },
+  },
+  {
+    resource: "recurring_expenses",
+    beforeGetList: async (params) => {
+      return applyFullTextSearch(["name", "match_keyword"])(params);
     },
   },
   {

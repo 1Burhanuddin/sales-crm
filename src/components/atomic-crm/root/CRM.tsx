@@ -447,6 +447,14 @@ const DesktopAdmin = (
       />
       <Resource name="statement_imports" />
       <Resource
+        name="recurring_expenses"
+        {...lazyResource(() => import("../accounts/recurringExpensesResource"), [
+          "list",
+          "create",
+          "edit",
+        ])}
+      />
+      <Resource
         name="personal_notes"
         {...lazyResource(() => import("../personal-notes"), ["list"])}
       />

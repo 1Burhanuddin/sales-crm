@@ -35,7 +35,11 @@ const ADMIN_ONLY_ACTIONS = ["approve", "reject"];
 // Accounts (personal finance tracking) is fully admin-only, not
 // self-service — same treatment as "sales"/"configuration" below, not the
 // HR_SELF_SERVICE_RESOURCES pattern.
-const ACCOUNTS_RESOURCES = ["transactions", "statement_imports"];
+const ACCOUNTS_RESOURCES = [
+  "transactions",
+  "statement_imports",
+  "recurring_expenses",
+];
 // Personal notes are fully self-service for every role, including
 // developer — zero relation to CRM/HR/PM data. Unlike everything else in
 // this file, a plain user can also delete their own note (see the

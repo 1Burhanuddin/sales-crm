@@ -17,6 +17,7 @@ import {
   LineChart,
   PiggyBank,
   Receipt,
+  Repeat,
   Wallet,
 } from "lucide-react";
 import { useGetList, useTranslate } from "ra-core";
@@ -36,7 +37,7 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 import { useConfigurationContext } from "../root/ConfigurationContext";
-import type { Transaction } from "../types";
+import type { RecurringExpense, Transaction } from "../types";
 import { SCOPE_CHOICES, type TransactionScope } from "./scope";
 
 type ScopeFilter = TransactionScope | "all";
@@ -245,6 +246,14 @@ export const AccountsDashboard = () => {
     pagination: { page: 1, perPage: 2000 },
     sort: { field: "date", order: "ASC" },
   });
+  const { data: recurringExpenses = [] } = useGetList<RecurringExpense>(
+    "recurring_expenses",
+    {
+      filter: { active: true },
+      pagination: { page: 1, perPage: 200 },
+      sort: { field: "due_day", order: "ASC" },
+    },
+  );
 
   // Backed by the URL (?month=yyyy-MM-dd, the 1st of the month, matching
   // stats.months' `month` key; ?scope=business|personal, absent = "all"),
@@ -492,6 +501,15 @@ export const AccountsDashboard = () => {
           })}
         />
       </div>
+
+      {recurringExpenses.length > 0 && (
+        <RecurringExpensesCard
+          recurringExpenses={recurringExpenses}
+          scopedData={scopedData}
+          scopeFilter={scopeFilter}
+          currency={currency}
+        />
+      )}
 
       <Card>
         <CardHeader>
@@ -1027,6 +1045,122 @@ const MoneyStatTiles = ({
         valueStyle={{ color: net >= 0 ? STATUS.good : STATUS.critical }}
       />
     </>
+  );
+};
+
+/** "Already spoken for this month" -- the actual payoff of tracking
+ * recurring/unavoidable expenses at all: know what's already committed
+ * before budgeting the rest. Tied to the real current calendar month
+ * (today), not whatever month the chart above happens to be scrolled to --
+ * a different, forward-looking job than the retrospective month/week
+ * drill-down, so it's deliberately not duplicated inside MonthDetail. */
+const RecurringExpensesCard = ({
+  recurringExpenses,
+  scopedData,
+  scopeFilter,
+  currency,
+}: {
+  recurringExpenses: RecurringExpense[];
+  scopedData: Transaction[];
+  scopeFilter: ScopeFilter;
+  currency: string;
+}) => {
+  const translate = useTranslate();
+
+  const { relevant, rows, totalExpected, totalPosted } = useMemo(() => {
+    const today = new Date();
+    const monthStart = startOfMonth(today);
+    const monthEnd = endOfMonth(today);
+
+    const relevant =
+      scopeFilter === "all"
+        ? recurringExpenses
+        : recurringExpenses.filter((r) => r.scope === scopeFilter);
+
+    // One pass over this month's transactions, grouped by recurring
+    // expense, instead of a .find() per expense re-scanning all of
+    // scopedData -- and grouped (not just the first hit) so a split/
+    // top-up payment linked to the same expense twice in one month
+    // still sums to the real amount actually spent, not just whichever
+    // matching row happened to come first.
+    const matchesByExpense = new Map<Transaction["recurring_expense_id"], Transaction[]>();
+    for (const t of scopedData) {
+      if (
+        t.recurring_expense_id == null ||
+        !isWithinInterval(parseISO(t.date), { start: monthStart, end: monthEnd })
+      ) {
+        continue;
+      }
+      const bucket = matchesByExpense.get(t.recurring_expense_id) ?? [];
+      bucket.push(t);
+      matchesByExpense.set(t.recurring_expense_id, bucket);
+    }
+
+    let totalExpected = 0;
+    let totalPosted = 0;
+    const rows = relevant.map((r) => {
+      const matched = matchesByExpense.get(r.id) ?? [];
+      const postedAmount = matched.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+      const overdue = matched.length === 0 && today.getDate() > r.due_day;
+      totalExpected += r.amount;
+      totalPosted += postedAmount;
+      return { expense: r, matched, postedAmount, overdue };
+    });
+
+    return { relevant, rows, totalExpected, totalPosted };
+  }, [recurringExpenses, scopedData, scopeFilter]);
+
+  // relevant.length, not recurringExpenses.length, decides whether this
+  // renders at all -- the parent only pre-checks the latter as a cheap
+  // "is this feature used at all" gate, so scope-filtering everything away
+  // (e.g. every active expense is Personal and the dashboard is filtered
+  // to Business) still has to collapse to nothing here, not an empty card.
+  if (relevant.length === 0) return null;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between text-base font-medium text-muted-foreground">
+          <span className="flex items-center gap-2">
+            <Repeat className="w-4 h-4" />
+            {translate("crm.accounts.dashboard.recurring_this_month", {
+              _: "This Month's Recurring Expenses",
+            })}
+          </span>
+          <span className="text-sm tabular-nums">
+            {currencyFormat(currency, totalPosted)} /{" "}
+            {currencyFormat(currency, totalExpected)}
+          </span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-2">
+        {rows.map(({ expense, matched, postedAmount, overdue }) => (
+          <div key={expense.id} className="flex items-center gap-3 text-sm">
+            <span className="flex-1 truncate">{expense.name}</span>
+            <span className="text-muted-foreground tabular-nums">
+              {currencyFormat(currency, matched.length > 0 ? postedAmount : expense.amount)}
+            </span>
+            <Badge
+              variant={matched.length > 0 ? "default" : overdue ? "destructive" : "outline"}
+              className="text-[10px] w-20 justify-center"
+            >
+              {matched.length > 0
+                ? translate("crm.accounts.dashboard.recurring_posted", {
+                    _: "Posted",
+                  })
+                : overdue
+                  ? translate("crm.accounts.dashboard.recurring_overdue", {
+                      _: "Overdue",
+                    })
+                  : translate("crm.accounts.dashboard.recurring_due_day", {
+                      day: expense.due_day,
+                      _: `Due ${expense.due_day}`,
+                    })}
+            </Badge>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
   );
 };
 
