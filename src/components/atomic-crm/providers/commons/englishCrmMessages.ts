@@ -912,6 +912,11 @@ export const englishCrmMessages = {
         no_data: "Import a statement to see your finances here.",
         view_transactions: "View all transactions",
         other_category: "Other",
+        click_for_detail: "Click to see week-by-week detail",
+        back_to_overview: "All-time overview",
+        weekly_trend: "Weekly Income vs Expense",
+        month_transactions: "%{count} transaction |||| %{count} transactions",
+        no_expenses_this_month: "No expenses this month.",
       },
     },
     image_editor: {

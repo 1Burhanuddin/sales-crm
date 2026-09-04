@@ -921,6 +921,11 @@ export const frenchCrmMessages = {
         no_data: "Importez un relevé pour voir vos finances ici.",
         view_transactions: "Voir toutes les transactions",
         other_category: "Autre",
+        click_for_detail: "Cliquez pour voir le détail semaine par semaine",
+        back_to_overview: "Vue d'ensemble",
+        weekly_trend: "Revenus et dépenses par semaine",
+        month_transactions: "%{count} transaction |||| %{count} transactions",
+        no_expenses_this_month: "Aucune dépense ce mois-ci.",
       },
     },
     image_editor: {
