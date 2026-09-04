@@ -101,6 +101,44 @@ const MONEY_BAR_AXIS_PROPS = {
   ],
 };
 
+/** Shared by both the monthly and weekly income-vs-expense bar charts.
+ * Neither chart passed a `tooltip` prop for the weekly one originally --
+ * that meant nivo's default (unstyled, not dark-mode-aware) tooltip
+ * rendered instead, showing as illegible near-white-on-white text. Caught
+ * from a screenshot after the first version shipped; fixed by giving the
+ * weekly chart the same styled tooltip the monthly one already had, pulled
+ * out into one shared component so this can't happen a third time on
+ * whatever bar chart comes next. */
+const MoneyBarTooltip = ({
+  id,
+  value,
+  indexValue,
+  currency,
+  hint,
+}: {
+  id: string | number;
+  value: number;
+  indexValue: string | number;
+  currency: string;
+  hint?: React.ReactNode;
+}) => {
+  const translate = useTranslate();
+  return (
+    <div className="p-2 bg-secondary rounded shadow text-xs text-secondary-foreground">
+      <strong>{indexValue}</strong> —{" "}
+      {id === "income"
+        ? translate("crm.accounts.dashboard.total_income", {
+            _: "Total Income",
+          })
+        : translate("crm.accounts.dashboard.total_expense", {
+            _: "Total Expense",
+          })}
+      : {currencyFormat(currency, Math.abs(value))}
+      {hint && <div className="text-secondary-foreground/70 mt-0.5">{hint}</div>}
+    </div>
+  );
+};
+
 function useIsDarkMode() {
   const [isDark, setIsDark] = useState(
     () =>
@@ -375,22 +413,15 @@ export const AccountsDashboard = () => {
             valueFormat={(v) => currencyFormat(currency, v as number)}
             onClick={(bar) => setSearchParams({ month: bar.data.month as string })}
             tooltip={({ id, value, indexValue }) => (
-              <div className="p-2 bg-secondary rounded shadow text-xs text-secondary-foreground">
-                <strong>{indexValue}</strong> —{" "}
-                {id === "income"
-                  ? translate("crm.accounts.dashboard.total_income", {
-                      _: "Total Income",
-                    })
-                  : translate("crm.accounts.dashboard.total_expense", {
-                      _: "Total Expense",
-                    })}
-                : {currencyFormat(currency, Math.abs(value as number))}
-                <div className="text-secondary-foreground/70 mt-0.5">
-                  {translate("crm.accounts.dashboard.click_for_detail", {
-                    _: "Click to see week-by-week detail",
-                  })}
-                </div>
-              </div>
+              <MoneyBarTooltip
+                id={id}
+                value={value}
+                indexValue={indexValue}
+                currency={currency}
+                hint={translate("crm.accounts.dashboard.click_for_detail", {
+                  _: "Click to see week-by-week detail",
+                })}
+              />
             )}
             {...MONEY_BAR_AXIS_PROPS}
           />
@@ -707,6 +738,14 @@ const MonthDetail = ({
             enableGridY
             enableLabel={false}
             valueFormat={(v) => currencyFormat(currency, v as number)}
+            tooltip={({ id, value, indexValue }) => (
+              <MoneyBarTooltip
+                id={id}
+                value={value}
+                indexValue={indexValue}
+                currency={currency}
+              />
+            )}
             {...MONEY_BAR_AXIS_PROPS}
           />
         </CardContent>
