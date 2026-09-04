@@ -90,47 +90,54 @@ create policy "Enable update for admins" on public.configuration for update to a
 -- Favicons excluded domains
 create policy "Enable access for authenticated users only" on public.favicons_excluded_domains to authenticated using (true) with check (true);
 
--- Projects (visible/editable by anyone with PM access: admin or developer)
-create policy "PM access select" on public.projects for select to authenticated using (public.has_pm_access());
-create policy "PM access insert" on public.projects for insert to authenticated with check (public.has_pm_access());
-create policy "PM access update" on public.projects for update to authenticated using (public.has_pm_access()) with check (public.has_pm_access());
+-- Projects (visible/editable by an admin or a member; membership itself
+-- is admin-managed only, see protect_project_member_ids()). Creation is
+-- admin-only.
+create policy "Select member or admin" on public.projects for select to authenticated using (
+    public.is_admin() or public.current_sales_id() = any(member_ids)
+);
+create policy "Admin create only" on public.projects for insert to authenticated with check (public.is_admin());
+create policy "Update member or admin" on public.projects for update to authenticated using (
+    public.is_admin() or public.current_sales_id() = any(member_ids)
+) with check (
+    public.is_admin() or public.current_sales_id() = any(member_ids)
+);
 create policy "Admin delete only" on public.projects for delete to authenticated using (public.is_admin());
 
 -- Sprints (time-boxed grouping of issues within a project)
-create policy "PM access select" on public.sprints for select to authenticated using (public.has_pm_access());
-create policy "PM access insert" on public.sprints for insert to authenticated with check (public.has_pm_access());
-create policy "PM access update" on public.sprints for update to authenticated using (public.has_pm_access()) with check (public.has_pm_access());
+create policy "Project member or admin select" on public.sprints for select to authenticated using (public.can_access_project(project_id));
+create policy "Project member or admin insert" on public.sprints for insert to authenticated with check (public.can_access_project(project_id));
+create policy "Project member or admin update" on public.sprints for update to authenticated using (public.can_access_project(project_id)) with check (public.can_access_project(project_id));
 create policy "Admin delete only" on public.sprints for delete to authenticated using (public.is_admin());
 
 -- Milestones (a single due-date target within a project, distinct from a
 -- sprint's date range)
-create policy "PM access select" on public.milestones for select to authenticated using (public.has_pm_access());
-create policy "PM access insert" on public.milestones for insert to authenticated with check (public.has_pm_access());
-create policy "PM access update" on public.milestones for update to authenticated using (public.has_pm_access()) with check (public.has_pm_access());
+create policy "Project member or admin select" on public.milestones for select to authenticated using (public.can_access_project(project_id));
+create policy "Project member or admin insert" on public.milestones for insert to authenticated with check (public.can_access_project(project_id));
+create policy "Project member or admin update" on public.milestones for update to authenticated using (public.can_access_project(project_id)) with check (public.can_access_project(project_id));
 create policy "Admin delete only" on public.milestones for delete to authenticated using (public.is_admin());
 
--- Issues (visible/editable by anyone with PM access: admin or developer)
-create policy "PM access select" on public.issues for select to authenticated using (public.has_pm_access());
-create policy "PM access insert" on public.issues for insert to authenticated with check (public.has_pm_access());
-create policy "PM access update" on public.issues for update to authenticated using (public.has_pm_access()) with check (public.has_pm_access());
+-- Issues (visible/editable by anyone on the parent project, or admin)
+create policy "Project member or admin select" on public.issues for select to authenticated using (public.can_access_project(project_id));
+create policy "Project member or admin insert" on public.issues for insert to authenticated with check (public.can_access_project(project_id));
+create policy "Project member or admin update" on public.issues for update to authenticated using (public.can_access_project(project_id)) with check (public.can_access_project(project_id));
 create policy "Admin delete only" on public.issues for delete to authenticated using (public.is_admin());
 
--- Issue Notes (comments). Select/insert: anyone with PM access (admin or
--- developer). Update: own comment only, or admin -- was "anyone with PM
--- access" before, which let any developer edit any other developer's
--- comment; the UI never actually offered that (edit/delete only showed
--- on hover regardless of authorship, a separate bug fixed alongside
--- this), but the RLS itself was the real, wider-than-intended door.
-create policy "PM access select" on public.issue_notes for select to authenticated using (public.has_pm_access());
-create policy "PM access insert" on public.issue_notes for insert to authenticated with check (public.has_pm_access());
+-- Issue Notes (comments). Select/insert: anyone on the parent project
+-- (joins through issues, since issue_notes has no project_id of its
+-- own). Update: own comment only, or admin.
+create policy "Project member or admin select" on public.issue_notes for select to authenticated using (
+    exists (select 1 from public.issues i where i.id = issue_notes.issue_id and public.can_access_project(i.project_id))
+);
+create policy "Project member or admin insert" on public.issue_notes for insert to authenticated with check (
+    exists (select 1 from public.issues i where i.id = issue_notes.issue_id and public.can_access_project(i.project_id))
+);
 create policy "Update own or admin" on public.issue_notes for update to authenticated using (public.is_admin() or sales_id = public.current_sales_id()) with check (public.is_admin() or sales_id = public.current_sales_id());
 create policy "Admin delete only" on public.issue_notes for delete to authenticated using (public.is_admin());
 
--- Issue status history (append-only audit log powering the sprint
--- burndown chart -- no update/delete policies, same posture as
--- activity_log elsewhere in this schema)
-create policy "PM access select" on public.issue_status_history for select to authenticated using (public.has_pm_access());
-create policy "PM access insert" on public.issue_status_history for insert to authenticated with check (public.has_pm_access());
+-- Issue status history (append-only audit log, no update/delete policies)
+create policy "Project member or admin select" on public.issue_status_history for select to authenticated using (public.can_access_project(project_id));
+create policy "Project member or admin insert" on public.issue_status_history for insert to authenticated with check (public.can_access_project(project_id));
 
 -- Employees (visible/editable by the linked sales user, or any admin; only admins create/delete)
 create policy "Select own or admin" on public.employees for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
@@ -191,13 +198,36 @@ create policy "Admin write only" on public.payslips for insert to authenticated 
 create policy "Admin update only" on public.payslips for update to authenticated using (public.is_admin()) with check (public.is_admin());
 create policy "Admin delete only" on public.payslips for delete to authenticated using (public.is_admin());
 
--- Accounts (fully admin-only, no self-service scoping)
-create policy "Admin only" on public.statement_imports for all to authenticated using (public.is_admin()) with check (public.is_admin());
-create policy "Admin only" on public.transactions for all to authenticated using (public.is_admin()) with check (public.is_admin());
-create policy "Admin only" on public.recurring_expenses for all to authenticated using (public.is_admin()) with check (public.is_admin());
-create policy "Admin only" on public.people for all to authenticated using (public.is_admin()) with check (public.is_admin());
-create policy "Admin only" on public.loans for all to authenticated using (public.is_admin()) with check (public.is_admin());
-create policy "Admin only" on public.budgets for all to authenticated using (public.is_admin()) with check (public.is_admin());
+-- Accounts. Full read/write for admin or the "accounts" role; delete stays admin-only.
+create policy "Admin or accounts select" on public.statement_imports for select to authenticated using (public.is_admin() or public.is_accounts());
+create policy "Admin or accounts insert" on public.statement_imports for insert to authenticated with check (public.is_admin() or public.is_accounts());
+create policy "Admin or accounts update" on public.statement_imports for update to authenticated using (public.is_admin() or public.is_accounts()) with check (public.is_admin() or public.is_accounts());
+create policy "Admin delete only" on public.statement_imports for delete to authenticated using (public.is_admin());
+
+create policy "Admin or accounts select" on public.transactions for select to authenticated using (public.is_admin() or public.is_accounts());
+create policy "Admin or accounts insert" on public.transactions for insert to authenticated with check (public.is_admin() or public.is_accounts());
+create policy "Admin or accounts update" on public.transactions for update to authenticated using (public.is_admin() or public.is_accounts()) with check (public.is_admin() or public.is_accounts());
+create policy "Admin delete only" on public.transactions for delete to authenticated using (public.is_admin());
+
+create policy "Admin or accounts select" on public.recurring_expenses for select to authenticated using (public.is_admin() or public.is_accounts());
+create policy "Admin or accounts insert" on public.recurring_expenses for insert to authenticated with check (public.is_admin() or public.is_accounts());
+create policy "Admin or accounts update" on public.recurring_expenses for update to authenticated using (public.is_admin() or public.is_accounts()) with check (public.is_admin() or public.is_accounts());
+create policy "Admin delete only" on public.recurring_expenses for delete to authenticated using (public.is_admin());
+
+create policy "Admin or accounts select" on public.people for select to authenticated using (public.is_admin() or public.is_accounts());
+create policy "Admin or accounts insert" on public.people for insert to authenticated with check (public.is_admin() or public.is_accounts());
+create policy "Admin or accounts update" on public.people for update to authenticated using (public.is_admin() or public.is_accounts()) with check (public.is_admin() or public.is_accounts());
+create policy "Admin delete only" on public.people for delete to authenticated using (public.is_admin());
+
+create policy "Admin or accounts select" on public.loans for select to authenticated using (public.is_admin() or public.is_accounts());
+create policy "Admin or accounts insert" on public.loans for insert to authenticated with check (public.is_admin() or public.is_accounts());
+create policy "Admin or accounts update" on public.loans for update to authenticated using (public.is_admin() or public.is_accounts()) with check (public.is_admin() or public.is_accounts());
+create policy "Admin delete only" on public.loans for delete to authenticated using (public.is_admin());
+
+create policy "Admin or accounts select" on public.budgets for select to authenticated using (public.is_admin() or public.is_accounts());
+create policy "Admin or accounts insert" on public.budgets for insert to authenticated with check (public.is_admin() or public.is_accounts());
+create policy "Admin or accounts update" on public.budgets for update to authenticated using (public.is_admin() or public.is_accounts()) with check (public.is_admin() or public.is_accounts());
+create policy "Admin delete only" on public.budgets for delete to authenticated using (public.is_admin());
 
 -- Personal notes (self-owned). Delete does NOT require admin, unlike every
 -- other table above — private scratch content, not shared business/HR data.

@@ -36,6 +36,12 @@ create or replace trigger set_project_sales_id_trigger
     before insert on public.projects
     for each row execute function public.set_sales_id_default();
 
+-- Admin-only project membership management -- see
+-- protect_project_member_ids() in 02_functions.sql.
+create or replace trigger protect_project_member_ids_trigger
+    before update on public.projects
+    for each row execute function public.protect_project_member_ids();
+
 create or replace trigger set_sprint_sales_id_trigger
     before insert on public.sprints
     for each row execute function public.set_sales_id_default();

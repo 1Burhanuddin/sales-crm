@@ -306,6 +306,7 @@ export const englishCrmMessages = {
         name: "Name",
         description: "Description",
         sales_id: "Owner",
+        member_ids: "Members",
         nb_issues: "Number of issues",
         created_at: "Created at",
       },
@@ -745,6 +746,7 @@ export const englishCrmMessages = {
         disabled: "Disabled",
         is_developer: "Developer",
         notes_only: "Notes Only",
+        is_accounts: "Accounts",
         password_helper:
           "Share this with them directly — invite emails are unreliable on this project.",
       },

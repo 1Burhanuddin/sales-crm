@@ -164,6 +164,7 @@ const getDataProviderWithCustomMethods = () => {
         disabled,
         is_developer,
         notes_only,
+        is_accounts,
       } = data;
 
       const { data: updatedData, error } =
@@ -180,6 +181,7 @@ const getDataProviderWithCustomMethods = () => {
             disabled,
             is_developer,
             notes_only,
+            is_accounts,
             avatar,
           },
         });

@@ -23,6 +23,7 @@ const getBaseAuthProvider = () =>
         // round-trip through the async authProvider.canAccess check.
         is_developer: sale.is_developer,
         notes_only: sale.notes_only,
+        is_accounts: sale.is_accounts,
       };
     },
   });
@@ -75,7 +76,9 @@ const getSale = async () => {
 
   const { data: dataSale, error: errorSale } = await getSupabaseClient()
     .from("sales")
-    .select("id, first_name, last_name, avatar, administrator, is_developer")
+    .select(
+      "id, first_name, last_name, avatar, administrator, is_developer, notes_only, is_accounts",
+    )
     .match({ user_id: dataSession?.session?.user.id })
     .single();
 

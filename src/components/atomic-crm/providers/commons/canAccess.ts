@@ -27,14 +27,18 @@ const HR_SELF_SERVICE_RESOURCES = [
 // record — payroll is computed/managed by HR, not self-edited.
 const HR_ADMIN_MANAGED_RESOURCES = ["salary_structures", "payslips"];
 // Records only an admin can create, regardless of role.
-const ADMIN_ONLY_CREATE_RESOURCES = ["companies", "contacts", "employees"];
+const ADMIN_ONLY_CREATE_RESOURCES = [
+  "companies",
+  "contacts",
+  "employees",
+  "projects",
+];
 // Non-CRUD actions only an admin can take, regardless of role. canAccess
 // can't see params.record, so these gate the button/UI only — the real
 // enforcement is the leave_requests RLS "with check" clauses.
 const ADMIN_ONLY_ACTIONS = ["approve", "reject"];
-// Accounts (personal finance tracking) is fully admin-only, not
-// self-service — same treatment as "sales"/"configuration" below, not the
-// HR_SELF_SERVICE_RESOURCES pattern.
+// Accounts (personal finance tracking): admin or the dedicated
+// "accounts" role only, see the accounts role branch below.
 const ACCOUNTS_RESOURCES = [
   "transactions",
   "statement_imports",
@@ -67,19 +71,30 @@ const restrictHrAdminActions = (params: CanAccessParams<any>) => {
   return !ADMIN_ONLY_ACTIONS.includes(params.action);
 };
 
+// Only admins can delete records, except personal notes (RLS-enforced).
+const isNonAdminDelete = (params: CanAccessParams<any>) =>
+  (params.action === "delete" || params.action === "delete_many") &&
+  !PERSONAL_NOTE_RESOURCES.includes(params.resource);
+
 // Shared by the authProvider (async canAccess check) and any UI that needs
 // to filter itself synchronously off the current identity (e.g. the
 // sidebar hiding empty nav groups) — one place computing "admin" /
-// "developer" / "user" so the two can't drift apart.
+// "developer" / "accounts" / "user" so the two can't drift apart.
 export const getRole = (
   sale:
-    | { administrator?: boolean; is_developer?: boolean; notes_only?: boolean }
+    | {
+        administrator?: boolean;
+        is_developer?: boolean;
+        notes_only?: boolean;
+        is_accounts?: boolean;
+      }
     | null
     | undefined,
 ): string => {
   if (!sale) return "user";
   if (sale.administrator) return "admin";
   if (sale.is_developer) return "developer";
+  if (sale.is_accounts) return "accounts";
   if (sale.notes_only) return "notes-only";
   return "user";
 };
@@ -102,9 +117,7 @@ export const canAccess = <
   }
 
   if (role === "developer") {
-    // Developers get the Projects/Issues module plus their own HR
-    // self-service records. Zero access to companies/contacts/deals/tasks/
-    // sales/configuration.
+    // RLS further narrows PM_RESOURCES to projects they're a member of.
     if (
       ![
         ...PM_RESOURCES,
@@ -120,15 +133,30 @@ export const canAccess = <
     ) {
       return false;
     }
+    if (isNonAdminDelete(params)) {
+      return false;
+    }
+    return restrictHrAdminActions(params);
+  }
+
+  // Dedicated bookkeeping role: Accounts module plus personal notes.
+  if (role === "accounts") {
+    if (
+      ![...ACCOUNTS_RESOURCES, ...PERSONAL_NOTE_RESOURCES].includes(
+        params.resource,
+      )
+    ) {
+      return false;
+    }
+    if (isNonAdminDelete(params)) {
+      return false;
+    }
     return restrictHrAdminActions(params);
   }
 
   // Only admins can delete records — except personal notes, which are
   // private scratch content a user can delete themselves (RLS-enforced).
-  if (
-    (params.action === "delete" || params.action === "delete_many") &&
-    !PERSONAL_NOTE_RESOURCES.includes(params.resource)
-  ) {
+  if (isNonAdminDelete(params)) {
     return false;
   }
 

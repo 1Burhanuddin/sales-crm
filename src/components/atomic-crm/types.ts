@@ -26,6 +26,7 @@ export type SalesFormData = {
   disabled: boolean;
   is_developer: boolean;
   notes_only: boolean;
+  is_accounts: boolean;
 };
 
 export type Sale = {
@@ -38,6 +39,9 @@ export type Sale = {
   /** Fully restricted role: can only access Notes, nothing else. See
    * canAccess.ts's "notes-only" role branch. */
   notes_only?: boolean;
+  /** Dedicated role for someone who should only handle bookkeeping. See
+   * canAccess.ts's "accounts" role branch. */
+  is_accounts?: boolean;
   user_id: string;
 
   /**
@@ -148,6 +152,8 @@ export type Project = {
   name: string;
   description?: string;
   sales_id?: Identifier;
+  /** Admin-managed; who besides an admin can see/edit this project. */
+  member_ids?: Identifier[];
   created_at: string;
   updated_at: string;
   nb_issues?: number;

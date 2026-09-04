@@ -164,6 +164,7 @@ export const useImportFromJson = (): [
           disabled: false,
           is_developer: false,
           notes_only: false,
+          is_accounts: false,
         });
 
         idsMaps.sales[dataToImport.id] = data.id;
