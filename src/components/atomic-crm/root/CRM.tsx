@@ -474,6 +474,9 @@ const DesktopAdmin = (
           lead_activities elsewhere in this file. */}
       <Resource name="people" />
       <Resource name="loans" />
+      {/* Also bare -- set/edited inline from MonthDetail's category
+          breakdown (AccountsDashboard.tsx), no dedicated route. */}
+      <Resource name="budgets" />
       <Resource
         name="personal_notes"
         {...lazyResource(() => import("../personal-notes"), ["list"])}
