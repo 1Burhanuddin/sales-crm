@@ -99,7 +99,8 @@ create table public.sales (
     avatar jsonb,
     disabled boolean not null default false,
     is_developer boolean not null default false,
-    notes_only boolean not null default false
+    notes_only boolean not null default false,
+    is_accounts boolean not null default false
 );
 
 create unique index uq__sales__user_id on public.sales using btree (user_id);
@@ -136,6 +137,8 @@ create table public.projects (
     name text not null,
     description text,
     sales_id bigint,
+    -- Admin-managed project team, besides admins who bypass this entirely.
+    member_ids bigint[] not null default '{}',
     created_at timestamp with time zone not null default now(),
     updated_at timestamp with time zone not null default now()
 );

@@ -311,6 +311,7 @@ export const frenchCrmMessages = {
         name: "Nom",
         description: "Description",
         sales_id: "Propriétaire",
+        member_ids: "Membres",
         nb_issues: "Nombre de tickets",
         created_at: "Créé le",
       },
@@ -751,6 +752,7 @@ export const frenchCrmMessages = {
         disabled: "Désactivé",
         is_developer: "Développeur",
         notes_only: "Notes uniquement",
+        is_accounts: "Comptabilité",
         password_helper:
           "Partagez-le directement avec eux — les e-mails d'invitation ne sont pas fiables sur ce projet.",
       },

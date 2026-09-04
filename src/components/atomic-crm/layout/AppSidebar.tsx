@@ -69,12 +69,17 @@ export const AppSidebar = () => {
   const translate = useTranslate();
   const { sidebarVariant, sidebarCollapsible } = usePreferences();
   // UserIdentity is declared with only id/fullName/avatar (plus a `[key:
-  // string]: any` index signature) — administrator/is_developer/notes_only
-  // are our own authProvider's extra fields, so TS's weak-type check needs
-  // a hint here even though they're safely present at runtime.
+  // string]: any` index signature) — administrator/is_developer/notes_only/
+  // is_accounts are our own authProvider's extra fields, so TS's weak-type
+  // check needs a hint here even though they're safely present at runtime.
   const role = getRole(
     identity as
-      | { administrator?: boolean; is_developer?: boolean; notes_only?: boolean }
+      | {
+          administrator?: boolean;
+          is_developer?: boolean;
+          notes_only?: boolean;
+          is_accounts?: boolean;
+        }
       | undefined,
   );
 
@@ -240,18 +245,23 @@ export const AppSidebar = () => {
     },
   ];
 
-  // The "notes-only" role gets nothing but the Workspace group — Dashboard
-  // and "My HR" have no `resource` field (every other role always sees
-  // them), so per-item canAccess filtering below can't hide those two on
-  // its own; drop every other group outright instead.
+  // Dashboard and "My HR" have no `resource` field (every other role
+  // always sees them), so per-item canAccess filtering can't hide those
+  // on its own -- roles with no HR/CRM access drop whole groups instead.
+  const workspaceLabel = translate("crm.navigation.groups.workspace", {
+    _: "Workspace",
+  });
+  const accountsLabel = translate("crm.navigation.groups.accounts", {
+    _: "Accounts",
+  });
   const visibleGroups =
     role === "notes-only"
-      ? groups.filter(
-          (g) =>
-            g.label ===
-            translate("crm.navigation.groups.workspace", { _: "Workspace" }),
-        )
-      : groups;
+      ? groups.filter((g) => g.label === workspaceLabel)
+      : role === "accounts"
+        ? groups.filter(
+            (g) => g.label === accountsLabel || g.label === workspaceLabel,
+          )
+        : groups;
 
   return (
     <Sidebar variant={sidebarVariant} collapsible={sidebarCollapsible}>

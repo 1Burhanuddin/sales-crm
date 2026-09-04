@@ -319,6 +319,20 @@ begin
 end;
 $$;
 
+-- Dedicated bookkeeping-only role. Same shape as is_developer()/is_notes_only().
+CREATE OR REPLACE FUNCTION "public"."is_accounts"() RETURNS boolean
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+begin
+  return exists (
+    select 1 from public.sales where user_id = auth.uid() and is_accounts = true
+  );
+end;
+$$;
+
+-- No longer used by any RLS policy (superseded by can_access_project()),
+-- left in place as a harmless helper.
 CREATE OR REPLACE FUNCTION "public"."has_pm_access"() RETURNS boolean
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -330,6 +344,19 @@ begin
       and (administrator = true or is_developer = true)
   );
 end;
+$$;
+
+-- Shared membership check for every PM-table RLS policy, same reason
+-- can_access_lead() exists for leads.
+create or replace function public.can_access_project(p_project_id bigint) returns boolean
+    language sql stable security definer
+    set search_path = ''
+    as $$
+  select exists (
+    select 1 from public.projects p
+    where p.id = p_project_id
+      and (public.is_admin() or public.current_sales_id() = any(p.member_ids))
+  );
 $$;
 
 CREATE OR REPLACE FUNCTION "public"."generate_employee_code"() RETURNS "trigger"
@@ -585,8 +612,8 @@ $$;
 -- Logs every issue status transition into issue_status_history, powering
 -- the sprint burndown chart. Not SECURITY DEFINER, same convention as
 -- snapshot_personal_note_version() above -- runs as the acting user,
--- relying on issue_status_history's own insert policy (has_pm_access,
--- same as issues itself) rather than bypassing RLS.
+-- relying on issue_status_history's own insert policy (project member or
+-- admin, same as issues itself) rather than bypassing RLS.
 create or replace function public.log_issue_status_change() returns trigger
     language plpgsql
     set search_path = ''
@@ -598,6 +625,20 @@ begin
   elsif tg_op = 'UPDATE' and old.status is distinct from new.status then
     insert into public.issue_status_history (issue_id, project_id, from_status, to_status)
     values (new.id, new.project_id, old.status, new.status);
+  end if;
+  return new;
+end;
+$$;
+
+-- Only admins can change member_ids, even though members can update the
+-- rest of a project's fields.
+create or replace function public.protect_project_member_ids() returns trigger
+    language plpgsql security definer
+    set search_path = ''
+    as $$
+begin
+  if not public.is_admin() then
+    new.member_ids := old.member_ids;
   end if;
   return new;
 end;
