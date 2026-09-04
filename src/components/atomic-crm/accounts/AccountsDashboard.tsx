@@ -20,14 +20,8 @@ import {
   Repeat,
   Wallet,
 } from "lucide-react";
-import {
-  useDataProvider,
-  useGetList,
-  useNotify,
-  useRefresh,
-  useTranslate,
-} from "ra-core";
-import { useEffect, useMemo, useState } from "react";
+import { useCreate, useGetList, useNotify, useTranslate, useUpdate } from "ra-core";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -815,14 +809,6 @@ const MonthDetail = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [monthTxns]);
 
-  const categoryBreakdown = rankByCategory(
-    monthTxns,
-    "expense",
-    MAX_CATEGORY_ROWS,
-    categoryLabel,
-    otherLabel,
-  );
-
   // Budgets are per (category, scope, month) -- comparing "spent" against
   // one when scope is "all" would mix a Personal budget and a Business
   // budget (if both exist) into one misleading number, so this only
@@ -833,9 +819,9 @@ const MonthDetail = ({
   // the same reasoning as StatementUploadDialog's recurring-expenses fetch.
   // Narrowed once here rather than re-checking "!== 'all'" at every call
   // site below -- every CategoryBudgetRow render is already inside a
-  // scopeFilter !== "all" branch by construction (the ternary in the main
-  // rows map, or budgetOnlyRows being empty otherwise), so this is a type
-  // narrowing, not a new runtime condition.
+  // scopeFilter !== "all" branch by construction (budgetRows is only ever
+  // non-empty in that case), so this is a type narrowing, not a new
+  // runtime condition.
   const narrowedScope: TransactionScope | undefined =
     scopeFilter === "all" ? undefined : scopeFilter;
 
@@ -847,14 +833,16 @@ const MonthDetail = ({
     },
     { enabled: narrowedScope != null },
   );
-  const budgetByCategory = new Map((budgets ?? []).map((b) => [b.category, b]));
+  const budgetByCategory = useMemo(
+    () => new Map((budgets ?? []).map((b) => [b.category, b])),
+    [budgets],
+  );
 
   // Actual per-category spend this month, computed independently of
-  // categoryBreakdown's top-N grouping -- rankByCategory folds anything
-  // past MAX_CATEGORY_ROWS into an "__other" bucket, so a category
-  // missing from categoryBreakdown.rows isn't necessarily zero-spend, it
-  // may just have been collapsed into "other". budgetOnlyRows needs the
-  // real figure below, not an assumed 0.
+  // rankByCategory's top-N grouping (which folds anything past
+  // MAX_CATEGORY_ROWS into an "__other" bucket) -- every budgeted
+  // category needs its real total below, not whatever rank it happens to
+  // land at.
   const categorySpend = useMemo(() => {
     const totals = new Map<string, number>();
     for (const t of monthTxns) {
@@ -865,23 +853,44 @@ const MonthDetail = ({
     return totals;
   }, [monthTxns]);
 
-  // categoryBreakdown only has rows for categories with actual spend this
-  // month -- a category budgeted ahead of time with nothing posted to it
-  // yet would otherwise be invisible here, defeating the "see what's
-  // already spoken for before you spend" point of budgeting at all. Only
-  // relevant when a specific scope is selected, same as the budgets fetch
-  // above.
-  const budgetOnlyRows =
+  // Categories with a budget are always broken out as their own row, with
+  // their real total regardless of rank -- NOT layered on top of
+  // rankByCategory's top-N/"other" output. Doing it that way (as an
+  // earlier draft did) had two bugs: a budgeted category ranked past the
+  // cutoff would still be silently folded into "__other" AND get its own
+  // row, double-counting its spend across both; and every category
+  // (budgeted or not) in the top N would lose its bar/rank-color/%-of-
+  // total once any scope was picked, even before any budget existed.
+  // Excluding budgeted categories' own transactions before ranking the
+  // rest fixes both: rankByCategory below only ever sees non-budgeted
+  // spend, so its output is exactly the old unscoped behavior restricted
+  // to categories nobody has budgeted yet.
+  const budgetedCategories = useMemo(
+    () => new Set(budgetByCategory.keys()),
+    [budgetByCategory],
+  );
+  const unbudgetedTxns = useMemo(
+    () => monthTxns.filter((t) => !(t.category && budgetedCategories.has(t.category))),
+    [monthTxns, budgetedCategories],
+  );
+  const categoryBreakdown = rankByCategory(
+    unbudgetedTxns,
+    "expense",
+    MAX_CATEGORY_ROWS,
+    categoryLabel,
+    otherLabel,
+  );
+  const budgetRows =
     scopeFilter === "all"
       ? []
       : [...budgetByCategory.entries()]
-          .filter(([category]) => !categoryBreakdown.rows.some((r) => r.key === category))
           .map(([category, budget]) => ({
             key: category,
             label: categoryLabel(category),
             value: categorySpend.get(category) ?? 0,
             budget,
-          }));
+          }))
+          .sort((a, b) => b.value - a.value);
 
   const header = (
     <div className="flex items-center justify-between">
@@ -904,7 +913,11 @@ const MonthDetail = ({
     </div>
   );
 
-  if (monthTxns.length === 0) {
+  // budgetRows can be non-empty even with zero transactions this month --
+  // a budget set ahead of a month with nothing posted yet is exactly the
+  // "see what's already spoken for before you spend" case this feature
+  // exists for, so the empty state must not swallow it.
+  if (monthTxns.length === 0 && budgetRows.length === 0) {
     return (
       <div className="mt-2 flex flex-col gap-4 pb-8">
         {header}
@@ -970,7 +983,7 @@ const MonthDetail = ({
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-2.5">
-          {categoryBreakdown.rows.length === 0 && budgetOnlyRows.length === 0 ? (
+          {categoryBreakdown.rows.length === 0 && budgetRows.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               {translate("crm.accounts.dashboard.no_expenses_this_month", {
                 _: "No expenses this month.",
@@ -978,33 +991,21 @@ const MonthDetail = ({
             </p>
           ) : (
             <>
-              {categoryBreakdown.rows.map((row, i) =>
-                scopeFilter !== "all" &&
-                row.key !== "__other" &&
-                row.key !== "__uncategorized" ? (
-                  <CategoryBudgetRow
-                    key={row.key}
-                    category={row.key}
-                    label={row.label}
-                    spent={row.value}
-                    budget={budgetByCategory.get(row.key)}
-                    month={month}
-                    scope={narrowedScope!}
-                    currency={currency}
-                  />
-                ) : (
-                  <CategoryRow
-                    key={row.key}
-                    label={row.label}
-                    value={row.value}
-                    max={categoryBreakdown.max}
-                    total={Math.abs(expense)}
-                    color={SEQUENTIAL_STEPS[Math.min(i, SEQUENTIAL_STEPS.length - 1)]}
-                    currency={currency}
-                  />
-                ),
-              )}
-              {budgetOnlyRows.map((row) => (
+              {/* Never includes a budgeted category -- those are excluded
+                  before ranking (see unbudgetedTxns above), so every row
+                  here always renders as a plain CategoryRow. */}
+              {categoryBreakdown.rows.map((row, i) => (
+                <CategoryRow
+                  key={row.key}
+                  label={row.label}
+                  value={row.value}
+                  max={categoryBreakdown.max}
+                  total={Math.abs(expense)}
+                  color={SEQUENTIAL_STEPS[Math.min(i, SEQUENTIAL_STEPS.length - 1)]}
+                  currency={currency}
+                />
+              ))}
+              {budgetRows.map((row) => (
                 <CategoryBudgetRow
                   key={row.key}
                   category={row.key}
@@ -1337,12 +1338,30 @@ const CategoryBudgetRow = ({
   currency: string;
 }) => {
   const translate = useTranslate();
-  const dataProvider = useDataProvider();
   const notify = useNotify();
-  const refresh = useRefresh();
+  // Scoped to the "budgets" resource, unlike a page-wide refresh() -- a
+  // budget save shouldn't refetch the dashboard's 2000-row transactions
+  // list as collateral damage. Matches the useUpdate/useCreate convention
+  // already used for inline saves elsewhere (e.g. tags/TagEditModal.tsx)
+  // rather than a raw dataProvider call.
+  const [update] = useUpdate<Budget>();
+  const [create] = useCreate<Budget>();
   const [editing, setEditing] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [saving, setSaving] = useState(false);
+  // A synchronous re-entrancy guard, not just the `saving` state: setting
+  // `disabled` on a still-focused <input> makes the browser fire a native
+  // blur event (onBlur={handleSave} below) before React has re-rendered
+  // with `saving` visible to that new call -- a ref updates immediately,
+  // a state update doesn't, so only the ref can reliably block the second
+  // call from also saving.
+  const savingRef = useRef(false);
+  // Same class of blur-race, different trigger: unmounting the focused
+  // <input> (Escape swaps it for the <button>) can itself fire a native
+  // blur, which would silently re-save the value Escape was meant to
+  // discard. Set right before the cancelling setEditing(false) so the
+  // blur it may cause is swallowed exactly once.
+  const suppressBlurRef = useRef(false);
 
   const startEditing = () => {
     setInputValue(budget ? String(budget.amount) : "");
@@ -1350,25 +1369,26 @@ const CategoryBudgetRow = ({
   };
 
   const handleSave = () => {
+    if (savingRef.current) return;
     const amount = Number(inputValue);
     if (!Number.isFinite(amount) || amount <= 0) {
-      setEditing(false);
+      // Left editing open (rather than silently reverting) so the user
+      // can see and fix what they typed instead of it just vanishing.
+      notify("crm.accounts.dashboard.invalid_budget_amount", {
+        type: "warning",
+        _: "Enter an amount greater than 0.",
+      });
       return;
     }
+    savingRef.current = true;
     setSaving(true);
     const save = budget
-      ? dataProvider.update("budgets", {
-          id: budget.id,
-          data: { amount },
-          previousData: budget,
-        })
-      : dataProvider.create("budgets", {
-          data: { category, scope, month, amount },
-        });
+      ? update("budgets", { id: budget.id, data: { amount }, previousData: budget })
+      : create("budgets", { data: { category, scope, month, amount } });
     save
-      .then(() => refresh())
       .catch(() => notify("ra.notification.http_error", { type: "error" }))
       .finally(() => {
+        savingRef.current = false;
         setSaving(false);
         setEditing(false);
       });
@@ -1403,10 +1423,19 @@ const CategoryBudgetRow = ({
             value={inputValue}
             disabled={saving}
             onChange={(e) => setInputValue(e.target.value)}
-            onBlur={handleSave}
+            onBlur={() => {
+              if (suppressBlurRef.current) {
+                suppressBlurRef.current = false;
+                return;
+              }
+              handleSave();
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter") handleSave();
-              if (e.key === "Escape") setEditing(false);
+              if (e.key === "Escape") {
+                suppressBlurRef.current = true;
+                setEditing(false);
+              }
             }}
             className="w-24 text-xs text-right bg-transparent border-b border-border outline-none"
           />

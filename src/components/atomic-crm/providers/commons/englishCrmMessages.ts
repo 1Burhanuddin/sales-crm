@@ -968,6 +968,7 @@ export const englishCrmMessages = {
         month_transactions: "%{count} transaction |||| %{count} transactions",
         no_expenses_this_month: "No expenses this month.",
         set_budget: "Set budget",
+        invalid_budget_amount: "Enter an amount greater than 0.",
         no_data_for_scope: "No transactions in this scope yet.",
         scope_all: "All",
         recurring_this_month: "This Month's Recurring Expenses",

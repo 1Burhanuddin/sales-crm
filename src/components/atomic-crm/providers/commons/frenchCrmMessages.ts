@@ -977,6 +977,7 @@ export const frenchCrmMessages = {
         month_transactions: "%{count} transaction |||| %{count} transactions",
         no_expenses_this_month: "Aucune dépense ce mois-ci.",
         set_budget: "Définir un budget",
+        invalid_budget_amount: "Saisissez un montant supérieur à 0.",
         no_data_for_scope: "Aucune transaction dans cette catégorie personnel/professionnel pour le moment.",
         scope_all: "Tout",
         recurring_this_month: "Dépenses récurrentes de ce mois-ci",
