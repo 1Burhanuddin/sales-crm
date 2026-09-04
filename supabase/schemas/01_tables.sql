@@ -330,7 +330,11 @@ create table public.transactions (
     sales_id bigint,
     created_at timestamp with time zone not null default now(),
     updated_at timestamp with time zone not null default now(),
-    constraint transactions_source_check check (source in ('manual', 'statement'))
+    -- Personal vs. business, tagged per transaction rather than split into
+    -- a separate app/DB -- see docs/accounts-roadmap.md.
+    scope text not null default 'business',
+    constraint transactions_source_check check (source in ('manual', 'statement')),
+    constraint transactions_scope_check check (scope in ('business', 'personal'))
 );
 
 -- Personal notes: Google-Keep-style, self-owned. Unlike every other table

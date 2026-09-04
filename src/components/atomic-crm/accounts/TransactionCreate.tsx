@@ -11,7 +11,7 @@ export const TransactionCreate = () => {
     <CreateBase redirect="list">
       <div className="mt-2 flex lg:mr-72">
         <div className="flex-1">
-          <Form defaultValues={{ source: "manual" }}>
+          <Form defaultValues={{ source: "manual", scope: "business" }}>
             <Card>
               <CardContent>
                 <TransactionInputs />

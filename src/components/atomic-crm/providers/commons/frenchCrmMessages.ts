@@ -555,6 +555,7 @@ export const frenchCrmMessages = {
         source: "Source",
         statement_import_id: "Relevé",
         notes: "Notes",
+        scope: "Personnel/Professionnel",
       },
       action: {
         new: "Ajouter une transaction",
@@ -568,6 +569,8 @@ export const frenchCrmMessages = {
         button: "Importer un relevé",
         title: "Importer un relevé bancaire",
         help: "Importez un relevé bancaire PDF. Rien n'est enregistré tant que vous n'avez pas vérifié et confirmé ci-dessous.",
+        default_scope: "Ce relevé concerne :",
+        mark_all_as: "Tout marquer comme :",
         parsing: "Lecture du relevé…",
         no_transactions: "Aucune transaction n'a pu être trouvée dans ce PDF. Il utilise peut-être une mise en page différente de celle attendue.",
         parse_error: "Impossible de lire ce PDF. Il ne correspond peut-être pas à la mise en page attendue.",
@@ -926,6 +929,8 @@ export const frenchCrmMessages = {
         weekly_trend: "Revenus et dépenses par semaine",
         month_transactions: "%{count} transaction |||| %{count} transactions",
         no_expenses_this_month: "Aucune dépense ce mois-ci.",
+        no_data_for_scope: "Aucune transaction dans cette catégorie personnel/professionnel pour le moment.",
+        scope_all: "Tout",
       },
     },
     image_editor: {

@@ -304,6 +304,7 @@ export type Transaction = {
   sales_id?: Identifier;
   created_at: string;
   updated_at: string;
+  scope: "business" | "personal";
 } & Pick<RaRecord, "id">;
 
 export type ChecklistItem = {

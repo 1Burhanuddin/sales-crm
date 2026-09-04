@@ -5,6 +5,7 @@ import { SelectInput } from "@/components/admin/select-input";
 import { TextInput } from "@/components/admin/text-input";
 
 import { useConfigurationContext } from "../root/ConfigurationContext";
+import { SCOPE_CHOICES } from "./scope";
 
 export const TransactionInputs = () => {
   const { transactionCategories } = useConfigurationContext();
@@ -24,13 +25,23 @@ export const TransactionInputs = () => {
         validate={required()}
         helperText={false}
       />
-      <SelectInput
-        source="category"
-        choices={transactionCategories}
-        optionText="label"
-        optionValue="value"
-        helperText={false}
-      />
+      <div className="flex gap-4">
+        <SelectInput
+          source="category"
+          choices={transactionCategories}
+          optionText="label"
+          optionValue="value"
+          helperText={false}
+        />
+        <SelectInput
+          source="scope"
+          choices={SCOPE_CHOICES}
+          optionText="label"
+          optionValue="value"
+          validate={required()}
+          helperText={false}
+        />
+      </div>
       <TextInput source="notes" multiline rows={2} helperText={false} />
     </div>
   );

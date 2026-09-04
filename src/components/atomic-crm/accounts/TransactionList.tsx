@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 
 import { TopToolbar } from "../layout/TopToolbar";
 import { useConfigurationContext } from "../root/ConfigurationContext";
+import { SCOPE_CHOICES } from "./scope";
 import { StatementUploadDialog } from "./StatementUploadDialog";
 
 export const TransactionList = () => {
@@ -29,6 +30,14 @@ export const TransactionList = () => {
       optionValue="value"
       label={false}
       emptyText="Category"
+    />,
+    <SelectInput
+      source="scope"
+      choices={SCOPE_CHOICES}
+      optionText="label"
+      optionValue="value"
+      label={false}
+      emptyText="Personal/Business"
     />,
     <ReferenceInput source="statement_import_id" reference="statement_imports">
       <AutocompleteInput label={false} placeholder="Statement" />
@@ -61,6 +70,14 @@ export const TransactionList = () => {
         </DataTable.Col>
         <DataTable.Col label="resources.transactions.fields.amount">
           <NumberField source="amount" options={{ style: "currency", currency }} />
+        </DataTable.Col>
+        <DataTable.Col label="resources.transactions.fields.scope">
+          <SelectField
+            source="scope"
+            choices={SCOPE_CHOICES}
+            optionValue="value"
+            optionText="label"
+          />
         </DataTable.Col>
         <DataTable.Col source="source" label="resources.transactions.fields.source" />
       </DataTable>
