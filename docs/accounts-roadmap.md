@@ -107,9 +107,9 @@ create table public.budgets (
     scope text not null default 'business',
     month date not null, -- always the 1st of the month
     amount numeric(12,2) not null,
-    sales_id bigint,
+    sales_id bigint, -- audit trail (who set it), NOT a scoping key -- see note below
     created_at timestamp with time zone not null default now(),
-    unique (category, scope, month, sales_id)
+    unique (category, scope, month)
 );
 ```
 Dashboard adds an actual-vs-budget comparison per category for the
@@ -117,6 +117,18 @@ selected month. Admin-only, same RLS shape as `transactions`/
 `statement_imports` (see `05_policies.sql`'s existing "Admin only" policy on
 `transactions` — Accounts is fully admin-only in this app, not
 self-service, per `ACCOUNTS_RESOURCES` in `canAccess.ts`).
+
+**`sales_id` is audit-trail-only here, not a scoping column, and the unique
+constraint deliberately excludes it** — caught in review before this was
+built: `transactions`' own RLS (`05_policies.sql:192`, `is_admin()` for all
+rows) already means every admin shares one ledger, not a per-admin one. If
+`sales_id` were in the unique constraint, two different admins could each
+set a different budget for the same category+month and both would be
+"valid" — which isn't "each admin has their own budget," it's a bug, since
+there's only one shared ledger. Keep this in mind for `loans`/
+`recurring_expenses` too if either ever needs a uniqueness constraint:
+`sales_id` stays an audit column on those as well, never part of a scoping
+key.
 
 ### 5. Khatabook-style lending ledger
 ```sql
