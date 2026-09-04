@@ -1,9 +1,17 @@
 import { ResponsiveBar } from "@nivo/bar";
 import { ResponsiveLine } from "@nivo/line";
-import { format, parseISO, startOfMonth } from "date-fns";
+import {
+  endOfMonth,
+  format,
+  isWithinInterval,
+  parseISO,
+  startOfMonth,
+  startOfWeek,
+} from "date-fns";
 import {
   AlertCircle,
   ArrowDownRight,
+  ArrowLeft,
   ArrowUpRight,
   Hash,
   LineChart,
@@ -13,7 +21,7 @@ import {
 } from "lucide-react";
 import { useGetList, useTranslate } from "ra-core";
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -60,6 +68,38 @@ const SEQUENTIAL_STEPS = [
 const MAX_CATEGORY_ROWS = 8;
 const MAX_INCOME_ROWS = 5;
 const RECENT_TRANSACTIONS_COUNT = 8;
+
+// Shared by both the monthly (overview) and weekly (MonthDetail) income-vs-
+// expense bar charts -- same axes/grid/zero-line styling either way, kept
+// in one place so a future tweak (tick color, marker stroke) can't drift
+// between the two.
+const MONEY_BAR_AXIS_PROPS = {
+  axisLeft: {
+    tickSize: 0,
+    tickPadding: 8,
+    format: (v: any) => `${Math.round(v / 1000)}k`,
+    style: {
+      ticks: { text: { fill: "var(--color-muted-foreground)" } },
+    },
+  },
+  axisBottom: {
+    tickSize: 0,
+    tickPadding: 8,
+    style: {
+      ticks: { text: { fill: "var(--color-muted-foreground)" } },
+    },
+  },
+  theme: {
+    grid: { line: { stroke: "var(--color-border)" } },
+  },
+  markers: [
+    {
+      axis: "y",
+      value: 0,
+      lineStyle: { stroke: "var(--color-border)", strokeWidth: 1 },
+    } as any,
+  ],
+};
 
 function useIsDarkMode() {
   const [isDark, setIsDark] = useState(
@@ -132,6 +172,13 @@ export const AccountsDashboard = () => {
     sort: { field: "date", order: "ASC" },
   });
 
+  // Backed by the URL (?month=yyyy-MM-dd, the 1st of the month, matching
+  // stats.months' `month` key), not local state -- so the browser Back
+  // button leaves the drill-down instead of leaving /accounts entirely,
+  // and a specific month is bookmarkable/shareable.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedMonth = searchParams.get("month");
+
   const categoryLabel = useMemo(() => {
     const map = new Map(transactionCategories.map((c) => [c.value, c.label]));
     return (value: string | null | undefined) =>
@@ -200,7 +247,6 @@ export const AccountsDashboard = () => {
     return {
       totalIncome,
       totalExpense,
-      net: totalIncome + totalExpense,
       transactionCount: txns.length,
       avgTransaction:
         txns.length > 0
@@ -238,6 +284,20 @@ export const AccountsDashboard = () => {
     );
   }
 
+  if (selectedMonth) {
+    return (
+      <MonthDetail
+        allTransactions={data}
+        month={selectedMonth}
+        onBack={() => setSearchParams({})}
+        categoryLabel={categoryLabel}
+        otherLabel={otherLabel}
+        currency={currency}
+        diverging={diverging}
+      />
+    );
+  }
+
   return (
     <div className="mt-2 flex flex-col gap-4 pb-8">
       <div className="flex items-center justify-between">
@@ -257,29 +317,10 @@ export const AccountsDashboard = () => {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        <StatTile
-          icon={<ArrowUpRight className="w-4 h-4" style={{ color: STATUS.good }} />}
-          label={translate("crm.accounts.dashboard.total_income", {
-            _: "Total Income",
-          })}
-          value={currencyFormat(currency, stats.totalIncome)}
-        />
-        <StatTile
-          icon={
-            <ArrowDownRight className="w-4 h-4" style={{ color: STATUS.critical }} />
-          }
-          label={translate("crm.accounts.dashboard.total_expense", {
-            _: "Total Expense",
-          })}
-          value={currencyFormat(currency, Math.abs(stats.totalExpense))}
-        />
-        <StatTile
-          icon={<PiggyBank className="w-4 h-4 text-muted-foreground" />}
-          label={translate("crm.accounts.dashboard.net_savings", {
-            _: "Net Savings",
-          })}
-          value={currencyFormat(currency, stats.net)}
-          valueStyle={{ color: stats.net >= 0 ? STATUS.good : STATUS.critical }}
+        <MoneyStatTiles
+          income={stats.totalIncome}
+          expense={stats.totalExpense}
+          currency={currency}
         />
         <StatTile
           icon={<Hash className="w-4 h-4 text-muted-foreground" />}
@@ -318,7 +359,7 @@ export const AccountsDashboard = () => {
             })}
           </CardTitle>
         </CardHeader>
-        <CardContent className="h-[320px]">
+        <CardContent className="h-[320px] [&_rect]:cursor-pointer">
           <ResponsiveBar
             data={stats.months}
             indexBy="label"
@@ -332,6 +373,7 @@ export const AccountsDashboard = () => {
             enableGridY
             enableLabel={false}
             valueFormat={(v) => currencyFormat(currency, v as number)}
+            onClick={(bar) => setSearchParams({ month: bar.data.month as string })}
             tooltip={({ id, value, indexValue }) => (
               <div className="p-2 bg-secondary rounded shadow text-xs text-secondary-foreground">
                 <strong>{indexValue}</strong> —{" "}
@@ -343,33 +385,14 @@ export const AccountsDashboard = () => {
                       _: "Total Expense",
                     })}
                 : {currencyFormat(currency, Math.abs(value as number))}
+                <div className="text-secondary-foreground/70 mt-0.5">
+                  {translate("crm.accounts.dashboard.click_for_detail", {
+                    _: "Click to see week-by-week detail",
+                  })}
+                </div>
               </div>
             )}
-            axisLeft={{
-              tickSize: 0,
-              tickPadding: 8,
-              format: (v) => `${Math.round((v as number) / 1000)}k`,
-              style: {
-                ticks: { text: { fill: "var(--color-muted-foreground)" } },
-              },
-            }}
-            axisBottom={{
-              tickSize: 0,
-              tickPadding: 8,
-              style: {
-                ticks: { text: { fill: "var(--color-muted-foreground)" } },
-              },
-            }}
-            theme={{
-              grid: { line: { stroke: "var(--color-border)" } },
-            }}
-            markers={[
-              {
-                axis: "y",
-                value: 0,
-                lineStyle: { stroke: "var(--color-border)", strokeWidth: 1 },
-              } as any,
-            ]}
+            {...MONEY_BAR_AXIS_PROPS}
           />
         </CardContent>
       </Card>
@@ -546,6 +569,292 @@ export const AccountsDashboard = () => {
 };
 
 AccountsDashboard.path = "/accounts";
+
+/** Week-by-week drill-down for one month, reached by clicking a bar in the
+ * monthly chart above. Filters `allTransactions` (already fetched by the
+ * parent, no extra query) down to the selected month instead of issuing a
+ * new getList -- the whole dataset already lives in memory. */
+const MonthDetail = ({
+  allTransactions,
+  month,
+  onBack,
+  categoryLabel,
+  otherLabel,
+  currency,
+  diverging,
+}: {
+  allTransactions: Transaction[];
+  month: string;
+  onBack: () => void;
+  categoryLabel: (v: string | null | undefined) => string;
+  otherLabel: string;
+  currency: string;
+  diverging: { income: string; expense: string };
+}) => {
+  const translate = useTranslate();
+  const monthStart = startOfMonth(parseISO(month));
+  const monthEnd = endOfMonth(monthStart);
+
+  const monthTxns = useMemo(
+    () =>
+      allTransactions
+        .filter((t) =>
+          isWithinInterval(parseISO(t.date), {
+            start: monthStart,
+            end: monthEnd,
+          }),
+        )
+        .sort((a, b) => b.date.localeCompare(a.date)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [allTransactions, month],
+  );
+
+  const income = monthTxns
+    .filter((t) => t.amount > 0)
+    .reduce((sum, t) => sum + t.amount, 0);
+  const expense = monthTxns
+    .filter((t) => t.amount < 0)
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const weeks = useMemo(() => {
+    const buckets = new Map<
+      string,
+      { start: Date; income: number; expense: number }
+    >();
+    for (const t of monthTxns) {
+      const date = parseISO(t.date);
+      // Sunday-start, matching tasksPredicate.ts's "this week" convention
+      // elsewhere in the app -- a mismatched week boundary between Tasks
+      // and Accounts would be a real, confusing inconsistency.
+      const bucketStart = startOfWeek(date, { weekStartsOn: 0 });
+      const key = format(bucketStart, "yyyy-MM-dd");
+      const entry = buckets.get(key) ?? { start: bucketStart, income: 0, expense: 0 };
+      if (t.amount > 0) entry.income += t.amount;
+      else entry.expense += t.amount;
+      buckets.set(key, entry);
+    }
+    return [...buckets.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, v]) => {
+        // Clip the displayed range to the month -- a week bucket can start
+        // before the 1st (e.g. the 1st falls on a Wednesday) or run past
+        // the last day, but only the in-month days are what's actually
+        // being summed here.
+        const rangeStart = v.start < monthStart ? monthStart : v.start;
+        const rawEnd = new Date(v.start);
+        rawEnd.setDate(rawEnd.getDate() + 6);
+        const rangeEnd = rawEnd > monthEnd ? monthEnd : rawEnd;
+        return {
+          key,
+          label: `${format(rangeStart, "d MMM")}–${format(rangeEnd, "d MMM")}`,
+          income: v.income,
+          expense: v.expense,
+        };
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [monthTxns]);
+
+  const categoryBreakdown = rankByCategory(
+    monthTxns,
+    "expense",
+    MAX_CATEGORY_ROWS,
+    categoryLabel,
+    otherLabel,
+  );
+
+  return (
+    <div className="mt-2 flex flex-col gap-4 pb-8">
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onBack}
+          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          {translate("crm.accounts.dashboard.back_to_overview", {
+            _: "All-time overview",
+          })}
+        </button>
+        <h1 className="text-xl font-semibold">
+          {format(monthStart, "MMMM yyyy")}
+        </h1>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4">
+        <MoneyStatTiles income={income} expense={expense} currency={currency} />
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base font-medium text-muted-foreground">
+            <Wallet className="w-4 h-4" />
+            {translate("crm.accounts.dashboard.weekly_trend", {
+              _: "Weekly Income vs Expense",
+            })}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="h-[280px]">
+          <ResponsiveBar
+            data={weeks}
+            indexBy="label"
+            keys={["income", "expense"]}
+            colors={({ id }) =>
+              id === "income" ? diverging.income : diverging.expense
+            }
+            margin={{ top: 10, right: 20, bottom: 40, left: 50 }}
+            padding={0.35}
+            enableGridX={false}
+            enableGridY
+            enableLabel={false}
+            valueFormat={(v) => currencyFormat(currency, v as number)}
+            {...MONEY_BAR_AXIS_PROPS}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base font-medium text-muted-foreground">
+            {translate("crm.accounts.dashboard.top_categories", {
+              _: "Top Spending Categories",
+            })}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-2.5">
+          {categoryBreakdown.rows.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {translate("crm.accounts.dashboard.no_expenses_this_month", {
+                _: "No expenses this month.",
+              })}
+            </p>
+          ) : (
+            categoryBreakdown.rows.map((row, i) => (
+              <CategoryRow
+                key={row.key}
+                label={row.label}
+                value={row.value}
+                max={categoryBreakdown.max}
+                total={Math.abs(expense)}
+                color={SEQUENTIAL_STEPS[Math.min(i, SEQUENTIAL_STEPS.length - 1)]}
+                currency={currency}
+              />
+            ))
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base font-medium text-muted-foreground">
+            {translate("crm.accounts.dashboard.month_transactions", {
+              count: monthTxns.length,
+              smart_count: monthTxns.length,
+              _: `${monthTxns.length} transactions`,
+            })}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-0">
+          <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>
+                    {translate("resources.transactions.fields.date")}
+                  </TableHead>
+                  <TableHead>
+                    {translate("resources.transactions.fields.description")}
+                  </TableHead>
+                  <TableHead>
+                    {translate("resources.transactions.fields.category")}
+                  </TableHead>
+                  <TableHead className="text-right">
+                    {translate("resources.transactions.fields.amount")}
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {monthTxns.map((t) => (
+                  <TableRow key={t.id}>
+                    <TableCell className="text-muted-foreground whitespace-nowrap">
+                      {t.date}
+                    </TableCell>
+                    <TableCell className="max-w-[280px] truncate">
+                      {t.description}
+                    </TableCell>
+                    <TableCell>
+                      {t.category ? (
+                        <Badge variant="outline" className="text-[10px]">
+                          {categoryLabel(t.category)}
+                        </Badge>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">
+                          {categoryLabel(null)}
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell
+                      className="text-right tabular-nums whitespace-nowrap"
+                      style={{ color: t.amount >= 0 ? STATUS.good : undefined }}
+                    >
+                      {currencyFormat(currency, t.amount, 2)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+/** The Income / Expense / Net Savings trio, shared by the all-time overview
+ * and MonthDetail so a future change to labels/icons/thresholds can't drift
+ * between the two views the way two independent copies could. `net` is
+ * always income + expense (expense is already signed negative), computed
+ * here rather than accepted as a separate prop so a caller can't pass an
+ * inconsistent value. */
+const MoneyStatTiles = ({
+  income,
+  expense,
+  currency,
+}: {
+  income: number;
+  expense: number;
+  currency: string;
+}) => {
+  const translate = useTranslate();
+  const net = income + expense;
+  return (
+    <>
+      <StatTile
+        icon={<ArrowUpRight className="w-4 h-4" style={{ color: STATUS.good }} />}
+        label={translate("crm.accounts.dashboard.total_income", {
+          _: "Total Income",
+        })}
+        value={currencyFormat(currency, income)}
+      />
+      <StatTile
+        icon={
+          <ArrowDownRight className="w-4 h-4" style={{ color: STATUS.critical }} />
+        }
+        label={translate("crm.accounts.dashboard.total_expense", {
+          _: "Total Expense",
+        })}
+        value={currencyFormat(currency, Math.abs(expense))}
+      />
+      <StatTile
+        icon={<PiggyBank className="w-4 h-4 text-muted-foreground" />}
+        label={translate("crm.accounts.dashboard.net_savings", {
+          _: "Net Savings",
+        })}
+        value={currencyFormat(currency, net)}
+        valueStyle={{ color: net >= 0 ? STATUS.good : STATUS.critical }}
+      />
+    </>
+  );
+};
 
 const StatTile = ({
   icon,
