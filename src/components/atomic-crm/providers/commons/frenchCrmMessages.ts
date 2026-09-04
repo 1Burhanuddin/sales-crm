@@ -615,6 +615,33 @@ export const frenchCrmMessages = {
         inactive: "Inactive",
       },
     },
+    people: {
+      name: "Personne |||| Personnes",
+      fields: {
+        name: "Nom",
+        phone: "Téléphone",
+      },
+      autocomplete: {
+        create_item: 'Ajouter "%{item}"',
+        create_label: "Ajouter une nouvelle personne",
+        create_error: "Une erreur est survenue lors de l'ajout de cette personne",
+      },
+    },
+    loans: {
+      name: "Prêt |||| Prêts",
+      fields: {
+        person_id: "Personne",
+        direction: "Sens",
+        amount: "Montant",
+        scope: "Personnel/Professionnel",
+        notes: "Notes",
+      },
+      action: {
+        add: "Ajouter une entrée",
+      },
+      also_log_transaction: "Enregistrer aussi dans Comptes (décochez pour un prêt en espèces qui ne passe pas par la banque)",
+      transaction_link_error: "Prêt enregistré, mais impossible de l'enregistrer aussi comme transaction — ajoutez-la manuellement si besoin.",
+    },
     personal_notes: {
       name: "Note |||| Notes",
       fields: {
@@ -955,6 +982,19 @@ export const frenchCrmMessages = {
         recurring_posted: "Enregistrée",
         recurring_overdue: "En retard",
         recurring_due_day: "Échéance le %{day}",
+      },
+      khatabook: {
+        nav_label: "Khatabook",
+        title: "Khatabook",
+        no_data: "Rien d'enregistré pour l'instant — ajoutez votre première entrée ci-dessus.",
+        owed_to_me: "On me doit",
+        i_owe: "Je dois",
+        settled: "Réglé",
+        owes_you: "Vous doit %{amount}",
+        you_owe: "Vous devez %{amount}",
+        gave: "Donné",
+        received: "Reçu",
+        mark_settled: "Marquer comme réglé",
       },
     },
     image_editor: {

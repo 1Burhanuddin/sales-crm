@@ -321,6 +321,28 @@ export type RecurringExpense = {
   updated_at: string;
 } & Pick<RaRecord, "id">;
 
+export type Person = {
+  name: string;
+  phone?: string | null;
+  sales_id?: Identifier;
+  created_at: string;
+} & Pick<RaRecord, "id">;
+
+export type LoanDirection = "given" | "received";
+
+export type Loan = {
+  person_id: Identifier;
+  direction: LoanDirection;
+  amount: number;
+  scope: "business" | "personal";
+  settled: boolean;
+  settled_at?: string | null;
+  transaction_id?: Identifier | null;
+  notes?: string | null;
+  sales_id?: Identifier;
+  created_at: string;
+} & Pick<RaRecord, "id">;
+
 export type ChecklistItem = {
   text: string;
   checked: boolean;

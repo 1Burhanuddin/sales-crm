@@ -39,6 +39,8 @@ const ACCOUNTS_RESOURCES = [
   "transactions",
   "statement_imports",
   "recurring_expenses",
+  "people",
+  "loans",
 ];
 // Personal notes are fully self-service for every role, including
 // developer — zero relation to CRM/HR/PM data. Unlike everything else in

@@ -28,6 +28,8 @@ alter table public.payslips enable row level security;
 alter table public.statement_imports enable row level security;
 alter table public.transactions enable row level security;
 alter table public.recurring_expenses enable row level security;
+alter table public.people enable row level security;
+alter table public.loans enable row level security;
 alter table public.personal_notes enable row level security;
 alter table public.personal_note_versions enable row level security;
 alter table public.personal_note_shares enable row level security;
@@ -192,6 +194,8 @@ create policy "Admin delete only" on public.payslips for delete to authenticated
 create policy "Admin only" on public.statement_imports for all to authenticated using (public.is_admin()) with check (public.is_admin());
 create policy "Admin only" on public.transactions for all to authenticated using (public.is_admin()) with check (public.is_admin());
 create policy "Admin only" on public.recurring_expenses for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "Admin only" on public.people for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "Admin only" on public.loans for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 -- Personal notes (self-owned). Delete does NOT require admin, unlike every
 -- other table above — private scratch content, not shared business/HR data.

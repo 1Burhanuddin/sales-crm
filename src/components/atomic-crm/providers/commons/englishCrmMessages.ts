@@ -609,6 +609,33 @@ export const englishCrmMessages = {
         inactive: "Inactive",
       },
     },
+    people: {
+      name: "Person |||| People",
+      fields: {
+        name: "Name",
+        phone: "Phone",
+      },
+      autocomplete: {
+        create_item: 'Add "%{item}"',
+        create_label: "Add a new person",
+        create_error: "An error occurred while adding this person",
+      },
+    },
+    loans: {
+      name: "Loan |||| Loans",
+      fields: {
+        person_id: "Person",
+        direction: "Direction",
+        amount: "Amount",
+        scope: "Personal/Business",
+        notes: "Notes",
+      },
+      action: {
+        add: "Add Entry",
+      },
+      also_log_transaction: "Also log this in Accounts (uncheck for a cash loan not through the bank)",
+      transaction_link_error: "Loan saved, but couldn't also log it as a transaction — add it manually if needed.",
+    },
     personal_notes: {
       name: "Note |||| Notes",
       fields: {
@@ -946,6 +973,19 @@ export const englishCrmMessages = {
         recurring_posted: "Posted",
         recurring_overdue: "Overdue",
         recurring_due_day: "Due %{day}",
+      },
+      khatabook: {
+        nav_label: "Khatabook",
+        title: "Khatabook",
+        no_data: "Nothing logged yet — add your first entry above.",
+        owed_to_me: "Owed to me",
+        i_owe: "I owe",
+        settled: "Settled",
+        owes_you: "Owes you %{amount}",
+        you_owe: "You owe %{amount}",
+        gave: "Gave",
+        received: "Received",
+        mark_settled: "Mark Settled",
       },
     },
     image_editor: {

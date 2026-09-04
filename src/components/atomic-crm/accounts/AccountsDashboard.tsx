@@ -38,6 +38,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 import { useConfigurationContext } from "../root/ConfigurationContext";
 import type { RecurringExpense, Transaction } from "../types";
+import { currencyFormat, STATUS } from "./format";
 import { SCOPE_CHOICES, type TransactionScope } from "./scope";
 
 type ScopeFilter = TransactionScope | "all";
@@ -46,15 +47,12 @@ type ScopeFilter = TransactionScope | "all";
 // reference palette — see references/palette.md. Diverging blue<->red for
 // the income/expense trend (job: above/below a baseline), one-hue blue
 // ramp for the category ranking and balance trend (job: compare
-// magnitude / trend over time), fixed status colors for state (net
-// savings sign, income vs expense identity).
+// magnitude / trend over time); STATUS (fixed status colors for state --
+// net savings sign, income vs expense identity) is shared with
+// KhatabookDashboard via ./format, not redefined here.
 const DIVERGING = {
   light: { income: "#2a78d6", expense: "#e34948" },
   dark: { income: "#3987e5", expense: "#e66767" },
-};
-const STATUS = {
-  good: "#0ca30c",
-  critical: "#d03b3b",
 };
 // Sequential blue ramp, steps 300->700 (skipping the lightest steps, which
 // wash out against a dark chart surface) — rank 1 (largest category) gets
@@ -192,13 +190,6 @@ function useIsDarkMode() {
   }, []);
   return isDark;
 }
-
-const currencyFormat = (currency: string, value: number, digits = 0) =>
-  new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency,
-    maximumFractionDigits: digits,
-  }).format(value);
 
 /** Ranks transactions by category (all same sign), folding everything past
  * `maxRows - 1` into an "Other" bucket. Shared by the expense and income

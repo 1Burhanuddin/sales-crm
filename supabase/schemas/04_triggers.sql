@@ -138,6 +138,14 @@ create or replace trigger set_lead_activities_sales_id_trigger
     before insert on public.lead_activities
     for each row execute function public.set_sales_id_default();
 
+create or replace trigger set_people_sales_id_trigger
+    before insert on public.people
+    for each row execute function public.set_sales_id_default();
+
+create or replace trigger set_loans_sales_id_trigger
+    before insert on public.loans
+    for each row execute function public.set_sales_id_default();
+
 -- Auth triggers: sync auth.users to public.sales
 create or replace trigger on_auth_user_created
     after insert on auth.users

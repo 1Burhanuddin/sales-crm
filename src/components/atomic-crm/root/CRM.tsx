@@ -84,6 +84,11 @@ const LazyAccountsDashboard = lazy(() =>
     default: m.AccountsDashboard,
   })),
 );
+const LazyKhatabookDashboard = lazy(() =>
+  import("../accounts/KhatabookDashboard").then((m) => ({
+    default: m.KhatabookDashboard,
+  })),
+);
 const LazyPmDashboard = lazy(() =>
   import("../projects/PmDashboard").then((m) => ({ default: m.PmDashboard })),
 );
@@ -348,6 +353,14 @@ const DesktopAdmin = (
           }
         />
         <Route
+          path="/khatabook"
+          element={
+            <CanAccess resource="loans" action="list">
+              <LazyKhatabookDashboard />
+            </CanAccess>
+          }
+        />
+        <Route
           path="/pm"
           element={
             <CanAccess resource="projects" action="list">
@@ -454,6 +467,13 @@ const DesktopAdmin = (
           "edit",
         ])}
       />
+      {/* Bare -- no dedicated list/create/edit routes of their own.
+          KhatabookDashboard is the real UI for both; these are registered
+          only so ReferenceInput/AutocompleteInput and raw dataProvider
+          calls against "people"/"loans" resolve, same as issue_notes and
+          lead_activities elsewhere in this file. */}
+      <Resource name="people" />
+      <Resource name="loans" />
       <Resource
         name="personal_notes"
         {...lazyResource(() => import("../personal-notes"), ["list"])}
