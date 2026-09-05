@@ -2,7 +2,7 @@
 
 A CRM + PM + HR + Accounts platform for a small software team, built on [react-admin](https://marmelab.com/react-admin/) / [shadcn-admin-kit](https://github.com/marmelab/shadcn-admin-kit) and Supabase. Started as an import of [marmelab/atomic-crm](https://github.com/marmelab/atomic-crm) (MIT) and has grown well past the base CRM since — see [docs/STATUS.md](docs/STATUS.md) for what's actually built.
 
-Live at <https://sales-crm-5bz.pages.dev>.
+Live at <https://quixsyn.pages.dev>.
 
 ## What's in here
 
@@ -37,7 +37,7 @@ npm run supabase -- <args>   # supabase CLI, authenticated via .env.supabase-cli
 
 ```sh
 npm run build
-npx wrangler pages deploy dist --project-name=crm --branch=main
+npx wrangler pages deploy dist --project-name=quixsyn --branch=main
 ```
 
 Database migrations are pushed separately (`npm run supabase -- db push`) and are not tied to a frontend deploy — see [CONTRIBUTING.md](CONTRIBUTING.md#schema-changes).
