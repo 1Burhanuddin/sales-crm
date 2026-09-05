@@ -33,7 +33,7 @@ If a migration hasn't merged yet and a review finds a real bug in it, editing th
 
 ```sh
 npm run build
-npx wrangler pages deploy dist --project-name=crm --branch=main
+npx wrangler pages deploy dist --project-name=quixsyn --branch=main
 ```
 
 Edge function changes need a separate deploy:

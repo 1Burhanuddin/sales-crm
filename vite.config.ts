@@ -15,8 +15,10 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    // open: false -- was `NODE_ENV !== "CI"`, which is always true for a
+    // local build, so it launched a browser tab on every single build.
     visualizer({
-      open: process.env.NODE_ENV !== "CI",
+      open: false,
       filename: "./dist/stats.html",
     }),
     createHtmlPlugin({

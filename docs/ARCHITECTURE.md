@@ -7,7 +7,7 @@ How this codebase is put together, and the conventions to follow when adding to 
 - **Frontend**: React 19 + Vite, [react-admin](https://marmelab.com/react-admin/) (`ra-core`) with [shadcn-admin-kit](https://github.com/marmelab/shadcn-admin-kit) components (`@/components/admin/*`) on top of shadcn/ui + Radix primitives, Tailwind v4.
 - **Backend**: Supabase — Postgres, PostgREST (the data API react-admin talks to), Row Level Security for all authorization, Supabase Auth (email/password), Edge Functions (Deno) for anything that needs to run with elevated privileges (inviting users, role changes, merging contacts).
 - **Charts**: `@nivo/bar`, `@nivo/line`.
-- **Hosting**: Cloudflare Pages, project `crm`, production branch `main`. Deploy is manual: `npm run build && npx wrangler pages deploy dist --project-name=crm --branch=main`.
+- **Hosting**: Cloudflare Pages, project `quixsyn` (live at quixsyn.pages.dev), production branch `main`. Deploy is manual: `npm run build && npx wrangler pages deploy dist --project-name=quixsyn --branch=main`. The original project (`crm`, domain `sales-crm-5bz.pages.dev`) is kept around during the migration but no longer deployed to.
 - **Supabase project**: ref `vhayafnvivsswnhxnfxw`.
 - **CLI auth**: `supabase` CLI commands go through `scripts/supabase.mjs` (`npm run supabase -- <args>`), which reads a personal access token from a gitignored `.env.supabase-cli.local` rather than `supabase login`/`--profile` (documented as broken in this environment — see the script's own header comment).
 
