@@ -6,6 +6,7 @@ import type { UseDeleteOptions, RedirectionSideEffect } from "ra-core";
 import {
   useCanAccess,
   useDeleteController,
+  useEvent,
   useGetRecordRepresentation,
   useResourceTranslation,
   useRecordContext,
@@ -82,18 +83,21 @@ export const DeleteButton = (props: DeleteButtonProps) => {
       mutationOptions,
       successMessage,
     });
-  const handleDelete = React.useCallback(
-    (event: React.MouseEvent<HTMLButtonElement>) => {
-      if (event && event.stopPropagation) {
-        event.stopPropagation();
-      }
-      controllerHandleDelete();
-      if (typeof onClick === "function") {
-        onClick(event);
-      }
-    },
-    [controllerHandleDelete, onClick],
-  );
+  // useEvent, not useCallback -- controllerHandleDelete's own identity
+  // already changes whenever a caller passes an inline mutationOptions
+  // object (as IssueShow.tsx/IssueEdit.tsx do), so a useCallback here
+  // would still produce a new handler every render. useEvent keeps this
+  // referentially stable regardless, matching the previous
+  // useDeleteWithUndoController's behavior.
+  const handleDelete = useEvent((event: React.MouseEvent<HTMLButtonElement>) => {
+    if (event && event.stopPropagation) {
+      event.stopPropagation();
+    }
+    controllerHandleDelete();
+    if (typeof onClick === "function") {
+      onClick(event);
+    }
+  });
   const translate = useTranslate();
   const getRecordRepresentation = useGetRecordRepresentation(resource);
   let recordRepresentation = getRecordRepresentation(record);
