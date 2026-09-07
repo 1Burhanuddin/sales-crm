@@ -52,6 +52,7 @@ docs/
 |---|---|
 | `contacts`, `companies`, `deals`, `tags`, `tasks`, `notes` | Core CRM — contacts, the companies they work at, the deals pipeline (Kanban), shared notes infrastructure reused by contacts/deals/issues. |
 | `leads` | Pre-CRM inbound leads: contact-attempt logging (call/WhatsApp/email), outcomes, assignment. |
+| `assignments` | Cross-team task delegation (title/status/priority/due date/assignee), not tied to a contact/deal/project — separate from the contact-linked `tasks` table in the CRM core module. |
 | `projects` | The PM/Issues module: projects, issues (Kanban + calendar + Gantt), sprints, milestones, issue comments, a burndown chart. |
 | `hr` | Employees, leave requests, attendance, payroll (salary structures + payslips). |
 | `accounts` | Personal/business finance tracking: bank statement import + parsing, transactions, recurring expenses, budgets, a lending ledger ("Khatabook"). |
@@ -76,15 +77,18 @@ Two layers, and they must agree:
 
 ### Roles
 
-`sales.administrator` / `is_developer` / `is_accounts` / `notes_only` are independent boolean flags on the `sales` table (not an enum), resolved to a single role by `getRole()` with a fixed priority: `admin > developer > accounts > notes-only > user`. Adding a new role means adding both a boolean flag (mirroring the existing ones) and a branch in `canAccess()` — see `docs/*-roadmap.md` or recent PRs for the pattern (e.g. the `is_accounts` role).
+`sales.administrator` / `is_developer` / `is_accounts` / `notes_only` / `is_marketing` are independent boolean flags on the `sales` table (not an enum), resolved to a single role by `getRole()` with a fixed priority: `admin > developer > accounts > notes-only > marketing > user`. Adding a role doesn't always need a new `canAccess()` branch — if its access should be identical to the plain-`user` default (like `marketing`), just adding the flag to `getRole()` is enough, since anything not matched by an earlier branch falls through to the same default logic. A role that needs its *own* scope (like `accounts`) needs a real branch — see recent PRs for that pattern.
 
 | Role | Scope |
 |---|---|
 | `admin` | Everything. |
-| `developer` | The PM module, scoped to projects listed in `projects.member_ids` (admin-managed only — see `protect_project_member_ids()`); own HR self-service records; personal notes. |
-| `accounts` | The Accounts module (full read/write, delete stays admin-only); personal notes. |
+| `developer` | The PM module, scoped to projects listed in `projects.member_ids` (admin-managed only — see `protect_project_member_ids()`); own HR self-service records; personal notes; assignments. |
+| `accounts` | The Accounts module (full read/write, delete stays admin-only); personal notes; assignments. |
 | `notes-only` | Personal notes and nothing else in the app. |
-| `user` (plain sales rep) | Their own CRM data (`sales_id = current_sales_id()`) plus leads assigned to them; own HR self-service records; personal notes. No PM, no Accounts. |
+| `marketing` | Same as plain `user` today — a distinct, labeled role rather than a permission tier of its own; exists for identification and future tightening. |
+| `user` (plain sales rep) | Their own CRM data (`sales_id = current_sales_id()`) plus leads assigned to them; own HR self-service records; personal notes; assignments. No PM, no Accounts. |
+
+Assignments (cross-team task delegation, not tied to a contact/deal/project) is visible to every role except `notes-only`, gated purely by row ownership (creator, assignee, or admin) rather than by role — see `src/components/atomic-crm/assignments/`.
 
 ### Ownership convention
 

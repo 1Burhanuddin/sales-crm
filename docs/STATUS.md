@@ -7,12 +7,13 @@ A snapshot of what's built and what's planned. This file is a summary, not the s
 | Module | State |
 |---|---|
 | **CRM core** (contacts, companies, deals, tags, tasks, notes) | Inherited from upstream atomic-crm, largely intact. This is the original product. |
-| **Leads** | Pre-CRM inbound lead tracking: assignment, call/WhatsApp/email contact-attempt logging with outcomes, a last-contact-attempt view on the lead list. |
+| **Leads** | Pre-CRM inbound lead tracking: assignment, call/WhatsApp/email contact-attempt logging with outcomes, a last-contact-attempt view on the lead list. Data was cleared on 2026-09-07 (low-quality import); the module itself is untouched, ready for new leads. |
+| **Assignments** | Cross-team task delegation (title/status/priority/due date/assignee), not tied to a contact/deal/project. Every role except notes-only can send and receive tasks. Kanban board deferred as a fast-follow. |
 | **Projects / PM** | Kanban board, calendar view, Gantt/timeline, sprints, milestones, sub-tasks, issue comments + attachments, a sprint burndown chart. Access now scoped per-project (`member_ids`), not blanket admin-or-any-developer — see the RBAC entry below. |
 | **HR** | Employees, leave requests (submit/approve/reject), attendance, payroll (salary structures + monthly payslips with server-computed totals). |
 | **Accounts** | Bank statement PDF import + parsing, transactions, personal/business `scope` tagging, recurring/unavoidable expense tracking, monthly budgets (set inline from the category breakdown), a Khatabook-style personal lending ledger. See `docs/accounts-roadmap.md` — 5 of its 6 phases are done. |
 | **Personal Notes** | Google-Keep-style notes (markdown, tags, pin/archive/trash, sharing), available to every role regardless of what else they can access. |
-| **RBAC** | Four roles (`admin`, `developer`, `accounts`, `notes-only`) plus the plain sales-rep default, enforced at both the RLS and UI layers. Developers are scoped to projects they're a member of; there's now a dedicated Accounts role instead of Accounts being admin-only. See `docs/ARCHITECTURE.md#access-control`. |
+| **RBAC** | Five roles (`admin`, `developer`, `accounts`, `marketing`, `notes-only`) plus the plain sales-rep default, enforced at both the RLS and UI layers. Developers are scoped to projects they're a member of; there's a dedicated Accounts role instead of Accounts being admin-only; Marketing is a distinct, labeled role with the same access as a plain sales rep today. See `docs/ARCHITECTURE.md#access-control`. |
 
 ## Planned, not started
 
