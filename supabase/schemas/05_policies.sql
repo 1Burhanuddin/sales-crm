@@ -36,6 +36,7 @@ alter table public.personal_note_versions enable row level security;
 alter table public.personal_note_shares enable row level security;
 alter table public.leads enable row level security;
 alter table public.lead_activities enable row level security;
+alter table public.assignments enable row level security;
 
 -- Companies (visible/editable by their owning sales rep, or any admin)
 create policy "Select own or admin" on public.companies for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
@@ -320,3 +321,18 @@ create policy "Update own, assignee, or admin, not developer" on public.lead_act
     )
 );
 create policy "Admin delete only" on public.lead_activities for delete to authenticated using (public.is_admin());
+
+-- Assignments: cross-team task delegation, visible to its creator, its
+-- assignee, or an admin -- not gated by role.
+create policy "Select own, assigned, or admin" on public.assignments for select to authenticated using (
+    public.is_admin() or sales_id = public.current_sales_id() or assignee_id = public.current_sales_id()
+);
+create policy "Insert own or admin, not notes-only" on public.assignments for insert to authenticated with check (
+    (public.is_admin() or sales_id = public.current_sales_id()) and not public.is_notes_only()
+);
+create policy "Update own, assigned, or admin, not notes-only" on public.assignments for update to authenticated using (
+    (public.is_admin() or sales_id = public.current_sales_id() or assignee_id = public.current_sales_id()) and not public.is_notes_only()
+) with check (
+    (public.is_admin() or sales_id = public.current_sales_id() or assignee_id = public.current_sales_id()) and not public.is_notes_only()
+);
+create policy "Admin delete only" on public.assignments for delete to authenticated using (public.is_admin());

@@ -643,6 +643,31 @@ export const frenchCrmMessages = {
       also_log_transaction: "Enregistrer aussi dans Comptes (décochez pour un prêt en espèces qui ne passe pas par la banque)",
       transaction_link_error: "Prêt enregistré, mais impossible de l'enregistrer aussi comme transaction — ajoutez-la manuellement si besoin.",
     },
+    assignments: {
+      name: "Tâche |||| Tâches",
+      fields: {
+        title: "Titre",
+        description: "Description",
+        status: "Statut",
+        priority: "Priorité",
+        due_date: "Échéance",
+        assignee_id: "Assignée à",
+        sales_id: "Assignée par",
+      },
+      status: {
+        todo: "À faire",
+        in_progress: "En cours",
+        done: "Terminée",
+      },
+      priority: {
+        low: "Faible",
+        medium: "Moyenne",
+        high: "Haute",
+      },
+      action: {
+        create: "Nouvelle tâche",
+      },
+    },
     personal_notes: {
       name: "Note |||| Notes",
       fields: {
@@ -753,6 +778,7 @@ export const frenchCrmMessages = {
         is_developer: "Développeur",
         notes_only: "Notes uniquement",
         is_accounts: "Comptabilité",
+        is_marketing: "Marketing",
         password_helper:
           "Partagez-le directement avec eux — les e-mails d'invitation ne sont pas fiables sur ce projet.",
       },
@@ -1140,6 +1166,7 @@ export const frenchCrmMessages = {
       label: "Navigation CRM",
       groups: {
         overview: "Aperçu",
+        tasks: "Tâches",
         crm: "CRM",
         projects: "Projets",
         hr: "RH",

@@ -637,6 +637,31 @@ export const englishCrmMessages = {
       also_log_transaction: "Also log this in Accounts (uncheck for a cash loan not through the bank)",
       transaction_link_error: "Loan saved, but couldn't also log it as a transaction — add it manually if needed.",
     },
+    assignments: {
+      name: "Task |||| Tasks",
+      fields: {
+        title: "Title",
+        description: "Description",
+        status: "Status",
+        priority: "Priority",
+        due_date: "Due date",
+        assignee_id: "Assigned to",
+        sales_id: "Assigned by",
+      },
+      status: {
+        todo: "To do",
+        in_progress: "In progress",
+        done: "Done",
+      },
+      priority: {
+        low: "Low",
+        medium: "Medium",
+        high: "High",
+      },
+      action: {
+        create: "New task",
+      },
+    },
     personal_notes: {
       name: "Note |||| Notes",
       fields: {
@@ -747,6 +772,7 @@ export const englishCrmMessages = {
         is_developer: "Developer",
         notes_only: "Notes Only",
         is_accounts: "Accounts",
+        is_marketing: "Marketing",
         password_helper:
           "Share this with them directly — invite emails are unreliable on this project.",
       },
@@ -1130,6 +1156,7 @@ export const englishCrmMessages = {
       label: "CRM navigation",
       groups: {
         overview: "Overview",
+        tasks: "Tasks",
         crm: "CRM",
         projects: "Projects",
         hr: "HR",

@@ -57,6 +57,9 @@ const PERSONAL_NOTE_RESOURCES = [
   "personal_note_shares",
   "personal_note_versions",
 ];
+// Cross-team task delegation -- every role except notes-only gets this
+// (RLS scopes rows to creator/assignee/admin, not by role).
+const ASSIGNMENT_RESOURCES = ["assignments"];
 
 // Shared by the developer and plain-user branches so HR rules can't drift
 // apart between the two self-service roles.
@@ -87,6 +90,7 @@ export const getRole = (
         is_developer?: boolean;
         notes_only?: boolean;
         is_accounts?: boolean;
+        is_marketing?: boolean;
       }
     | null
     | undefined,
@@ -95,7 +99,10 @@ export const getRole = (
   if (sale.administrator) return "admin";
   if (sale.is_developer) return "developer";
   if (sale.is_accounts) return "accounts";
+  // notes-only checked before marketing so the most restrictive flag wins
+  // if a sale record somehow has both set.
   if (sale.notes_only) return "notes-only";
+  if (sale.is_marketing) return "marketing";
   return "user";
 };
 
@@ -123,6 +130,7 @@ export const canAccess = <
         ...PM_RESOURCES,
         ...HR_SELF_SERVICE_RESOURCES,
         ...PERSONAL_NOTE_RESOURCES,
+        ...ASSIGNMENT_RESOURCES,
       ].includes(params.resource)
     ) {
       return false;
@@ -142,9 +150,11 @@ export const canAccess = <
   // Dedicated bookkeeping role: Accounts module plus personal notes.
   if (role === "accounts") {
     if (
-      ![...ACCOUNTS_RESOURCES, ...PERSONAL_NOTE_RESOURCES].includes(
-        params.resource,
-      )
+      ![
+        ...ACCOUNTS_RESOURCES,
+        ...PERSONAL_NOTE_RESOURCES,
+        ...ASSIGNMENT_RESOURCES,
+      ].includes(params.resource)
     ) {
       return false;
     }

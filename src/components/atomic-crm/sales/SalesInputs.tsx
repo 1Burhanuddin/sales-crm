@@ -49,6 +49,11 @@ export function SalesInputs() {
         readOnly={record?.id === identity?.id}
         helperText={false}
       />
+      <BooleanInput
+        source="is_marketing"
+        readOnly={record?.id === identity?.id}
+        helperText={false}
+      />
     </div>
   );
 }
