@@ -29,13 +29,19 @@ export const AssignmentInputs = () => (
         choices={STATUS_CHOICES}
         validate={required()}
         helperText={false}
+        className="flex-1"
       />
       <SelectInput
         source="priority"
         choices={PRIORITY_CHOICES}
         helperText={false}
+        className="flex-1"
       />
-      <DateInput source="due_date" helperText={false} />
+      <DateInput
+        source="due_date"
+        helperText={false}
+        className="flex-1 min-w-32"
+      />
     </div>
   </div>
 );
