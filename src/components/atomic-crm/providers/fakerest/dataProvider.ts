@@ -271,13 +271,16 @@ export const createDataProvider = ({
       }
       return true;
     },
-    updatePassword: async (id: Identifier): Promise<true> => {
+    updatePassword: async (
+      id: Identifier,
+      newPassword: string,
+    ): Promise<true> => {
       const currentUser = await getIdentity();
       if (!currentUser) {
         throw new Error("User not found");
       }
       const { data: previousData } = await dataProvider.getOne<Sale>("sales", {
-        id: currentUser.id,
+        id,
       });
 
       if (!previousData) {
@@ -287,7 +290,7 @@ export const createDataProvider = ({
       await dataProvider.update("sales", {
         id,
         data: {
-          password: "demo_newPassword",
+          password: newPassword,
         },
         previousData,
       });

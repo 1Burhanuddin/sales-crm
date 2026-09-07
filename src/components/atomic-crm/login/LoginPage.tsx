@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Form, required, useLogin, useNotify, useTranslate } from "ra-core";
 import type { SubmitHandler, FieldValues } from "react-hook-form";
-import { Link, useLocation, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/admin/text-input";
 import { Notification } from "@/components/admin/notification";
@@ -25,39 +24,9 @@ export const LoginPage = (props: { redirectTo?: string }) => {
   const { darkModeLogo, title } = useConfigurationContext();
   const { redirectTo } = props;
   const [loading, setLoading] = useState(false);
-  const hasDisplayedRecoveryNotification = useRef(false);
-  const location = useLocation();
-  const navigate = useNavigate();
   const login = useLogin();
   const notify = useNotify();
   const translate = useTranslate();
-
-  useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    const shouldNotify = searchParams.get("passwordRecoveryEmailSent") === "1";
-
-    if (!shouldNotify || hasDisplayedRecoveryNotification.current) {
-      return;
-    }
-
-    hasDisplayedRecoveryNotification.current = true;
-    notify("crm.auth.recovery_email_sent", {
-      type: "success",
-      messageArgs: {
-        _: "If you're a registered user, you should receive a password recovery email shortly.",
-      },
-    });
-
-    searchParams.delete("passwordRecoveryEmailSent");
-    const nextSearch = searchParams.toString();
-    navigate(
-      {
-        pathname: location.pathname,
-        search: nextSearch ? `?${nextSearch}` : "",
-      },
-      { replace: true },
-    );
-  }, [location.pathname, location.search, navigate, notify]);
 
   const handleSubmit: SubmitHandler<FieldValues> = (values) => {
     setLoading(true);
@@ -137,16 +106,6 @@ export const LoginPage = (props: { redirectTo?: string }) => {
                 })}
               </SSOAuthButton>
             ) : null}
-            {disableEmailPasswordAuthentication ? null : (
-              <Link
-                to={"/forgot-password"}
-                className="block text-sm text-center hover:underline"
-              >
-                {translate("ra-supabase.auth.forgot_password", {
-                  _: "Forgot password?",
-                })}
-              </Link>
-            )}
           </div>
         </div>
       </div>

@@ -15,6 +15,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 import type { CrmDataProvider } from "../providers/types";
 import type { Sale, SalesFormData } from "../types";
+import { ChangePasswordForm } from "./ChangePasswordForm";
 import { SalesInputs } from "./SalesInputs";
 
 function EditToolbar() {
@@ -69,7 +70,7 @@ export function SalesEdit() {
   };
 
   return (
-    <div className="max-w-lg w-full mx-auto mt-8">
+    <div className="max-w-lg w-full mx-auto mt-8 space-y-4">
       <Card>
         <CardContent>
           <SimpleForm
@@ -82,6 +83,18 @@ export function SalesEdit() {
           </SimpleForm>
         </CardContent>
       </Card>
+      {record && (
+        <Card>
+          <CardContent>
+            <h2 className="text-lg font-semibold mb-4">
+              {translate("resources.sales.edit.reset_password", {
+                _: "Reset password",
+              })}
+            </h2>
+            <ChangePasswordForm salesId={record.id} />
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

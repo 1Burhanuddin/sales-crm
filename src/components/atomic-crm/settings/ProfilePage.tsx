@@ -33,6 +33,7 @@ import {
 
 import ImageEditorField from "../misc/ImageEditorField";
 import type { CrmDataProvider } from "../providers/types";
+import { ChangePasswordForm } from "../sales/ChangePasswordForm";
 import type { Sale, SalesFormData } from "../types";
 
 export const ProfilePage = () => {
@@ -105,32 +106,7 @@ const ProfileForm = ({
   const { identity, refetch } = useGetIdentity();
   const { isDirty } = useFormState();
   const dataProvider = useDataProvider<CrmDataProvider>();
-
-  const { mutate: updatePassword } = useMutation({
-    mutationKey: ["updatePassword"],
-    mutationFn: async () => {
-      if (!identity) {
-        throw new Error(
-          translate("crm.profile.record_not_found", {
-            _: "Record not found",
-          }),
-        );
-      }
-      return dataProvider.updatePassword(identity.id);
-    },
-    onSuccess: () => {
-      notify("crm.profile.password_reset_sent", {
-        messageArgs: {
-          _: "A reset password email has been sent to your email address",
-        },
-      });
-    },
-    onError: (e) => {
-      notify(`${e}`, {
-        type: "error",
-      });
-    },
-  });
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
 
   const { mutate: mutateSale } = useMutation({
     mutationKey: ["signup"],
@@ -163,10 +139,6 @@ const ProfileForm = ({
   });
   if (!identity) return null;
 
-  const handleClickOpenPasswordChange = () => {
-    updatePassword();
-  };
-
   const handleAvatarUpdate = async (values: any) => {
     mutateSale(values);
   };
@@ -196,17 +168,26 @@ const ProfileForm = ({
             <LanguageSelector />
           </div>
 
+          {showPasswordForm && !isEditMode && (
+            <div className="mb-4 pt-4 border-t">
+              <ChangePasswordForm
+                salesId={identity.id}
+                onDone={() => setShowPasswordForm(false)}
+              />
+            </div>
+          )}
+
           <div className="flex flex-row justify-end gap-2">
             {!isEditMode && (
-              <>
-                <Button
-                  variant="outline"
-                  type="button"
-                  onClick={handleClickOpenPasswordChange}
-                >
-                  {translate("crm.profile.password.change")}
-                </Button>
-              </>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => setShowPasswordForm((v) => !v)}
+              >
+                {showPasswordForm
+                  ? translate("ra.action.cancel")
+                  : translate("crm.profile.password.change")}
+              </Button>
             )}
 
             <Button

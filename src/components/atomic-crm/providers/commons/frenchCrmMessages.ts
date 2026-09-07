@@ -807,6 +807,7 @@ export const frenchCrmMessages = {
       edit: {
         error: "Une erreur s'est produite. Veuillez réessayer.",
         record_not_found: "Enregistrement introuvable",
+        reset_password: "Réinitialiser le mot de passe",
         success: "Utilisateur mis à jour avec succès",
         title: "Modifier %{name}",
       },
@@ -873,17 +874,12 @@ export const frenchCrmMessages = {
     },
   },
   crm: {
-    action: {
-      reset_password: "Réinitialiser le mot de passe",
-    },
     auth: {
       first_name: "Prénom",
       last_name: "Nom",
       confirm_password: "Confirmer le mot de passe",
       confirmation_required:
         "Veuillez suivre le lien que nous venons de vous envoyer par email pour confirmer votre compte.",
-      recovery_email_sent:
-        "Si vous êtes un utilisateur enregistré, vous devriez recevoir prochainement un e-mail de récupération de mot de passe.",
       sign_in_failed: "Échec de la connexion.",
       sign_in_google_workspace: "Connectez-vous avec Google Workplace",
       signup: {
@@ -1203,9 +1199,12 @@ export const frenchCrmMessages = {
       },
       password: {
         change: "Changer le mot de passe",
+        confirm: "Confirmer le mot de passe",
+        mismatch: "Les mots de passe ne correspondent pas",
+        new: "Nouveau mot de passe",
+        too_short: "Au moins 6 caractères",
+        updated: "Mot de passe mis à jour",
       },
-      password_reset_sent:
-        "Un e-mail de réinitialisation du mot de passe a été envoyé à votre adresse e-mail",
       record_not_found: "Enregistrement introuvable",
       title: "Profil",
       updated: "Votre profil a été mis à jour",
