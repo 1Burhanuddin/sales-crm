@@ -1200,8 +1200,10 @@ export const frenchCrmMessages = {
       password: {
         change: "Changer le mot de passe",
         confirm: "Confirmer le mot de passe",
+        hide: "Masquer le mot de passe",
         mismatch: "Les mots de passe ne correspondent pas",
         new: "Nouveau mot de passe",
+        show: "Afficher le mot de passe",
         too_short: "Au moins 6 caractères",
         updated: "Mot de passe mis à jour",
       },
