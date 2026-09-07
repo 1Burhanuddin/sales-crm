@@ -27,6 +27,7 @@ export type SalesFormData = {
   is_developer: boolean;
   notes_only: boolean;
   is_accounts: boolean;
+  is_marketing: boolean;
 };
 
 export type Sale = {
@@ -42,6 +43,9 @@ export type Sale = {
   /** Dedicated role for someone who should only handle bookkeeping. See
    * canAccess.ts's "accounts" role branch. */
   is_accounts?: boolean;
+  /** Same CRM access as a plain sales rep today -- just a distinct role
+   * for labeling and future tightening. */
+  is_marketing?: boolean;
   user_id: string;
 
   /**
@@ -354,6 +358,24 @@ export type Budget = {
   scope: "business" | "personal";
   month: string; // always the 1st of the month, "yyyy-MM-dd"
   amount: number;
+  sales_id?: Identifier;
+  created_at: string;
+  updated_at: string;
+} & Pick<RaRecord, "id">;
+
+export type AssignmentStatus = "todo" | "in_progress" | "done";
+export type AssignmentPriority = "low" | "medium" | "high";
+
+/** Cross-team task delegation -- not tied to a contact/deal/project,
+ * assignable to anyone regardless of role. See the separate contact-linked
+ * Task type below for the CRM follow-up reminder this is NOT. */
+export type Assignment = {
+  title: string;
+  description?: string;
+  status: AssignmentStatus;
+  priority?: AssignmentPriority | null;
+  due_date?: string | null;
+  assignee_id: Identifier;
   sales_id?: Identifier;
   created_at: string;
   updated_at: string;

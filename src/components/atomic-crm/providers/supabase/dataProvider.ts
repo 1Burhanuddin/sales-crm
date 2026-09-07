@@ -165,6 +165,7 @@ const getDataProviderWithCustomMethods = () => {
         is_developer,
         notes_only,
         is_accounts,
+        is_marketing,
       } = data;
 
       const { data: updatedData, error } =
@@ -182,6 +183,7 @@ const getDataProviderWithCustomMethods = () => {
             is_developer,
             notes_only,
             is_accounts,
+            is_marketing,
             avatar,
           },
         });
@@ -446,6 +448,12 @@ const lifeCycleCallbacks: ResourceCallbacks[] = [
     resource: "recurring_expenses",
     beforeGetList: async (params) => {
       return applyFullTextSearch(["name", "match_keyword"])(params);
+    },
+  },
+  {
+    resource: "assignments",
+    beforeGetList: async (params) => {
+      return applyFullTextSearch(["title", "description"])(params);
     },
   },
   {

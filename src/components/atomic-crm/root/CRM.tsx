@@ -385,6 +385,14 @@ const DesktopAdmin = (
           }
         />
       </CustomRoutes>
+      <Resource
+        name="assignments"
+        {...lazyResource(() => import("../assignments/assignmentsResource"), [
+          "list",
+          "create",
+          "edit",
+        ])}
+      />
       <Resource name="deals" {...deals} />
       <Resource name="contacts" {...contacts} />
       <Resource name="companies" {...companies} />

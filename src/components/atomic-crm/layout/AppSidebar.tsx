@@ -3,6 +3,7 @@ import {
   Building2,
   CalendarDays,
   CalendarOff,
+  CheckSquare,
   ClipboardCheck,
   Filter,
   FolderKanban,
@@ -70,8 +71,9 @@ export const AppSidebar = () => {
   const { sidebarVariant, sidebarCollapsible } = usePreferences();
   // UserIdentity is declared with only id/fullName/avatar (plus a `[key:
   // string]: any` index signature) — administrator/is_developer/notes_only/
-  // is_accounts are our own authProvider's extra fields, so TS's weak-type
-  // check needs a hint here even though they're safely present at runtime.
+  // is_accounts/is_marketing are our own authProvider's extra fields, so
+  // TS's weak-type check needs a hint here even though they're safely
+  // present at runtime.
   const role = getRole(
     identity as
       | {
@@ -79,6 +81,7 @@ export const AppSidebar = () => {
           is_developer?: boolean;
           notes_only?: boolean;
           is_accounts?: boolean;
+          is_marketing?: boolean;
         }
       | undefined,
   );
@@ -91,6 +94,20 @@ export const AppSidebar = () => {
           to: "/",
           label: translate("ra.page.dashboard"),
           icon: LayoutDashboard,
+        },
+      ],
+    },
+    {
+      label: translate("crm.navigation.groups.tasks", { _: "Tasks" }),
+      items: [
+        {
+          to: "/assignments",
+          label: translate("resources.assignments.name", {
+            smart_count: 2,
+            _: "Tasks",
+          }),
+          icon: CheckSquare,
+          resource: "assignments",
         },
       ],
     },
@@ -254,12 +271,18 @@ export const AppSidebar = () => {
   const accountsLabel = translate("crm.navigation.groups.accounts", {
     _: "Accounts",
   });
+  const tasksLabel = translate("crm.navigation.groups.tasks", {
+    _: "Tasks",
+  });
   const visibleGroups =
     role === "notes-only"
       ? groups.filter((g) => g.label === workspaceLabel)
       : role === "accounts"
         ? groups.filter(
-            (g) => g.label === accountsLabel || g.label === workspaceLabel,
+            (g) =>
+              g.label === accountsLabel ||
+              g.label === workspaceLabel ||
+              g.label === tasksLabel,
           )
         : groups;
 

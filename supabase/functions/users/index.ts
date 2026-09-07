@@ -5,62 +5,31 @@ import { createErrorResponse } from "../_shared/utils.ts";
 import { AuthMiddleware, UserMiddleware } from "../_shared/authentication.ts";
 import { getUserSale } from "../_shared/getUserSale.ts";
 
-async function updateSaleDisabled(user_id: string, disabled: boolean) {
-  return await supabaseAdmin
-    .from("sales")
-    .update({ disabled: disabled ?? false })
-    .eq("user_id", user_id);
-}
-
-async function updateSaleAdministrator(
+// One combined update instead of a separate round-trip per role flag --
+// was 6 sequential UPDATE...RETURNING * calls (disabled, administrator,
+// is_developer, notes_only, is_accounts, is_marketing) on every invite/
+// patch, growing by one call each time a role flag was added.
+async function updateSaleRoles(
   user_id: string,
-  administrator: boolean,
+  roles: {
+    disabled: boolean;
+    administrator: boolean;
+    is_developer?: boolean;
+    notes_only?: boolean;
+    is_accounts?: boolean;
+    is_marketing?: boolean;
+  },
 ) {
   const { data: sales, error: salesError } = await supabaseAdmin
     .from("sales")
-    .update({ administrator })
-    .eq("user_id", user_id)
-    .select("*");
-
-  if (!sales?.length || salesError) {
-    console.error("Error updating user:", salesError);
-    throw salesError ?? new Error("Failed to update sale");
-  }
-  return sales.at(0);
-}
-
-async function updateSaleDeveloper(user_id: string, is_developer: boolean) {
-  const { data: sales, error: salesError } = await supabaseAdmin
-    .from("sales")
-    .update({ is_developer: is_developer ?? false })
-    .eq("user_id", user_id)
-    .select("*");
-
-  if (!sales?.length || salesError) {
-    console.error("Error updating user:", salesError);
-    throw salesError ?? new Error("Failed to update sale");
-  }
-  return sales.at(0);
-}
-
-async function updateSaleNotesOnly(user_id: string, notes_only: boolean) {
-  const { data: sales, error: salesError } = await supabaseAdmin
-    .from("sales")
-    .update({ notes_only: notes_only ?? false })
-    .eq("user_id", user_id)
-    .select("*");
-
-  if (!sales?.length || salesError) {
-    console.error("Error updating user:", salesError);
-    throw salesError ?? new Error("Failed to update sale");
-  }
-  return sales.at(0);
-}
-
-async function updateSaleAccounts(user_id: string, is_accounts: boolean) {
-  const { data: sales, error: salesError } = await supabaseAdmin
-    .from("sales")
-    .update({ is_accounts: is_accounts ?? false })
+    .update({
+      disabled: roles.disabled ?? false,
+      administrator: roles.administrator,
+      is_developer: roles.is_developer ?? false,
+      notes_only: roles.notes_only ?? false,
+      is_accounts: roles.is_accounts ?? false,
+      is_marketing: roles.is_marketing ?? false,
+    })
     .eq("user_id", user_id)
     .select("*");
 
@@ -82,6 +51,7 @@ async function createSale(
     is_developer?: boolean;
     notes_only?: boolean;
     is_accounts?: boolean;
+    is_marketing?: boolean;
   },
 ) {
   const { data: sales, error: salesError } = await supabaseAdmin
@@ -121,6 +91,7 @@ async function inviteUser(req: Request, currentUserSale: any) {
     is_developer,
     notes_only,
     is_accounts,
+    is_marketing,
   } = await req.json();
 
   if (!currentUserSale.administrator) {
@@ -189,6 +160,7 @@ async function inviteUser(req: Request, currentUserSale: any) {
         is_developer,
         notes_only,
         is_accounts,
+        is_marketing,
       });
 
       return new Response(
@@ -234,11 +206,14 @@ async function inviteUser(req: Request, currentUserSale: any) {
   }
 
   try {
-    await updateSaleDisabled(user.id, disabled);
-    await updateSaleAdministrator(user.id, administrator);
-    await updateSaleDeveloper(user.id, is_developer);
-    await updateSaleNotesOnly(user.id, notes_only);
-    const sale = await updateSaleAccounts(user.id, is_accounts);
+    const sale = await updateSaleRoles(user.id, {
+      disabled,
+      administrator,
+      is_developer,
+      notes_only,
+      is_accounts,
+      is_marketing,
+    });
 
     return new Response(
       JSON.stringify({
@@ -266,6 +241,7 @@ async function patchUser(req: Request, currentUserSale: any) {
     is_developer,
     notes_only,
     is_accounts,
+    is_marketing,
   } = await req.json();
   const { data: sale } = await supabaseAdmin
     .from("sales")
@@ -319,11 +295,14 @@ async function patchUser(req: Request, currentUserSale: any) {
   }
 
   try {
-    await updateSaleDisabled(data.user.id, disabled);
-    await updateSaleAdministrator(data.user.id, administrator);
-    await updateSaleDeveloper(data.user.id, is_developer);
-    await updateSaleNotesOnly(data.user.id, notes_only);
-    const sale = await updateSaleAccounts(data.user.id, is_accounts);
+    const sale = await updateSaleRoles(data.user.id, {
+      disabled,
+      administrator,
+      is_developer,
+      notes_only,
+      is_accounts,
+      is_marketing,
+    });
     return new Response(
       JSON.stringify({
         data: sale,

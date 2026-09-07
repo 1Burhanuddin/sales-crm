@@ -25,6 +25,7 @@ export const withRoleAwareDashboard = (
             is_developer?: boolean;
             notes_only?: boolean;
             is_accounts?: boolean;
+            is_marketing?: boolean;
           }
         | undefined,
     );
