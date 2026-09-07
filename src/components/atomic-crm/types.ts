@@ -381,6 +381,13 @@ export type Assignment = {
   updated_at: string;
 } & Pick<RaRecord, "id">;
 
+export type AssignmentNote = {
+  assignment_id: Identifier;
+  text: string;
+  date: string;
+  sales_id: Identifier;
+} & Pick<RaRecord, "id">;
+
 export type ChecklistItem = {
   text: string;
   checked: boolean;

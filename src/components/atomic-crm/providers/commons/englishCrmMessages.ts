@@ -662,6 +662,22 @@ export const englishCrmMessages = {
         create: "New task",
       },
     },
+    assignment_notes: {
+      fields: {
+        text: "Comment",
+        date: "Date",
+      },
+      action: {
+        add_this: "Add this comment",
+      },
+      added: "Comment added",
+      deleted: "Comment deleted",
+      you_added: "You added a comment",
+      author_added: "%{name} added a comment",
+      inputs: {
+        add_note: "Add a comment",
+      },
+    },
     personal_notes: {
       name: "Note |||| Notes",
       fields: {

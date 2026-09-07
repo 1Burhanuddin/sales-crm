@@ -160,6 +160,10 @@ create or replace trigger set_assignment_sales_id_trigger
     before insert on public.assignments
     for each row execute function public.set_sales_id_default();
 
+create or replace trigger set_assignment_notes_sales_id_trigger
+    before insert on public.assignment_notes
+    for each row execute function public.set_sales_id_default();
+
 -- Auth triggers: sync auth.users to public.sales
 create or replace trigger on_auth_user_created
     after insert on auth.users
