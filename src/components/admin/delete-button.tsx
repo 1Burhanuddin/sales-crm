@@ -5,7 +5,8 @@ import { humanize, singularize } from "inflection";
 import type { UseDeleteOptions, RedirectionSideEffect } from "ra-core";
 import {
   useCanAccess,
-  useDeleteWithUndoController,
+  useDeleteController,
+  useEvent,
   useGetRecordRepresentation,
   useResourceTranslation,
   useRecordContext,
@@ -18,6 +19,15 @@ export type DeleteButtonProps = {
   size?: "default" | "sm" | "lg" | "icon";
   onClick?: React.ReactEventHandler<HTMLButtonElement>;
   mutationOptions?: UseDeleteOptions;
+  // "undoable" (default) removes the record from the UI instantly and only
+  // sends the real delete request a few seconds later -- fine for a plain
+  // in-place list row, but if a caller's onSuccess navigates away
+  // immediately (e.g. back to a list), that navigation's fresh fetch can
+  // still see the not-yet-deleted record server-side and show it again
+  // until the delayed request finally lands. Pass "pessimistic" for any
+  // delete whose onSuccess redirects, so the redirect only happens once
+  // the record is actually gone.
+  mutationMode?: "undoable" | "pessimistic";
   redirect?: RedirectionSideEffect;
   resource?: string;
   successMessage?: string;
@@ -54,6 +64,7 @@ export const DeleteButton = (props: DeleteButtonProps) => {
     onClick,
     size,
     mutationOptions,
+    mutationMode = "undoable",
     redirect = "list",
     successMessage,
     variant = "outline",
@@ -63,13 +74,29 @@ export const DeleteButton = (props: DeleteButtonProps) => {
   const resource = useResourceContext(props);
   const { canAccess } = useCanAccess({ resource, action: "delete", record });
 
-  const { isPending, handleDelete } = useDeleteWithUndoController({
-    record,
-    resource,
-    redirect,
-    onClick,
-    mutationOptions,
-    successMessage,
+  const { isPending, handleDelete: controllerHandleDelete } =
+    useDeleteController({
+      record,
+      resource,
+      redirect,
+      mutationMode,
+      mutationOptions,
+      successMessage,
+    });
+  // useEvent, not useCallback -- controllerHandleDelete's own identity
+  // already changes whenever a caller passes an inline mutationOptions
+  // object (as IssueShow.tsx/IssueEdit.tsx do), so a useCallback here
+  // would still produce a new handler every render. useEvent keeps this
+  // referentially stable regardless, matching the previous
+  // useDeleteWithUndoController's behavior.
+  const handleDelete = useEvent((event: React.MouseEvent<HTMLButtonElement>) => {
+    if (event && event.stopPropagation) {
+      event.stopPropagation();
+    }
+    controllerHandleDelete();
+    if (typeof onClick === "function") {
+      onClick(event);
+    }
   });
   const translate = useTranslate();
   const getRecordRepresentation = useGetRecordRepresentation(resource);
