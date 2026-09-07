@@ -800,6 +800,7 @@ export const englishCrmMessages = {
       edit: {
         error: "An error occurred. Please try again.",
         record_not_found: "Record not found",
+        reset_password: "Reset password",
         success: "User updated successfully",
         title: "Edit %{name}",
       },
@@ -866,17 +867,12 @@ export const englishCrmMessages = {
     },
   },
   crm: {
-    action: {
-      reset_password: "Reset Password",
-    },
     auth: {
       first_name: "First name",
       last_name: "Last name",
       confirm_password: "Confirm password",
       confirmation_required:
         "Please follow the link we just sent you by email to confirm your account.",
-      recovery_email_sent:
-        "If you're a registered user, you should receive a password recovery email shortly.",
       sign_in_failed: "Failed to log in.",
       sign_in_google_workspace: "Sign in with Google Workplace",
       signup: {
@@ -1193,9 +1189,12 @@ export const englishCrmMessages = {
       },
       password: {
         change: "Change password",
+        confirm: "Confirm password",
+        mismatch: "Passwords don't match",
+        new: "New password",
+        too_short: "At least 6 characters",
+        updated: "Password updated",
       },
-      password_reset_sent:
-        "A reset password email has been sent to your email address",
       record_not_found: "Record not found",
       title: "Profile",
       updated: "Your profile has been updated",

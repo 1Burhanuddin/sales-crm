@@ -195,18 +195,26 @@ const getDataProviderWithCustomMethods = () => {
 
       return updatedData.data;
     },
-    async updatePassword(id: Identifier) {
+    async updatePassword(id: Identifier, newPassword: string) {
       const { data: passwordUpdated, error } =
         await getSupabaseClient().functions.invoke<boolean>("update_password", {
           method: "PATCH",
           body: {
             sales_id: id,
+            new_password: newPassword,
           },
         });
 
       if (!passwordUpdated || error) {
         console.error("update_password.error", error);
-        throw new Error("Failed to update password");
+        const errorDetails = await (async () => {
+          try {
+            return (await error?.context?.json()) ?? {};
+          } catch {
+            return {};
+          }
+        })();
+        throw new Error(errorDetails?.message || "Failed to update password");
       }
 
       return passwordUpdated;

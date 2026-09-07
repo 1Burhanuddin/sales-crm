@@ -126,13 +126,6 @@ export const getAuthProvider = (): AuthProvider => {
       ) {
         return;
       }
-      // Users are on the forgot-password page, nothing to do
-      if (
-        window.location.pathname === "/forgot-password" ||
-        window.location.hash.includes("#/forgot-password")
-      ) {
-        return;
-      }
       // Users are on the sign-up page, nothing to do
       if (
         window.location.pathname === "/sign-up" ||
