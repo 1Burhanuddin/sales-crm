@@ -1190,8 +1190,10 @@ export const englishCrmMessages = {
       password: {
         change: "Change password",
         confirm: "Confirm password",
+        hide: "Hide password",
         mismatch: "Passwords don't match",
         new: "New password",
+        show: "Show password",
         too_short: "At least 6 characters",
         updated: "Password updated",
       },

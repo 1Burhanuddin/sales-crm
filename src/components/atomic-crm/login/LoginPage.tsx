@@ -3,6 +3,7 @@ import { Form, required, useLogin, useNotify, useTranslate } from "ra-core";
 import type { SubmitHandler, FieldValues } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/admin/text-input";
+import { PasswordInput } from "@/components/admin/password-input";
 import { Notification } from "@/components/admin/notification";
 import { useConfigurationContext } from "@/components/atomic-crm/root/ConfigurationContext.tsx";
 import { SSOAuthButton } from "./SSOAuthButton";
@@ -82,10 +83,9 @@ export const LoginPage = (props: { redirectTo?: string }) => {
                   type="email"
                   validate={required()}
                 />
-                <TextInput
+                <PasswordInput
                   label="ra.auth.password"
                   source="password"
-                  type="password"
                   validate={required()}
                 />
                 <div className="flex flex-col gap-4">

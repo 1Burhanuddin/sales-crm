@@ -1,6 +1,7 @@
 import { email, required, useGetIdentity, useRecordContext } from "ra-core";
 import { BooleanInput } from "@/components/admin/boolean-input";
 import { TextInput } from "@/components/admin/text-input";
+import { PasswordInput } from "@/components/admin/password-input";
 
 import type { Sale } from "../types";
 
@@ -17,9 +18,8 @@ export function SalesInputs() {
         helperText={false}
       />
       {!record && (
-        <TextInput
+        <PasswordInput
           source="password"
-          type="password"
           validate={required()}
           helperText="resources.sales.fields.password_helper"
         />
