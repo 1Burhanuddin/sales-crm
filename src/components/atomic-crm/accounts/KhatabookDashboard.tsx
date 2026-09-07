@@ -155,11 +155,11 @@ const PersonRow = ({
   const { person, loans, net } = group;
 
   return (
-    <Card>
+    <Card className="py-0 gap-0">
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="w-full flex items-center gap-3 p-4 text-left"
+        className="w-full flex items-center gap-2 px-3 py-2.5 text-left"
       >
         {expanded ? (
           <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -191,7 +191,7 @@ const PersonRow = ({
         </span>
       </button>
       {expanded && (
-        <CardContent className="pt-0 flex flex-col gap-2">
+        <CardContent className="px-3 pb-2.5 flex flex-col gap-2">
           {loans.map((loan) => (
             <LoanRow key={loan.id} loan={loan} currency={currency} />
           ))}
