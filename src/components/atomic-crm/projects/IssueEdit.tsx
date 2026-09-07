@@ -81,6 +81,8 @@ function EditHeader({ projectId }: { projectId: Identifier }) {
         <div className="flex gap-2 pr-12">
           <DeleteButton
             redirect={false}
+            // See IssueShow.tsx's identical delete button for why.
+            mutationMode="pessimistic"
             mutationOptions={{
               onSuccess: () => {
                 redirect(`/projects/${projectId}/show`);

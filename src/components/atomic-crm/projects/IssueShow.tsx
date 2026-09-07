@@ -70,6 +70,11 @@ const IssueShowContent = ({ projectId }: { projectId: Identifier }) => {
             </Button>
             <DeleteButton
               redirect={false}
+              // Undoable mode's onSuccess fires before the real delete
+              // request is even sent -- navigating to the project page
+              // that fast can show the issue still there, since it
+              // genuinely hasn't been deleted from the DB yet.
+              mutationMode="pessimistic"
               mutationOptions={{
                 onSuccess: () => redirect(`/projects/${projectId}/show`),
               }}
