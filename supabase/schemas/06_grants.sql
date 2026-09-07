@@ -226,6 +226,10 @@ grant all on table public.assignments to anon;
 grant all on table public.assignments to authenticated;
 grant all on table public.assignments to service_role;
 
+grant all on table public.assignment_notes to anon;
+grant all on table public.assignment_notes to authenticated;
+grant all on table public.assignment_notes to service_role;
+
 -- View grants
 grant all on table public.activity_log to anon;
 grant all on table public.activity_log to authenticated;
@@ -383,6 +387,10 @@ grant all on sequence public.lead_activities_id_seq to service_role;
 grant all on sequence public.assignments_id_seq to anon;
 grant all on sequence public.assignments_id_seq to authenticated;
 grant all on sequence public.assignments_id_seq to service_role;
+
+grant all on sequence public.assignment_notes_id_seq to anon;
+grant all on sequence public.assignment_notes_id_seq to authenticated;
+grant all on sequence public.assignment_notes_id_seq to service_role;
 
 -- Default privileges
 alter default privileges for role postgres in schema public grant all on sequences to postgres;

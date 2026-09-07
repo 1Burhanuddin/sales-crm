@@ -37,6 +37,7 @@ alter table public.personal_note_shares enable row level security;
 alter table public.leads enable row level security;
 alter table public.lead_activities enable row level security;
 alter table public.assignments enable row level security;
+alter table public.assignment_notes enable row level security;
 
 -- Companies (visible/editable by their owning sales rep, or any admin)
 create policy "Select own or admin" on public.companies for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
@@ -131,7 +132,8 @@ create policy "Project member or admin select" on public.issue_notes for select 
     exists (select 1 from public.issues i where i.id = issue_notes.issue_id and public.can_access_project(i.project_id))
 );
 create policy "Project member or admin insert" on public.issue_notes for insert to authenticated with check (
-    exists (select 1 from public.issues i where i.id = issue_notes.issue_id and public.can_access_project(i.project_id))
+    (sales_id is null or sales_id = public.current_sales_id() or public.is_admin())
+    and exists (select 1 from public.issues i where i.id = issue_notes.issue_id and public.can_access_project(i.project_id))
 );
 create policy "Update own or admin" on public.issue_notes for update to authenticated using (public.is_admin() or sales_id = public.current_sales_id()) with check (public.is_admin() or sales_id = public.current_sales_id());
 create policy "Admin delete only" on public.issue_notes for delete to authenticated using (public.is_admin());
@@ -336,3 +338,19 @@ create policy "Update own, assigned, or admin, not notes-only" on public.assignm
     (public.is_admin() or sales_id = public.current_sales_id() or assignee_id = public.current_sales_id()) and not public.is_notes_only()
 );
 create policy "Admin delete only" on public.assignments for delete to authenticated using (public.is_admin());
+
+-- Comments on assignments, mirrors issue_notes' access shape.
+create policy "Select via assignment access" on public.assignment_notes for select to authenticated using (
+    public.can_access_assignment(assignment_id)
+);
+create policy "Insert via assignment access, not notes-only" on public.assignment_notes for insert to authenticated with check (
+    not public.is_notes_only()
+    and (sales_id is null or sales_id = public.current_sales_id() or public.is_admin())
+    and public.can_access_assignment(assignment_id)
+);
+create policy "Update own or admin" on public.assignment_notes for update to authenticated using (
+    public.is_admin() or sales_id = public.current_sales_id()
+) with check (
+    public.is_admin() or sales_id = public.current_sales_id()
+);
+create policy "Admin delete only" on public.assignment_notes for delete to authenticated using (public.is_admin());

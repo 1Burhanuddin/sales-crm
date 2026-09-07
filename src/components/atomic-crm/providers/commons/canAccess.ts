@@ -59,7 +59,7 @@ const PERSONAL_NOTE_RESOURCES = [
 ];
 // Cross-team task delegation -- every role except notes-only gets this
 // (RLS scopes rows to creator/assignee/admin, not by role).
-const ASSIGNMENT_RESOURCES = ["assignments"];
+const ASSIGNMENT_RESOURCES = ["assignments", "assignment_notes"];
 
 // Shared by the developer and plain-user branches so HR rules can't drift
 // apart between the two self-service roles.

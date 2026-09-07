@@ -668,6 +668,22 @@ export const frenchCrmMessages = {
         create: "Nouvelle tâche",
       },
     },
+    assignment_notes: {
+      fields: {
+        text: "Commentaire",
+        date: "Date",
+      },
+      action: {
+        add_this: "Ajouter ce commentaire",
+      },
+      added: "Commentaire ajouté",
+      deleted: "Commentaire supprimé",
+      you_added: "Vous avez ajouté un commentaire",
+      author_added: "%{name} a ajouté un commentaire",
+      inputs: {
+        add_note: "Ajouter un commentaire",
+      },
+    },
     personal_notes: {
       name: "Note |||| Notes",
       fields: {

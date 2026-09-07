@@ -391,8 +391,10 @@ const DesktopAdmin = (
           "list",
           "create",
           "edit",
+          "show",
         ])}
       />
+      <Resource name="assignment_notes" />
       <Resource name="deals" {...deals} />
       <Resource name="contacts" {...contacts} />
       <Resource name="companies" {...companies} />

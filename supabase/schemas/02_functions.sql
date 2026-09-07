@@ -359,6 +359,18 @@ create or replace function public.can_access_project(p_project_id bigint) return
   );
 $$;
 
+-- Shared by assignment_notes' RLS policies, same reason can_access_project() exists.
+create or replace function public.can_access_assignment(p_assignment_id bigint) returns boolean
+    language sql stable security definer
+    set search_path = ''
+    as $$
+  select exists (
+    select 1 from public.assignments a
+    where a.id = p_assignment_id
+      and (public.is_admin() or a.sales_id = public.current_sales_id() or a.assignee_id = public.current_sales_id())
+  );
+$$;
+
 CREATE OR REPLACE FUNCTION "public"."generate_employee_code"() RETURNS "trigger"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
