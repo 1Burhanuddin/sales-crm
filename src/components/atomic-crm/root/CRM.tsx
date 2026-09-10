@@ -94,6 +94,11 @@ const LazyPmDashboard = lazy(() =>
 const LazyHrDashboard = lazy(() =>
   import("../hr/HrDashboard").then((m) => ({ default: m.HrDashboard })),
 );
+const LazyWeeklyPlannerPage = lazy(() =>
+  import("../weekly-planner/WeeklyPlannerPage").then((m) => ({
+    default: m.WeeklyPlannerPage,
+  })),
+);
 const LazyMyHrDashboard = lazy(() =>
   import("../hr/MyHrDashboard").then((m) => ({ default: m.MyHrDashboard })),
 );
@@ -340,6 +345,14 @@ const DesktopAdmin = (
           }
         />
         <Route
+          path="/my-week"
+          element={
+            <CanAccess resource="assignments" action="list">
+              <LazyWeeklyPlannerPage />
+            </CanAccess>
+          }
+        />
+        <Route
           path="/accounts"
           element={
             <CanAccess resource="transactions" action="list">
@@ -482,6 +495,10 @@ const DesktopAdmin = (
       {/* Also bare -- set/edited inline from MonthDetail's category
           breakdown (AccountsDashboard.tsx), no dedicated route. */}
       <Resource name="budgets" />
+      {/* Bare -- WeeklyPlannerPage ("My Week") is the only UI for both,
+          get-or-create inline, same pattern as budgets above. */}
+      <Resource name="weekly_plans" />
+      <Resource name="daily_reviews" />
       <Resource
         name="personal_notes"
         {...lazyResource(() => import("../personal-notes"), ["list"])}

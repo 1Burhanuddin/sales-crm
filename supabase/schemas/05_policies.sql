@@ -38,6 +38,8 @@ alter table public.leads enable row level security;
 alter table public.lead_activities enable row level security;
 alter table public.assignments enable row level security;
 alter table public.assignment_notes enable row level security;
+alter table public.weekly_plans enable row level security;
+alter table public.daily_reviews enable row level security;
 
 -- Companies (visible/editable by their owning sales rep, or any admin)
 create policy "Select own or admin" on public.companies for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
@@ -354,3 +356,36 @@ create policy "Update own or admin" on public.assignment_notes for update to aut
     public.is_admin() or sales_id = public.current_sales_id()
 );
 create policy "Admin delete only" on public.assignment_notes for delete to authenticated using (public.is_admin());
+
+-- Personal weekly planner: owner-only, mirrors personal_notes' shape
+-- (self-delete allowed -- private scratch content, not shared business
+-- data) minus the sharing policies personal_notes has.
+create policy "Select own or admin" on public.weekly_plans for select to authenticated using (
+    public.is_admin() or sales_id = public.current_sales_id()
+);
+create policy "Insert own or admin, not notes-only" on public.weekly_plans for insert to authenticated with check (
+    (public.is_admin() or sales_id = public.current_sales_id()) and not public.is_notes_only()
+);
+create policy "Update own or admin, not notes-only" on public.weekly_plans for update to authenticated using (
+    (public.is_admin() or sales_id = public.current_sales_id()) and not public.is_notes_only()
+) with check (
+    (public.is_admin() or sales_id = public.current_sales_id()) and not public.is_notes_only()
+);
+create policy "Delete own or admin" on public.weekly_plans for delete to authenticated using (
+    public.is_admin() or sales_id = public.current_sales_id()
+);
+
+create policy "Select own or admin" on public.daily_reviews for select to authenticated using (
+    public.is_admin() or sales_id = public.current_sales_id()
+);
+create policy "Insert own or admin, not notes-only" on public.daily_reviews for insert to authenticated with check (
+    (public.is_admin() or sales_id = public.current_sales_id()) and not public.is_notes_only()
+);
+create policy "Update own or admin, not notes-only" on public.daily_reviews for update to authenticated using (
+    (public.is_admin() or sales_id = public.current_sales_id()) and not public.is_notes_only()
+) with check (
+    (public.is_admin() or sales_id = public.current_sales_id()) and not public.is_notes_only()
+);
+create policy "Delete own or admin" on public.daily_reviews for delete to authenticated using (
+    public.is_admin() or sales_id = public.current_sales_id()
+);

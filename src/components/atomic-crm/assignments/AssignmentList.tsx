@@ -17,7 +17,7 @@ import { TopToolbar } from "../layout/TopToolbar";
 import { useViewMode } from "../misc/useViewMode";
 import type { Assignment } from "../types";
 import { AssignmentBoard } from "./AssignmentBoard";
-import { STATUS_CHOICES } from "./choices";
+import { STATUS_CHOICES, TIME_BLOCK_CHOICES } from "./choices";
 
 const filters = [
   <SearchInput source="q" alwaysOn />,
@@ -28,6 +28,11 @@ const filters = [
     />
   </ReferenceInput>,
   <SelectInput source="status" choices={STATUS_CHOICES} label="resources.assignments.fields.status" />,
+  <SelectInput
+    source="time_block"
+    choices={TIME_BLOCK_CHOICES}
+    label="resources.assignments.fields.time_block"
+  />,
 ];
 
 export const AssignmentList = () => {
@@ -65,6 +70,9 @@ export const AssignmentList = () => {
           <DataTable.Col label="resources.assignments.fields.due_date">
             <DateField source="due_date" />
           </DataTable.Col>
+          <DataTable.Col label="resources.assignments.fields.time_block">
+            <TimeBlockField />
+          </DataTable.Col>
           <DataTable.Col label="resources.assignments.fields.sales_id">
             <ReferenceField source="sales_id" reference="sales" link={false} />
           </DataTable.Col>
@@ -100,6 +108,17 @@ const PriorityField = () => {
   return (
     <span className="text-sm text-muted-foreground">
       {translate(`resources.assignments.priority.${record.priority}`)}
+    </span>
+  );
+};
+
+const TimeBlockField = () => {
+  const translate = useTranslate();
+  const record = useRecordContext<Assignment>();
+  if (!record?.time_block) return null;
+  return (
+    <span className="text-sm text-muted-foreground">
+      {translate(`resources.assignments.time_block.${record.time_block}`)}
     </span>
   );
 };

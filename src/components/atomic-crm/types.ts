@@ -365,6 +365,21 @@ export type Budget = {
 
 export type AssignmentStatus = "todo" | "in_progress" | "done";
 export type AssignmentPriority = "low" | "medium" | "high";
+/** Which part of the day a task is meant for -- the My Week planner's
+ * day view groups tasks by this. Mirrors the daily-routine blocks a
+ * task actually gets worked in; the fixed anchors (prayer, meals,
+ * sleep) aren't included since a task is never assigned to those. */
+export type AssignmentTimeBlock =
+  | "fajr_quran"
+  | "morning_prep"
+  | "deep_work_1"
+  | "sales_comm"
+  | "buffer"
+  | "deep_work_2"
+  | "learning"
+  | "exercise"
+  | "evening_personal"
+  | "evening_review";
 
 /** Cross-team task delegation -- not tied to a contact/deal/project,
  * assignable to anyone regardless of role. See the separate contact-linked
@@ -375,6 +390,10 @@ export type Assignment = {
   status: AssignmentStatus;
   priority?: AssignmentPriority | null;
   due_date?: string | null;
+  time_block?: AssignmentTimeBlock | null;
+  /** Free text: what/who this is waiting on, if anything. Surfaced in
+   * the My Week planner's "Waiting On" list. */
+  blocked_on?: string | null;
   assignee_id: Identifier;
   sales_id?: Identifier;
   created_at: string;
@@ -386,6 +405,31 @@ export type AssignmentNote = {
   text: string;
   date: string;
   sales_id: Identifier;
+} & Pick<RaRecord, "id">;
+
+/** Personal weekly planner: one free-text "focus" note per user per
+ * week (goals/constraints/priorities prose). The actual to-dos are
+ * Assignments above -- this is just the surrounding context. */
+export type WeeklyPlan = {
+  sales_id?: Identifier;
+  week_start: string;
+  focus?: string | null;
+  created_at: string;
+  updated_at: string;
+} & Pick<RaRecord, "id">;
+
+/** Personal nightly journal: one row per user per day. */
+export type DailyReview = {
+  sales_id?: Identifier;
+  date: string;
+  completed?: string | null;
+  blocked?: string | null;
+  changed?: string | null;
+  avoid_tomorrow?: string | null;
+  top3_tomorrow: string[];
+  if_time_allows: string[];
+  created_at: string;
+  updated_at: string;
 } & Pick<RaRecord, "id">;
 
 export type ChecklistItem = {

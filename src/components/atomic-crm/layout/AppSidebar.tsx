@@ -1,6 +1,7 @@
 import {
   BarChart3,
   Building2,
+  CalendarClock,
   CalendarDays,
   CalendarOff,
   CheckSquare,
@@ -107,6 +108,14 @@ export const AppSidebar = () => {
             _: "Tasks",
           }),
           icon: CheckSquare,
+          resource: "assignments",
+        },
+        {
+          to: "/my-week",
+          label: translate("crm.weekly_planner.nav_label", {
+            _: "My Week",
+          }),
+          icon: CalendarClock,
           resource: "assignments",
         },
       ],

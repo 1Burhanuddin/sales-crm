@@ -5,7 +5,7 @@ import { ReferenceInput } from "@/components/admin/reference-input";
 import { SelectInput } from "@/components/admin/select-input";
 import { TextInput } from "@/components/admin/text-input";
 
-import { PRIORITY_CHOICES, STATUS_CHOICES } from "./choices";
+import { PRIORITY_CHOICES, STATUS_CHOICES, TIME_BLOCK_CHOICES } from "./choices";
 
 export const AssignmentInputs = () => (
   <div className="flex flex-col gap-4">
@@ -41,6 +41,21 @@ export const AssignmentInputs = () => (
         source="due_date"
         helperText={false}
         className="flex-1 min-w-32"
+      />
+    </div>
+    <div className="flex gap-4">
+      <SelectInput
+        source="time_block"
+        label="resources.assignments.fields.time_block"
+        choices={TIME_BLOCK_CHOICES}
+        helperText={false}
+        className="flex-1"
+      />
+      <TextInput
+        source="blocked_on"
+        label="resources.assignments.fields.blocked_on"
+        helperText="resources.assignments.fields.blocked_on_helper"
+        className="flex-1"
       />
     </div>
   </div>

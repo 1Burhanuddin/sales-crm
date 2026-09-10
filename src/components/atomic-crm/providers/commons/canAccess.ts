@@ -60,6 +60,9 @@ const PERSONAL_NOTE_RESOURCES = [
 // Cross-team task delegation -- every role except notes-only gets this
 // (RLS scopes rows to creator/assignee/admin, not by role).
 const ASSIGNMENT_RESOURCES = ["assignments", "assignment_notes"];
+// My Week planner: personal, owner-only (RLS), same audience as
+// assignments -- every role except notes-only.
+const WEEKLY_PLANNER_RESOURCES = ["weekly_plans", "daily_reviews"];
 
 // Shared by the developer and plain-user branches so HR rules can't drift
 // apart between the two self-service roles.
@@ -131,6 +134,7 @@ export const canAccess = <
         ...HR_SELF_SERVICE_RESOURCES,
         ...PERSONAL_NOTE_RESOURCES,
         ...ASSIGNMENT_RESOURCES,
+        ...WEEKLY_PLANNER_RESOURCES,
       ].includes(params.resource)
     ) {
       return false;
@@ -154,6 +158,7 @@ export const canAccess = <
         ...ACCOUNTS_RESOURCES,
         ...PERSONAL_NOTE_RESOURCES,
         ...ASSIGNMENT_RESOURCES,
+        ...WEEKLY_PLANNER_RESOURCES,
       ].includes(params.resource)
     ) {
       return false;
