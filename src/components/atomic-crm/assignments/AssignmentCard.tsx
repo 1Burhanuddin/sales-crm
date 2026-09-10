@@ -1,5 +1,5 @@
 import { Draggable } from "@hello-pangea/dnd";
-import { RecordContextProvider, useRedirect } from "ra-core";
+import { RecordContextProvider, useRedirect, useTranslate } from "ra-core";
 import { DateField } from "@/components/admin/date-field";
 import { ReferenceField } from "@/components/admin/reference-field";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,6 +30,7 @@ const AssignmentCardContent = ({
   assignment: Assignment;
 }) => {
   const redirect = useRedirect();
+  const translate = useTranslate();
   return (
     <div
       className="cursor-pointer"
@@ -56,6 +57,11 @@ const AssignmentCardContent = ({
               <ReferenceField source="assignee_id" reference="sales" link={false} />
               {assignment.due_date && <DateField source="due_date" />}
             </p>
+            {assignment.time_block && (
+              <p className="text-xs text-muted-foreground">
+                {translate(`resources.assignments.time_block.${assignment.time_block}`)}
+              </p>
+            )}
           </CardContent>
         </Card>
       </RecordContextProvider>
