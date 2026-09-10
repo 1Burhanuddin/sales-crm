@@ -20,7 +20,6 @@ import type {
   Transaction,
 } from "../../types";
 import type { ConfigurationContextValue } from "../../root/ConfigurationContext";
-import { ATTACHMENTS_BUCKET } from "../commons/attachments";
 import { getIsInitialized } from "./authProvider";
 import { getSupabaseClient } from "./supabase";
 
@@ -561,15 +560,24 @@ const applyFullTextSearch = (columns: string[]) => (params: GetListParams) => {
   };
 };
 
+// Attachments live in Google Drive (see google_drive_upload edge
+// function), not Supabase Storage -- fi.path holds the Drive file id
+// instead of a bucket path.
 const uploadToBucket = async (fi: RAFile) => {
   if (!fi.src.startsWith("blob:") && !fi.src.startsWith("data:")) {
-    // Sign URL check if path exists in the bucket
+    // Already uploaded -- confirm the Drive file still exists before
+    // reusing it as-is.
     if (fi.path) {
-      const { error } = await getSupabaseClient()
-        .storage.from(ATTACHMENTS_BUCKET)
-        .createSignedUrl(fi.path, 60);
+      const { data, error } = await getSupabaseClient().functions.invoke<{
+        data: { exists: boolean };
+      }>("google_drive_upload", { body: { checkFileId: fi.path } });
 
-      if (!error) {
+      const exists = data?.data?.exists;
+      // exists===false means a confirmed 404 -- fall through and
+      // re-upload. Anything else (confirmed true, or inconclusive due
+      // to an error) means don't touch it: reusing risks nothing,
+      // re-uploading on an inconclusive check risks a duplicate.
+      if (error || exists !== false) {
         return fi;
       }
     }
@@ -594,30 +602,29 @@ const uploadToBucket = async (fi: RAFile) => {
     return fi;
   }
 
-  const file = fi.rawFile;
-  const fileParts = file.name.split(".");
-  const fileExt = fileParts.length > 1 ? `.${file.name.split(".").pop()}` : "";
-  const fileName = `${Math.random()}${fileExt}`;
-  const filePath = `${fileName}`;
-  const { error: uploadError } = await getSupabaseClient()
-    .storage.from(ATTACHMENTS_BUCKET)
-    .upload(filePath, dataContent);
+  const fileName = fi.rawFile?.name || fi.title || "attachment";
+  const fileType = fi.rawFile?.type || fi.type;
+  const formData = new FormData();
+  formData.append(
+    "file",
+    dataContent instanceof File
+      ? dataContent
+      : new File([dataContent], fileName, { type: fileType }),
+    fileName,
+  );
 
-  if (uploadError) {
-    console.error("uploadError", uploadError);
+  const { data, error } = await getSupabaseClient().functions.invoke<{
+    data: { fileId: string; src: string; mimeType: string };
+  }>("google_drive_upload", { body: formData });
+
+  if (error || !data?.data) {
+    console.error("uploadError", error);
     throw new Error("Failed to upload attachment");
   }
 
-  const { data } = getSupabaseClient()
-    .storage.from(ATTACHMENTS_BUCKET)
-    .getPublicUrl(filePath);
-
-  fi.path = filePath;
-  fi.src = data.publicUrl;
-
-  // save MIME type
-  const mimeType = file.type;
-  fi.type = mimeType;
+  fi.path = data.data.fileId;
+  fi.src = data.data.src;
+  fi.type = data.data.mimeType || fileType;
 
   return fi;
 };
