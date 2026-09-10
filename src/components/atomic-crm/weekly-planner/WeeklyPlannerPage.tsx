@@ -50,6 +50,27 @@ export const WeeklyPlannerPage = () => {
     { enabled: !!identity },
   );
 
+  // Must Win / Should Win: your current open priority tasks, not tied
+  // to a specific due date -- deliberately separate from weekAssignments
+  // above (which drives the day-by-day agenda) so a week-level outcome
+  // doesn't need a fake due date just to show up here, and doesn't end
+  // up cluttering whichever day that fake date landed on.
+  const { data: priorityTasks, refetch: refetchPriority } = useGetList<Assignment>(
+    "assignments",
+    {
+      pagination: { page: 1, perPage: 100 },
+      sort: { field: "due_date", order: "ASC" },
+      filter: identity
+        ? {
+            assignee_id: identity.id,
+            "priority@not.is": null,
+            "status@neq": "done",
+          }
+        : undefined,
+    },
+    { enabled: !!identity },
+  );
+
   const { data: waiting, refetch: refetchWaiting } = useGetList<Assignment>(
     "assignments",
     {
@@ -80,6 +101,7 @@ export const WeeklyPlannerPage = () => {
       {
         onSuccess: () => {
           refetchWeek();
+          refetchPriority();
           refetchWaiting();
         },
         onError: () => notify("ra.notification.http_error", { type: "error" }),
@@ -89,6 +111,7 @@ export const WeeklyPlannerPage = () => {
 
   const refetchAll = () => {
     refetchWeek();
+    refetchPriority();
     refetchWaiting();
   };
 
@@ -97,8 +120,8 @@ export const WeeklyPlannerPage = () => {
     return (weekAssignments ?? []).filter((a) => a.due_date === key);
   };
 
-  const mustWin = (weekAssignments ?? []).filter((a) => a.priority === "high");
-  const shouldWin = (weekAssignments ?? []).filter(
+  const mustWin = (priorityTasks ?? []).filter((a) => a.priority === "high");
+  const shouldWin = (priorityTasks ?? []).filter(
     (a) => a.priority === "medium",
   );
 
@@ -159,7 +182,7 @@ export const WeeklyPlannerPage = () => {
         <Skeleton className="h-64 w-full" />
       ) : (
         identity && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3">
+          <div className="flex flex-col gap-3">
             {weekDays.map((day) => (
               <WeekDayCard
                 key={toDateKey(day)}
