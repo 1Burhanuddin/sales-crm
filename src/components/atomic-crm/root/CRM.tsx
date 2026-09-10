@@ -347,7 +347,7 @@ const DesktopAdmin = (
         <Route
           path="/my-week"
           element={
-            <CanAccess resource="assignments" action="list">
+            <CanAccess resource="weekly_plans" action="list">
               <LazyWeeklyPlannerPage />
             </CanAccess>
           }

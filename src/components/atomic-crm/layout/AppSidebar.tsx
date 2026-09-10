@@ -116,7 +116,7 @@ export const AppSidebar = () => {
             _: "My Week",
           }),
           icon: CalendarClock,
-          resource: "assignments",
+          resource: "weekly_plans",
         },
       ],
     },
