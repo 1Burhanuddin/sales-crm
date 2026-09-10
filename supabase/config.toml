@@ -174,3 +174,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.google_oauth_callback]
 verify_jwt = false
+[functions.google_drive_upload]
+verify_jwt = false
