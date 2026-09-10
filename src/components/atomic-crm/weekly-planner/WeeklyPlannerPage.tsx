@@ -50,6 +50,25 @@ export const WeeklyPlannerPage = () => {
     { enabled: !!identity },
   );
 
+  // Must Win / Should Win: open priority tasks, not date-bound -- not
+  // reactive to the week switcher below on purpose (it's your current
+  // priority list, not a per-week one).
+  const { data: priorityTasks, refetch: refetchPriority } = useGetList<Assignment>(
+    "assignments",
+    {
+      pagination: { page: 1, perPage: 500 },
+      sort: { field: "due_date", order: "ASC" },
+      filter: identity
+        ? {
+            assignee_id: identity.id,
+            "priority@neq": "low",
+            "status@neq": "done",
+          }
+        : undefined,
+    },
+    { enabled: !!identity },
+  );
+
   const { data: waiting, refetch: refetchWaiting } = useGetList<Assignment>(
     "assignments",
     {
@@ -80,6 +99,7 @@ export const WeeklyPlannerPage = () => {
       {
         onSuccess: () => {
           refetchWeek();
+          refetchPriority();
           refetchWaiting();
         },
         onError: () => notify("ra.notification.http_error", { type: "error" }),
@@ -89,6 +109,7 @@ export const WeeklyPlannerPage = () => {
 
   const refetchAll = () => {
     refetchWeek();
+    refetchPriority();
     refetchWaiting();
   };
 
@@ -97,8 +118,8 @@ export const WeeklyPlannerPage = () => {
     return (weekAssignments ?? []).filter((a) => a.due_date === key);
   };
 
-  const mustWin = (weekAssignments ?? []).filter((a) => a.priority === "high");
-  const shouldWin = (weekAssignments ?? []).filter(
+  const mustWin = (priorityTasks ?? []).filter((a) => a.priority === "high");
+  const shouldWin = (priorityTasks ?? []).filter(
     (a) => a.priority === "medium",
   );
 
@@ -159,7 +180,7 @@ export const WeeklyPlannerPage = () => {
         <Skeleton className="h-64 w-full" />
       ) : (
         identity && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3">
+          <div className="flex flex-col gap-3">
             {weekDays.map((day) => (
               <WeekDayCard
                 key={toDateKey(day)}
@@ -177,20 +198,26 @@ export const WeeklyPlannerPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ScoreboardCard
           title={translate("crm.weekly_planner.must_win", { _: "Must win" })}
+          subtitle={translate("crm.weekly_planner.scoreboard_subtitle", {
+            _: "Your open priority tasks, not tied to a specific day",
+          })}
           assignments={mustWin}
           onToggleDone={toggleDone}
           emptyLabel={translate("crm.weekly_planner.no_high_priority", {
-            _: "No high-priority tasks this week",
+            _: "No high-priority tasks open",
           })}
         />
         <ScoreboardCard
           title={translate("crm.weekly_planner.should_win", {
             _: "Should win",
           })}
+          subtitle={translate("crm.weekly_planner.scoreboard_subtitle", {
+            _: "Your open priority tasks, not tied to a specific day",
+          })}
           assignments={shouldWin}
           onToggleDone={toggleDone}
           emptyLabel={translate("crm.weekly_planner.no_medium_priority", {
-            _: "No medium-priority tasks this week",
+            _: "No medium-priority tasks open",
           })}
         />
       </div>
@@ -232,11 +259,13 @@ export const WeeklyPlannerPage = () => {
 
 const ScoreboardCard = ({
   title,
+  subtitle,
   assignments,
   onToggleDone,
   emptyLabel,
 }: {
   title: string;
+  subtitle: string;
   assignments: Assignment[];
   onToggleDone: (assignment: Assignment) => void;
   emptyLabel: string;
@@ -244,6 +273,7 @@ const ScoreboardCard = ({
   <Card>
     <CardHeader>
       <CardTitle className="text-base font-medium">{title}</CardTitle>
+      <p className="text-xs text-muted-foreground">{subtitle}</p>
     </CardHeader>
     <CardContent className="flex flex-col gap-2">
       {assignments.length === 0 && (

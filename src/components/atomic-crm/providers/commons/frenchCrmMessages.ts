@@ -1012,8 +1012,9 @@ export const frenchCrmMessages = {
       this_week: "Cette semaine",
       must_win: "Priorité absolue",
       should_win: "Priorité secondaire",
-      no_high_priority: "Aucune tâche haute priorité cette semaine",
-      no_medium_priority: "Aucune tâche priorité moyenne cette semaine",
+      scoreboard_subtitle: "Vos tâches prioritaires en cours, sans jour précis",
+      no_high_priority: "Aucune tâche haute priorité en cours",
+      no_medium_priority: "Aucune tâche priorité moyenne en cours",
       waiting_on: "En attente de",
       nothing_waiting: "Rien en attente de quelqu'un d'autre",
       day: {
