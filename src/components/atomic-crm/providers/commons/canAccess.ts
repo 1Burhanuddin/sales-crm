@@ -60,8 +60,11 @@ const PERSONAL_NOTE_RESOURCES = [
 // Cross-team task delegation -- every role except notes-only gets this
 // (RLS scopes rows to creator/assignee/admin, not by role).
 const ASSIGNMENT_RESOURCES = ["assignments", "assignment_notes"];
-// My Week planner: personal, owner-only (RLS), same audience as
-// assignments -- every role except notes-only.
+// My Week planner: admin only -- unlike assignments, this isn't a
+// team-wide feature, it's specifically the admin's own personal
+// schedule. RLS still scopes rows by sales_id (so it stays "owner-only"
+// at the data layer, matching personal_notes' shape) -- this list is
+// what keeps the page/nav out of every other role's hands.
 const WEEKLY_PLANNER_RESOURCES = ["weekly_plans", "daily_reviews"];
 
 // Shared by the developer and plain-user branches so HR rules can't drift
@@ -134,7 +137,6 @@ export const canAccess = <
         ...HR_SELF_SERVICE_RESOURCES,
         ...PERSONAL_NOTE_RESOURCES,
         ...ASSIGNMENT_RESOURCES,
-        ...WEEKLY_PLANNER_RESOURCES,
       ].includes(params.resource)
     ) {
       return false;
@@ -158,7 +160,6 @@ export const canAccess = <
         ...ACCOUNTS_RESOURCES,
         ...PERSONAL_NOTE_RESOURCES,
         ...ASSIGNMENT_RESOURCES,
-        ...WEEKLY_PLANNER_RESOURCES,
       ].includes(params.resource)
     ) {
       return false;
@@ -200,6 +201,11 @@ export const canAccess = <
 
   // Plain sales users don't get access to the Projects/Issues module either
   if (PM_RESOURCES.includes(params.resource)) {
+    return false;
+  }
+
+  // My Week is admin-only -- see WEEKLY_PLANNER_RESOURCES above.
+  if (WEEKLY_PLANNER_RESOURCES.includes(params.resource)) {
     return false;
   }
 
