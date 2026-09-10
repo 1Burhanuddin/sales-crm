@@ -238,6 +238,12 @@ grant all on table public.daily_reviews to anon;
 grant all on table public.daily_reviews to authenticated;
 grant all on table public.daily_reviews to service_role;
 
+-- oauth_tokens: service_role only. Explicit revoke because the
+-- default-privilege grants below auto-grant anon/authenticated too.
+grant all on table public.oauth_tokens to service_role;
+revoke all on table public.oauth_tokens from anon;
+revoke all on table public.oauth_tokens from authenticated;
+
 -- View grants
 grant all on table public.activity_log to anon;
 grant all on table public.activity_log to authenticated;
@@ -407,6 +413,10 @@ grant all on sequence public.weekly_plans_id_seq to service_role;
 grant all on sequence public.daily_reviews_id_seq to anon;
 grant all on sequence public.daily_reviews_id_seq to authenticated;
 grant all on sequence public.daily_reviews_id_seq to service_role;
+
+grant all on sequence public.oauth_tokens_id_seq to service_role;
+revoke all on sequence public.oauth_tokens_id_seq from anon;
+revoke all on sequence public.oauth_tokens_id_seq from authenticated;
 
 -- Default privileges
 alter default privileges for role postgres in schema public grant all on sequences to postgres;

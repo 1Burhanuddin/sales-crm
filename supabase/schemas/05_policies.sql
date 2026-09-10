@@ -40,6 +40,8 @@ alter table public.assignments enable row level security;
 alter table public.assignment_notes enable row level security;
 alter table public.weekly_plans enable row level security;
 alter table public.daily_reviews enable row level security;
+-- oauth_tokens: no policies -- service_role bypasses RLS, no one else needs in.
+alter table public.oauth_tokens enable row level security;
 
 -- Companies (visible/editable by their owning sales rep, or any admin)
 create policy "Select own or admin" on public.companies for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
