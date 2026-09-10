@@ -50,20 +50,18 @@ export const WeeklyPlannerPage = () => {
     { enabled: !!identity },
   );
 
-  // Must Win / Should Win: your current open priority tasks, not tied
-  // to a specific due date -- deliberately separate from weekAssignments
-  // above (which drives the day-by-day agenda) so a week-level outcome
-  // doesn't need a fake due date just to show up here, and doesn't end
-  // up cluttering whichever day that fake date landed on.
+  // Must Win / Should Win: open priority tasks, not date-bound -- not
+  // reactive to the week switcher below on purpose (it's your current
+  // priority list, not a per-week one).
   const { data: priorityTasks, refetch: refetchPriority } = useGetList<Assignment>(
     "assignments",
     {
-      pagination: { page: 1, perPage: 100 },
+      pagination: { page: 1, perPage: 500 },
       sort: { field: "due_date", order: "ASC" },
       filter: identity
         ? {
             assignee_id: identity.id,
-            "priority@not.is": null,
+            "priority@neq": "low",
             "status@neq": "done",
           }
         : undefined,
@@ -200,20 +198,26 @@ export const WeeklyPlannerPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ScoreboardCard
           title={translate("crm.weekly_planner.must_win", { _: "Must win" })}
+          subtitle={translate("crm.weekly_planner.scoreboard_subtitle", {
+            _: "Your open priority tasks, not tied to a specific day",
+          })}
           assignments={mustWin}
           onToggleDone={toggleDone}
           emptyLabel={translate("crm.weekly_planner.no_high_priority", {
-            _: "No high-priority tasks this week",
+            _: "No high-priority tasks open",
           })}
         />
         <ScoreboardCard
           title={translate("crm.weekly_planner.should_win", {
             _: "Should win",
           })}
+          subtitle={translate("crm.weekly_planner.scoreboard_subtitle", {
+            _: "Your open priority tasks, not tied to a specific day",
+          })}
           assignments={shouldWin}
           onToggleDone={toggleDone}
           emptyLabel={translate("crm.weekly_planner.no_medium_priority", {
-            _: "No medium-priority tasks this week",
+            _: "No medium-priority tasks open",
           })}
         />
       </div>
@@ -255,11 +259,13 @@ export const WeeklyPlannerPage = () => {
 
 const ScoreboardCard = ({
   title,
+  subtitle,
   assignments,
   onToggleDone,
   emptyLabel,
 }: {
   title: string;
+  subtitle: string;
   assignments: Assignment[];
   onToggleDone: (assignment: Assignment) => void;
   emptyLabel: string;
@@ -267,6 +273,7 @@ const ScoreboardCard = ({
   <Card>
     <CardHeader>
       <CardTitle className="text-base font-medium">{title}</CardTitle>
+      <p className="text-xs text-muted-foreground">{subtitle}</p>
     </CardHeader>
     <CardContent className="flex flex-col gap-2">
       {assignments.length === 0 && (

@@ -1004,8 +1004,9 @@ export const englishCrmMessages = {
       this_week: "This week",
       must_win: "Must win",
       should_win: "Should win",
-      no_high_priority: "No high-priority tasks this week",
-      no_medium_priority: "No medium-priority tasks this week",
+      scoreboard_subtitle: "Your open priority tasks, not tied to a specific day",
+      no_high_priority: "No high-priority tasks open",
+      no_medium_priority: "No medium-priority tasks open",
       waiting_on: "Waiting on",
       nothing_waiting: "Nothing marked as waiting on someone else",
       day: {

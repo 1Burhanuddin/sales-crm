@@ -19,12 +19,8 @@ import { cn } from "@/lib/utils";
 import { TIME_BLOCK_CHOICES, TIME_BLOCK_ORDER } from "../assignments/choices";
 import type { Assignment } from "../types";
 
-/** One day of the My Week agenda: a full-width row (not a narrow grid
- * column -- task titles are sentence-length, so a 7-across grid just
- * forces them into an 8-line wrap; a stacked agenda, same shape as the
- * source planner's own day cards, gives them room). Tasks sorted by
- * time block, with a quick-add row so several can be dropped in
- * without opening the full Assignment form each time. */
+/** One day of the My Week agenda, full-width so long task titles don't
+ * wrap awkwardly. Sorted by time block, with a quick-add row. */
 export const WeekDayCard = ({
   date,
   assignments,
