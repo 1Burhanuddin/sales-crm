@@ -42,6 +42,9 @@ alter table public.weekly_plans enable row level security;
 alter table public.daily_reviews enable row level security;
 -- oauth_tokens: no policies -- service_role bypasses RLS, no one else needs in.
 alter table public.oauth_tokens enable row level security;
+alter table public.photo_galleries enable row level security;
+alter table public.gallery_photos enable row level security;
+alter table public.photographers enable row level security;
 
 -- Companies (visible/editable by their owning sales rep, or any admin)
 create policy "Select own or admin" on public.companies for select to authenticated using (public.is_admin() or sales_id = public.current_sales_id());
@@ -391,3 +394,49 @@ create policy "Update own or admin, not notes-only" on public.daily_reviews for 
 create policy "Delete own or admin" on public.daily_reviews for delete to authenticated using (
     public.is_admin() or sales_id = public.current_sales_id()
 );
+
+-- Photo galleries: team-shared (any non-notes-only sales user can
+-- manage any gallery/album/photo, same as before). The only added
+-- restriction is is_photographer() logins, which only see/manage their
+-- OWN photographer's rows (owns_photographer()) -- every other role is
+-- unaffected. The client-facing view goes through a dedicated edge
+-- function instead of querying these tables directly -- see the table
+-- comment in 01_tables.sql.
+create policy "Team access, own if photographer" on public.photographers for select to authenticated
+    using (not public.is_notes_only() and (not public.is_photographer() or id = public.current_photographer_id()));
+create policy "Team insert, not photographer" on public.photographers for insert to authenticated
+    with check (not public.is_notes_only() and not public.is_photographer());
+create policy "Team update, not photographer" on public.photographers for update to authenticated
+    using (not public.is_notes_only() and not public.is_photographer())
+    with check (not public.is_notes_only() and not public.is_photographer());
+create policy "Admin delete only" on public.photographers for delete to authenticated using (public.is_admin());
+
+create policy "Team access, own if photographer" on public.photo_galleries for select to authenticated
+    using (not public.is_notes_only() and (not public.is_photographer() or public.owns_photographer(photographer_id)));
+create policy "Team insert, own if photographer" on public.photo_galleries for insert to authenticated
+    with check (not public.is_notes_only() and (not public.is_photographer() or public.owns_photographer(photographer_id)));
+create policy "Team update, own if photographer" on public.photo_galleries for update to authenticated
+    using (not public.is_notes_only() and (not public.is_photographer() or public.owns_photographer(photographer_id)))
+    with check (not public.is_notes_only() and (not public.is_photographer() or public.owns_photographer(photographer_id)));
+create policy "Admin or own photographer delete" on public.photo_galleries for delete to authenticated
+    using (public.is_admin() or public.owns_photographer(photographer_id));
+
+create policy "Team access, own if photographer" on public.gallery_albums for select to authenticated
+    using (not public.is_notes_only() and (not public.is_photographer() or public.owns_photographer(public.gallery_photographer_id(gallery_id))));
+create policy "Team insert, own if photographer" on public.gallery_albums for insert to authenticated
+    with check (not public.is_notes_only() and (not public.is_photographer() or public.owns_photographer(public.gallery_photographer_id(gallery_id))));
+create policy "Team update, own if photographer" on public.gallery_albums for update to authenticated
+    using (not public.is_notes_only() and (not public.is_photographer() or public.owns_photographer(public.gallery_photographer_id(gallery_id))))
+    with check (not public.is_notes_only() and (not public.is_photographer() or public.owns_photographer(public.gallery_photographer_id(gallery_id))));
+create policy "Admin or own photographer delete" on public.gallery_albums for delete to authenticated
+    using (public.is_admin() or public.owns_photographer(public.gallery_photographer_id(gallery_id)));
+
+create policy "Team access, own if photographer" on public.gallery_photos for select to authenticated
+    using (not public.is_notes_only() and (not public.is_photographer() or public.owns_photographer(public.album_photographer_id(album_id))));
+create policy "Team insert, own if photographer" on public.gallery_photos for insert to authenticated
+    with check (not public.is_notes_only() and (not public.is_photographer() or public.owns_photographer(public.album_photographer_id(album_id))));
+create policy "Team update, own if photographer" on public.gallery_photos for update to authenticated
+    using (not public.is_notes_only() and (not public.is_photographer() or public.owns_photographer(public.album_photographer_id(album_id))))
+    with check (not public.is_notes_only() and (not public.is_photographer() or public.owns_photographer(public.album_photographer_id(album_id))));
+create policy "Admin or own photographer delete" on public.gallery_photos for delete to authenticated
+    using (public.is_admin() or public.owns_photographer(public.album_photographer_id(album_id)));

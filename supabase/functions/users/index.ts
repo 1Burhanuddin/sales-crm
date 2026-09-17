@@ -18,6 +18,7 @@ async function updateSaleRoles(
     notes_only?: boolean;
     is_accounts?: boolean;
     is_marketing?: boolean;
+    is_photographer?: boolean;
   },
 ) {
   const { data: sales, error: salesError } = await supabaseAdmin
@@ -29,6 +30,7 @@ async function updateSaleRoles(
       notes_only: roles.notes_only ?? false,
       is_accounts: roles.is_accounts ?? false,
       is_marketing: roles.is_marketing ?? false,
+      is_photographer: roles.is_photographer ?? false,
     })
     .eq("user_id", user_id)
     .select("*");
@@ -52,6 +54,7 @@ async function createSale(
     notes_only?: boolean;
     is_accounts?: boolean;
     is_marketing?: boolean;
+    is_photographer?: boolean;
   },
 ) {
   const { data: sales, error: salesError } = await supabaseAdmin
@@ -92,6 +95,7 @@ async function inviteUser(req: Request, currentUserSale: any) {
     notes_only,
     is_accounts,
     is_marketing,
+    is_photographer,
   } = await req.json();
 
   if (!currentUserSale.administrator) {
@@ -161,6 +165,7 @@ async function inviteUser(req: Request, currentUserSale: any) {
         notes_only,
         is_accounts,
         is_marketing,
+        is_photographer,
       });
 
       return new Response(
@@ -213,6 +218,7 @@ async function inviteUser(req: Request, currentUserSale: any) {
       notes_only,
       is_accounts,
       is_marketing,
+      is_photographer,
     });
 
     return new Response(
@@ -242,6 +248,7 @@ async function patchUser(req: Request, currentUserSale: any) {
     notes_only,
     is_accounts,
     is_marketing,
+    is_photographer,
   } = await req.json();
   const { data: sale } = await supabaseAdmin
     .from("sales")
@@ -302,6 +309,7 @@ async function patchUser(req: Request, currentUserSale: any) {
       notes_only,
       is_accounts,
       is_marketing,
+      is_photographer,
     });
     return new Response(
       JSON.stringify({

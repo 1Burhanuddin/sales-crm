@@ -164,6 +164,22 @@ create or replace trigger set_assignment_notes_sales_id_trigger
     before insert on public.assignment_notes
     for each row execute function public.set_sales_id_default();
 
+create or replace trigger set_photo_gallery_sales_id_trigger
+    before insert on public.photo_galleries
+    for each row execute function public.set_sales_id_default();
+
+create or replace trigger set_photographer_sales_id_trigger
+    before insert on public.photographers
+    for each row execute function public.set_sales_id_default();
+
+create or replace trigger set_gallery_photo_sales_id_trigger
+    before insert on public.gallery_photos
+    for each row execute function public.set_sales_id_default();
+
+create or replace trigger set_gallery_album_sales_id_trigger
+    before insert on public.gallery_albums
+    for each row execute function public.set_sales_id_default();
+
 create or replace trigger set_weekly_plan_sales_id_trigger
     before insert on public.weekly_plans
     for each row execute function public.set_sales_id_default();

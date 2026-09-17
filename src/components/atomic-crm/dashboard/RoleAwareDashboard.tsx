@@ -9,6 +9,7 @@ const ROLE_REDIRECTS: Record<string, string> = {
   "notes-only": "/personal_notes",
   developer: "/pm",
   accounts: "/accounts",
+  photographer: "/photographers/me",
 };
 
 /** Redirects roles that can't access the default Dashboard's data
@@ -26,6 +27,7 @@ export const withRoleAwareDashboard = (
             notes_only?: boolean;
             is_accounts?: boolean;
             is_marketing?: boolean;
+            is_photographer?: boolean;
           }
         | undefined,
     );

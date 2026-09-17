@@ -66,6 +66,17 @@ const ASSIGNMENT_RESOURCES = ["assignments", "assignment_notes"];
 // at the data layer, matching personal_notes' shape) -- this list is
 // what keeps the page/nav out of every other role's hands.
 const WEEKLY_PLANNER_RESOURCES = ["weekly_plans", "daily_reviews"];
+// Photo delivery prototype: team-shared, same audience as assignments
+// (every role except notes-only) -- not tied to PM/Accounts data.
+// is_photographer() logins also get these, but RLS (owns_photographer())
+// narrows them to their own photographer's rows -- see the "photographer"
+// role branch below.
+const PHOTO_GALLERY_RESOURCES = [
+  "photographers",
+  "photo_galleries",
+  "gallery_albums",
+  "gallery_photos",
+];
 
 // Shared by the developer and plain-user branches so HR rules can't drift
 // apart between the two self-service roles.
@@ -97,6 +108,7 @@ export const getRole = (
         notes_only?: boolean;
         is_accounts?: boolean;
         is_marketing?: boolean;
+        is_photographer?: boolean;
       }
     | null
     | undefined,
@@ -105,8 +117,9 @@ export const getRole = (
   if (sale.administrator) return "admin";
   if (sale.is_developer) return "developer";
   if (sale.is_accounts) return "accounts";
-  // notes-only checked before marketing so the most restrictive flag wins
-  // if a sale record somehow has both set.
+  // notes-only/photographer checked before marketing so the most
+  // restrictive flag wins if a sale record somehow has more than one set.
+  if (sale.is_photographer) return "photographer";
   if (sale.notes_only) return "notes-only";
   if (sale.is_marketing) return "marketing";
   return "user";
@@ -129,6 +142,27 @@ export const canAccess = <
     return PERSONAL_NOTE_RESOURCES.includes(params.resource);
   }
 
+  // External photographer self-service login: their own photo-gallery
+  // resources plus personal notes, nothing else -- same shape as
+  // notes-only above. RLS's owns_photographer() is the real boundary
+  // that narrows these down to their OWN photographer's rows; this just
+  // keeps the rest of the app (and other photographers' UI) out of reach.
+  if (role === "photographer") {
+    if (
+      ![...PHOTO_GALLERY_RESOURCES, ...PERSONAL_NOTE_RESOURCES].includes(
+        params.resource,
+      )
+    ) {
+      return false;
+    }
+    // Can see their own photographer record, but only admin creates/
+    // edits/deletes photographer records (including their own).
+    if (params.resource === "photographers") {
+      return params.action === "list" || params.action === "show";
+    }
+    return true;
+  }
+
   if (role === "developer") {
     // RLS further narrows PM_RESOURCES to projects they're a member of.
     if (
@@ -137,6 +171,7 @@ export const canAccess = <
         ...HR_SELF_SERVICE_RESOURCES,
         ...PERSONAL_NOTE_RESOURCES,
         ...ASSIGNMENT_RESOURCES,
+        ...PHOTO_GALLERY_RESOURCES,
       ].includes(params.resource)
     ) {
       return false;
@@ -160,6 +195,7 @@ export const canAccess = <
         ...ACCOUNTS_RESOURCES,
         ...PERSONAL_NOTE_RESOURCES,
         ...ASSIGNMENT_RESOURCES,
+        ...PHOTO_GALLERY_RESOURCES,
       ].includes(params.resource)
     ) {
       return false;

@@ -154,3 +154,18 @@ select
 from public.leads l
     left join public.lead_activities la on la.lead_id = l.id
 group by l.id;
+
+-- Per-photographer storage usage. security_invoker so RLS on the
+-- underlying tables still applies to whoever queries the view --
+-- without it, a photographer-role login would see every photographer's
+-- total, not just their own.
+create or replace view public.photographer_storage_usage with (security_invoker = on) as
+select
+    ph.id,
+    coalesce(sum(gp.size_bytes), 0)::bigint as total_bytes,
+    count(gp.id) as photo_count
+from public.photographers ph
+    left join public.photo_galleries pg on pg.photographer_id = ph.id
+    left join public.gallery_albums ga on ga.gallery_id = pg.id
+    left join public.gallery_photos gp on gp.album_id = ga.id
+group by ph.id;

@@ -27,6 +27,7 @@ import { MobileLayout } from "../layout/MobileLayout";
 import { SignupPage } from "../login/SignupPage";
 import { ConfirmationRequired } from "../login/ConfirmationRequired";
 import { ImportPage } from "../misc/ImportPage";
+import { PublicGalleryPage } from "../photo-galleries/PublicGalleryPage";
 import { ChangelogPage } from "../misc/ChangelogPage";
 import {
   getAuthProvider as defaultAuthProviderBuilder,
@@ -101,6 +102,31 @@ const LazyWeeklyPlannerPage = lazy(() =>
 );
 const LazyMyHrDashboard = lazy(() =>
   import("../hr/MyHrDashboard").then((m) => ({ default: m.MyHrDashboard })),
+);
+const LazyPhotographersPage = lazy(() =>
+  import("../photo-galleries/PhotographersPage").then((m) => ({
+    default: m.PhotographersPage,
+  })),
+);
+const LazyPhotoGalleriesPage = lazy(() =>
+  import("../photo-galleries/PhotoGalleriesPage").then((m) => ({
+    default: m.PhotoGalleriesPage,
+  })),
+);
+const LazyPhotoGalleryDetail = lazy(() =>
+  import("../photo-galleries/PhotoGalleryDetail").then((m) => ({
+    default: m.PhotoGalleryDetail,
+  })),
+);
+const LazyAlbumDetail = lazy(() =>
+  import("../photo-galleries/AlbumDetail").then((m) => ({
+    default: m.AlbumDetail,
+  })),
+);
+const LazyMyPhotographerRedirect = lazy(() =>
+  import("../photo-galleries/MyPhotographerRedirect").then((m) => ({
+    default: m.MyPhotographerRedirect,
+  })),
 );
 const LazyIssueCalendar = lazy(() =>
   import("../projects/IssueCalendar").then((m) => ({
@@ -329,6 +355,7 @@ const DesktopAdmin = (
         />
         <Route path={SetPasswordPage.path} element={<SetPasswordPage />} />
         <Route path={OAuthConsentPage.path} element={<OAuthConsentPage />} />
+        <Route path={PublicGalleryPage.path} element={<PublicGalleryPage />} />
       </CustomRoutes>
 
       <CustomRoutes>
@@ -349,6 +376,46 @@ const DesktopAdmin = (
           element={
             <CanAccess resource="weekly_plans" action="list">
               <LazyWeeklyPlannerPage />
+            </CanAccess>
+          }
+        />
+        <Route
+          path="/photographers"
+          element={
+            <CanAccess resource="photographers" action="list">
+              <LazyPhotographersPage />
+            </CanAccess>
+          }
+        />
+        <Route
+          path="/photographers/me"
+          element={
+            <CanAccess resource="photographers" action="list">
+              <LazyMyPhotographerRedirect />
+            </CanAccess>
+          }
+        />
+        <Route
+          path="/photographers/:photographerId"
+          element={
+            <CanAccess resource="photographers" action="list">
+              <LazyPhotoGalleriesPage />
+            </CanAccess>
+          }
+        />
+        <Route
+          path="/photo-galleries/:id"
+          element={
+            <CanAccess resource="photo_galleries" action="list">
+              <LazyPhotoGalleryDetail />
+            </CanAccess>
+          }
+        />
+        <Route
+          path="/albums/:id"
+          element={
+            <CanAccess resource="gallery_albums" action="list">
+              <LazyAlbumDetail />
             </CanAccess>
           }
         />
@@ -499,6 +566,13 @@ const DesktopAdmin = (
           get-or-create inline, same pattern as budgets above. */}
       <Resource name="weekly_plans" />
       <Resource name="daily_reviews" />
+      {/* Bare -- PhotographersPage/PhotoGalleriesPage/PhotoGalleryDetail/
+          AlbumDetail are the only UI for all four, no react-admin
+          List/Edit machinery needed. */}
+      <Resource name="photographers" />
+      <Resource name="photo_galleries" />
+      <Resource name="gallery_albums" />
+      <Resource name="gallery_photos" />
       <Resource
         name="personal_notes"
         {...lazyResource(() => import("../personal-notes"), ["list"])}
@@ -558,6 +632,7 @@ const MobileAdmin = (
           />
           <Route path={SetPasswordPage.path} element={<SetPasswordPage />} />
           <Route path={OAuthConsentPage.path} element={<OAuthConsentPage />} />
+          <Route path={PublicGalleryPage.path} element={<PublicGalleryPage />} />
         </CustomRoutes>
         <CustomRoutes>
           <Route

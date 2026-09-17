@@ -10,6 +10,7 @@ import {
   FolderKanban,
   HandCoins,
   Handshake,
+  Images,
   LayoutDashboard,
   Receipt,
   Repeat,
@@ -83,6 +84,7 @@ export const AppSidebar = () => {
           notes_only?: boolean;
           is_accounts?: boolean;
           is_marketing?: boolean;
+          is_photographer?: boolean;
         }
       | undefined,
   );
@@ -267,6 +269,16 @@ export const AppSidebar = () => {
           icon: StickyNote,
           resource: "personal_notes",
         },
+        {
+          // A photographer login has no reason to see the cross-photographer
+          // list -- send them straight to their own galleries.
+          to: role === "photographer" ? "/photographers/me" : "/photographers",
+          label: translate("crm.photo_galleries.nav_label", {
+            _: "Photo Galleries",
+          }),
+          icon: Images,
+          resource: "photographers",
+        },
       ],
     },
   ];
@@ -284,7 +296,7 @@ export const AppSidebar = () => {
     _: "Tasks",
   });
   const visibleGroups =
-    role === "notes-only"
+    role === "notes-only" || role === "photographer"
       ? groups.filter((g) => g.label === workspaceLabel)
       : role === "accounts"
         ? groups.filter(

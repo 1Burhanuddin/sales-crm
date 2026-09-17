@@ -33,8 +33,29 @@ async function driveFetch(path: string, accessToken: string, init: RequestInit =
 }
 
 async function findOrCreateFolder(accessToken: string): Promise<string> {
+  return findOrCreateChildFolder(accessToken, null, FOLDER_NAME);
+}
+
+// Escapes single quotes for Drive's query-string literal syntax --
+// the only character in a folder name that would otherwise break the
+// q= filter (Drive names can contain apostrophes, e.g. "Client's Wedding").
+function escapeDriveQueryLiteral(value: string): string {
+  return value.replace(/'/g, "\\'");
+}
+
+/** Finds a folder by exact name under a given parent (or Drive's
+ * default root if parentId is null), creating it if it doesn't exist.
+ * Scoped to parentId so same-named folders under different parents
+ * (e.g. two photographers both naming a gallery "Wedding") never
+ * collide. */
+export async function findOrCreateChildFolder(
+  accessToken: string,
+  parentId: string | null,
+  name: string,
+): Promise<string> {
+  const parentClause = parentId ? ` and '${parentId}' in parents` : "";
   const q = encodeURIComponent(
-    `name='${FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+    `name='${escapeDriveQueryLiteral(name)}' and mimeType='application/vnd.google-apps.folder' and trashed=false${parentClause}`,
   );
   const searchRes = await driveFetch(`files?q=${q}&fields=files(id)`, accessToken);
   const searchData = await searchRes.json();
@@ -46,8 +67,9 @@ async function findOrCreateFolder(accessToken: string): Promise<string> {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      name: FOLDER_NAME,
+      name,
       mimeType: "application/vnd.google-apps.folder",
+      ...(parentId ? { parents: [parentId] } : {}),
     }),
   });
   const createData = await createRes.json();
@@ -56,6 +78,18 @@ async function findOrCreateFolder(accessToken: string): Promise<string> {
     throw new Error("Failed to create Drive folder");
   }
   return createData.id;
+}
+
+/** Deletes (trashes) a Drive file. A 404 (already gone) is treated as
+ * success, not an error -- the goal is "make sure it's not there",
+ * and it already isn't. */
+export async function deleteDriveFile(accessToken: string, fileId: string): Promise<void> {
+  const res = await driveFetch(`files/${fileId}`, accessToken, { method: "DELETE" });
+  if (!res.ok && res.status !== 404) {
+    const body = await res.text();
+    console.error("googleDrive.delete_error", body);
+    throw new Error("Failed to delete Drive file");
+  }
 }
 
 /** A ready-to-use access token and the (found-or-created, cached)
