@@ -28,6 +28,7 @@ export type SalesFormData = {
   notes_only: boolean;
   is_accounts: boolean;
   is_marketing: boolean;
+  is_photographer: boolean;
 };
 
 export type Sale = {
@@ -46,6 +47,10 @@ export type Sale = {
   /** Same CRM access as a plain sales rep today -- just a distinct role
    * for labeling and future tightening. */
   is_marketing?: boolean;
+  /** External photographer self-service login: only their own
+   * photographer record's clients/albums/photos (see canAccess.ts's
+   * "photographer" role branch and the owns_photographer() RLS helper). */
+  is_photographer?: boolean;
   user_id: string;
 
   /**
@@ -430,6 +435,64 @@ export type DailyReview = {
   if_time_allows: string[];
   created_at: string;
   updated_at: string;
+} & Pick<RaRecord, "id">;
+
+/** A client of ours who does photography -- each gets their own Drive
+ * subfolder, with each of their client galleries nested under it. */
+export type Photographer = {
+  name: string;
+  drive_folder_id?: string | null;
+  sales_id?: Identifier;
+  /** The sales/login account this photographer IS, if they've been
+   * given their own access. Null/unset means only the team manages
+   * this photographer's galleries. */
+  login_sales_id?: Identifier | null;
+  created_at: string;
+  updated_at: string;
+} & Pick<RaRecord, "id">;
+
+/** Storage used across every photo this photographer's galleries
+ * contain, from the security_invoker photographer_storage_usage view
+ * (so RLS still scopes a photographer login to their own row only). */
+export type PhotographerStorageUsage = {
+  total_bytes: number;
+  photo_count: number;
+} & Pick<RaRecord, "id">;
+
+/** A photo gallery (client folder) for the photo-delivery prototype.
+ * share_token is the client-facing access control -- see
+ * gallery_public's own comment for why that table is never queried
+ * directly from the client-facing page. */
+export type PhotoGallery = {
+  name: string;
+  client_name?: string | null;
+  share_token: string;
+  photographer_id: Identifier;
+  drive_folder_id?: string | null;
+  sales_id?: Identifier;
+  created_at: string;
+  updated_at: string;
+} & Pick<RaRecord, "id">;
+
+/** A sub-folder within one client gallery (e.g. "Outdoor"/"Indoor"),
+ * mirrored as a Drive subfolder under the gallery's own folder. */
+export type GalleryAlbum = {
+  gallery_id: Identifier;
+  name: string;
+  drive_folder_id?: string | null;
+  sales_id?: Identifier;
+  created_at: string;
+} & Pick<RaRecord, "id">;
+
+export type GalleryPhoto = {
+  album_id: Identifier;
+  drive_file_id: string;
+  src: string;
+  mime_type?: string | null;
+  filename?: string | null;
+  size_bytes?: number | null;
+  sales_id?: Identifier;
+  created_at: string;
 } & Pick<RaRecord, "id">;
 
 export type ChecklistItem = {

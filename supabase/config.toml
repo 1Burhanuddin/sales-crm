@@ -176,3 +176,9 @@ verify_jwt = false
 verify_jwt = false
 [functions.google_drive_upload]
 verify_jwt = false
+[functions.gallery_public]
+verify_jwt = false
+[functions.ensure_album_folder]
+verify_jwt = false
+[functions.gallery_photo]
+verify_jwt = false

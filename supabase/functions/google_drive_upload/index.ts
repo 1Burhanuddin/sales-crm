@@ -2,7 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { corsHeaders, OptionsMiddleware } from "../_shared/cors.ts";
 import { createErrorResponse } from "../_shared/utils.ts";
 import { AuthMiddleware, UserMiddleware } from "../_shared/authentication.ts";
-import { getDriveContext } from "../_shared/googleDrive.ts";
+import { deleteDriveFile, getDriveContext } from "../_shared/googleDrive.ts";
 
 function jsonResponse(data: unknown) {
   return new Response(JSON.stringify({ data }), {
@@ -28,17 +28,23 @@ async function checkExists(fileId: string) {
   return createErrorResponse(502, "Could not check Google Drive");
 }
 
-async function upload(file: File) {
+async function deleteFile(fileId: string) {
+  const { accessToken } = await getDriveContext();
+  await deleteDriveFile(accessToken, fileId);
+  return jsonResponse({ deleted: true });
+}
+
+async function upload(file: File, parentFolderId: string | null) {
   const { accessToken, folderId } = await getDriveContext();
 
-  const metadata = { name: file.name || "attachment", parents: [folderId] };
+  const metadata = { name: file.name || "attachment", parents: [parentFolderId ?? folderId] };
   const boundary = `quixsyncrm${crypto.randomUUID()}`;
   const head = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n--${boundary}\r\nContent-Type: ${file.type || "application/octet-stream"}\r\n\r\n`;
   const tail = `\r\n--${boundary}--`;
   const body = new Blob([head, file, tail]);
 
   const uploadRes = await fetch(
-    "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType",
+    "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,size",
     {
       method: "POST",
       headers: {
@@ -77,11 +83,16 @@ async function upload(file: File) {
 
   return jsonResponse({
     fileId: uploadData.id,
-    // lh3, not drive.google.com/uc -- more reliable for hotlinking as
-    // an <img src>, uc?export=view increasingly serves an interstitial
-    // instead of raw bytes for some file types/sizes.
-    src: `https://lh3.googleusercontent.com/d/${uploadData.id}`,
+    // drive.google.com/thumbnail, not lh3.googleusercontent.com/d/ --
+    // the lh3 form intermittently 403s for freshly-uploaded files
+    // (it expects the file to have been "warmed up" by viewing it in
+    // Drive's own UI first). The thumbnail endpoint works immediately
+    // for any "anyone with the link" file, no warm-up needed.
+    src: `https://drive.google.com/thumbnail?id=${uploadData.id}&sz=w1000`,
     mimeType: uploadData.mimeType,
+    // Drive returns size as a string; null for Google-native doc types
+    // that don't apply here (we only ever upload real photo files).
+    sizeBytes: uploadData.size ? Number(uploadData.size) : null,
   });
 }
 
@@ -96,7 +107,10 @@ Deno.serve(async (req: Request) =>
         try {
           const contentType = req.headers.get("content-type") ?? "";
           if (contentType.includes("application/json")) {
-            const { checkFileId } = await req.json();
+            const { checkFileId, deleteFileId } = await req.json();
+            if (deleteFileId) {
+              return await deleteFile(deleteFileId);
+            }
             if (!checkFileId) {
               return createErrorResponse(400, "Missing checkFileId");
             }
@@ -108,7 +122,8 @@ Deno.serve(async (req: Request) =>
           if (!(file instanceof File)) {
             return createErrorResponse(400, "Missing file");
           }
-          return await upload(file);
+          const parentFolderId = formData.get("parentFolderId");
+          return await upload(file, typeof parentFolderId === "string" ? parentFolderId : null);
         } catch (err) {
           console.error("google_drive_upload.error", err);
           return createErrorResponse(500, err?.toString() || "Internal Server Error");

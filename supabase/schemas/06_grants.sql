@@ -244,6 +244,22 @@ grant all on table public.oauth_tokens to service_role;
 revoke all on table public.oauth_tokens from anon;
 revoke all on table public.oauth_tokens from authenticated;
 
+-- Photo galleries: not anon-reachable -- see the table comment in
+-- 01_tables.sql. Explicit revoke because the default-privilege grants
+-- below auto-grant anon too.
+grant all on table public.photo_galleries to authenticated;
+grant all on table public.photo_galleries to service_role;
+revoke all on table public.photo_galleries from anon;
+grant all on table public.gallery_photos to authenticated;
+grant all on table public.gallery_photos to service_role;
+revoke all on table public.gallery_photos from anon;
+grant all on table public.photographers to authenticated;
+grant all on table public.photographers to service_role;
+revoke all on table public.photographers from anon;
+grant all on table public.gallery_albums to authenticated;
+grant all on table public.gallery_albums to service_role;
+revoke all on table public.gallery_albums from anon;
+
 -- View grants
 grant all on table public.activity_log to anon;
 grant all on table public.activity_log to authenticated;
@@ -268,6 +284,13 @@ grant all on table public.leads_summary to service_role;
 grant all on table public.projects_summary to anon;
 grant all on table public.projects_summary to authenticated;
 grant all on table public.projects_summary to service_role;
+
+-- Per-photographer storage usage (see 03_views.sql): not
+-- anon-reachable, and security_invoker means these grants are on top
+-- of, not instead of, the RLS already enforced on the tables it aggregates.
+grant select on public.photographer_storage_usage to authenticated;
+grant select on public.photographer_storage_usage to service_role;
+revoke all on public.photographer_storage_usage from anon;
 
 -- Sequence grants
 grant usage on sequence public.employee_code_seq to anon;
@@ -417,6 +440,16 @@ grant all on sequence public.daily_reviews_id_seq to service_role;
 grant all on sequence public.oauth_tokens_id_seq to service_role;
 revoke all on sequence public.oauth_tokens_id_seq from anon;
 revoke all on sequence public.oauth_tokens_id_seq from authenticated;
+
+grant all on sequence public.photo_galleries_id_seq to authenticated;
+grant all on sequence public.photo_galleries_id_seq to service_role;
+revoke all on sequence public.photo_galleries_id_seq from anon;
+grant all on sequence public.gallery_photos_id_seq to authenticated;
+grant all on sequence public.gallery_photos_id_seq to service_role;
+revoke all on sequence public.gallery_photos_id_seq from anon;
+grant all on sequence public.photographers_id_seq to authenticated;
+grant all on sequence public.photographers_id_seq to service_role;
+revoke all on sequence public.photographers_id_seq from anon;
 
 -- Default privileges
 alter default privileges for role postgres in schema public grant all on sequences to postgres;

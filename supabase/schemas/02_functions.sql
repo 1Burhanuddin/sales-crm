@@ -331,6 +331,56 @@ begin
 end;
 $$;
 
+-- External photographer self-service role. Same shape as is_developer()/
+-- is_notes_only(), but RLS also needs to know WHICH photographer this
+-- login is -- see current_photographer_id()/owns_photographer() below.
+CREATE OR REPLACE FUNCTION "public"."is_photographer"() RETURNS boolean
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+begin
+  return exists (
+    select 1 from public.sales where user_id = auth.uid() and is_photographer = true
+  );
+end;
+$$;
+
+-- The photographer record (if any) this logged-in account IS, via
+-- photographers.login_sales_id -- distinct from photographers.sales_id
+-- (who created the record, usually an admin).
+CREATE OR REPLACE FUNCTION "public"."current_photographer_id"() RETURNS bigint
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+  select p.id from public.photographers p
+  join public.sales s on s.id = p.login_sales_id
+  where s.user_id = auth.uid();
+$$;
+
+CREATE OR REPLACE FUNCTION "public"."owns_photographer"("p_photographer_id" bigint) RETURNS boolean
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+  select public.is_photographer() and p_photographer_id = public.current_photographer_id();
+$$;
+
+CREATE OR REPLACE FUNCTION "public"."gallery_photographer_id"("p_gallery_id" bigint) RETURNS bigint
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+  select photographer_id from public.photo_galleries where id = p_gallery_id;
+$$;
+
+CREATE OR REPLACE FUNCTION "public"."album_photographer_id"("p_album_id" bigint) RETURNS bigint
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+  select pg.photographer_id
+  from public.gallery_albums ga
+  join public.photo_galleries pg on pg.id = ga.gallery_id
+  where ga.id = p_album_id;
+$$;
+
 -- No longer used by any RLS policy (superseded by can_access_project()),
 -- left in place as a harmless helper.
 CREATE OR REPLACE FUNCTION "public"."has_pm_access"() RETURNS boolean
